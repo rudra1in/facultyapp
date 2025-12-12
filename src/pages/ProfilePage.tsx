@@ -27,7 +27,7 @@ import {
 
 // --- IMPORTANT: Update the import for your profile photo ---
 // 💡 Based on your file structure (src/assets/milan.png), this path is correct.
-import defaultMilanPhoto from "../assets/milan.png";
+import defaultMilanPhoto from "../assets/images/milan.png";
 
 // --- Local Storage Initialization and Data Types ---
 

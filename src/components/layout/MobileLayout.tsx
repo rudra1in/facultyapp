@@ -1,6 +1,7 @@
 // src/components/MobileLayout.tsx
 import React from "react";
 import { Outlet, useLocation, useNavigate, NavLink } from "react-router-dom";
+
 import {
   Home,
   Users,
@@ -10,34 +11,35 @@ import {
   ChevronLeft,
   BookOpen,
   User,
-  Menu,
 } from "lucide-react";
+
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "./AuthContext";
-import { useTheme } from "./ThemeContext";
+import { useTheme } from "../ui/ThemeContext";
 
 // --- Mobile Navigation Configuration ---
 const mobileNavConfig = [
   { name: "Home", path: "/dashboard/home", icon: Home },
-  { name: "Courses", path: "/dashboard/categories", icon: BookOpen }, // Using Categories for courses
+  { name: "Courses", path: "/dashboard/categories", icon: BookOpen },
   { name: "Messages", path: "/dashboard/messages", icon: MessageSquare },
   { name: "Notifications", path: "/dashboard/notifications", icon: Bell },
   { name: "Profile", path: "/dashboard/profile", icon: User },
 ];
 
-// --- Sub-Component: Dynamic Header (Back Button / Title) ---
+// --- Sub-Component: Dynamic Header ---
 const MobileHeader: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
+
   const pathSegments = location.pathname.split("/").filter(Boolean);
   const currentPage = pathSegments.length > 1 ? pathSegments.pop() : "Home";
+
   const formattedTitle =
     currentPage.charAt(0).toUpperCase() + currentPage.slice(1);
 
   return (
     <header className="sticky top-0 z-20 w-full bg-white dark:bg-gray-800 shadow-md">
       <div className="flex items-center justify-between h-16 px-4">
-        {/* Back Button (Only if not on a primary navigation route) */}
+        {/* Back Button */}
         {pathSegments.length > 1 ? (
           <motion.button
             onClick={() => navigate(-1)}
@@ -70,7 +72,7 @@ const MobileHeader: React.FC = () => {
   );
 };
 
-// --- Sub-Component: Bottom Navigation Bar ---
+// --- Bottom Navigation Bar ---
 const BottomNavBar: React.FC = () => {
   const location = useLocation();
 
@@ -94,7 +96,6 @@ const BottomNavBar: React.FC = () => {
                 <motion.div
                   layoutId="mobile-nav-indicator"
                   className="absolute top-0 w-8 h-1 bg-indigo-600 rounded-b-lg"
-                  initial={false}
                   transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 />
               )}
@@ -125,6 +126,7 @@ const BottomNavBar: React.FC = () => {
 // --- Main Mobile Layout Component ---
 const MobileLayout: React.FC = () => {
   const { isDarkMode } = useTheme();
+  const location = useLocation(); // needed for animation key
 
   return (
     <div
@@ -132,17 +134,15 @@ const MobileLayout: React.FC = () => {
         isDarkMode ? "bg-gray-900" : "bg-gray-50"
       } flex flex-col lg:hidden`}
     >
-      {/* 1. Mobile Header (Dynamic Title/Back Button) */}
+      {/* Header */}
       <MobileHeader />
 
-      {/* 2. Main Content Area */}
+      {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <div className="p-4 pb-20">
-          {" "}
-          {/* pb-20 to ensure content is above the BottomNavBar */}
           <AnimatePresence mode="wait">
             <motion.div
-              key={location.pathname} // Key ensures remounting and animation on route change
+              key={location.pathname}
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
@@ -154,7 +154,7 @@ const MobileLayout: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. Mobile Bottom Navigation */}
+      {/* Bottom Navigation */}
       <BottomNavBar />
     </div>
   );

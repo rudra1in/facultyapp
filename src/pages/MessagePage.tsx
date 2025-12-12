@@ -1,9 +1,7 @@
 // src/pages/MessagePage.tsx
 import React, { useState, useEffect } from "react";
-import ChatComponent from "../components/ChatComponent";
-import { useAuth } from "../components/AuthContext";
+import ChatComponent from "../components/chat/ChatComponent";
 import { Mail, MessageSquare, User, Search, ArrowLeft } from "lucide-react"; // Imported ArrowLeft for back button
-import { db } from "../firebase/firebaseConfig";
 import {
   collection,
   query,

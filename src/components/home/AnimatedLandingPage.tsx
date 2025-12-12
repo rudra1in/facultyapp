@@ -28,13 +28,12 @@ import {
   ChevronLeft, // Import for Left Arrow
   ChevronRight, // Import for Right Arrow
 } from "lucide-react";
-import LoginPage from "../pages/LoginPage";
-import landingPhoto from "../assets/landingphoto.png";
-import photo1 from "../assets/photo1.png";
-import photo2 from "../assets/photo2.png";
-import photo3 from "../assets/photo3.png";
-import photo4 from "../assets/photo4.png";
-import photo5 from "../assets/photo5.png";
+import landingPhoto from "../../assets/images/landingphoto.png";
+import photo1 from "../../assets/images/photo1.png";
+import photo2 from "../../assets/images/photo2.png";
+import photo3 from "../../assets/images/photo3.png";
+import photo4 from "../../assets/images/photo4.png";
+import photo5 from "../../assets/images/photo5.png";
 
 // --- NEW WAVE DIVIDER COMPONENT ---
 // This component uses a responsive SVG to create a wave-like separation.
