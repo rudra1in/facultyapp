@@ -33,7 +33,7 @@ import {
 // 🚀 CRITICAL FIX: The file structure shows HomePage.tsx is in `src/pages/`
 // and the image is in `src/assets/`. To go from `pages` to `assets`, you must
 // go UP one directory (`..`) then DOWN into `assets`.
-import faculty from "../assets/faculty.png";
+import faculty from "../assets/images/faculty.png";
 
 const FACULTY_IMAGE_PLACEHOLDER_URL = faculty;
 

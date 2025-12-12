@@ -16,7 +16,7 @@ import {
   Zap,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import AddFacultyModal from "../components/AddFacultyModal"; // Import the new modal
+import AddFacultyModal from "../components/ui/AddFacultyModal"; // Import the new modal
 
 // Placeholder functions for your navigation and data handlers
 const handleViewFacultyProfile = (id: number) =>
