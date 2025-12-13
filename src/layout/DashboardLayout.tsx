@@ -22,10 +22,10 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useTheme } from "../ui/ThemeContext";
-import defaultUserPhoto from "../../assets/images/milan.png";
+import { useTheme } from "../components/ui/ThemeContext";
+import defaultUserPhoto from "../assets/images/milan.png";
 
-import ChatComponent from "../chat/ChatComponent";
+import ChatComponent from "../components/chat/ChatComponent";
 
 // ------------------------------------
 // REMOVE AUTH COMPLETELY

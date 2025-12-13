@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useTheme } from "../ui/ThemeContext";
+import { useTheme } from "../components/ui/ThemeContext";
 
 // --- Mobile Navigation Configuration ---
 const mobileNavConfig = [
