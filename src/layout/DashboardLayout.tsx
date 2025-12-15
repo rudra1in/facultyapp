@@ -286,7 +286,7 @@ const DashboardLayout = () => {
     { name: "Overview", href: "/dashboard/overview", icon: BarChart3 },
     { name: "Faculty", href: "/dashboard/faculty", icon: Users },
     { name: "Categories", href: "/dashboard/categories", icon: FolderOpen },
-    { name: "Calendar", href: "/dashboard/calender", icon: Target },
+    { name: "Calendar", href: "/dashboard/calendar", icon: Target },
     { name: "Contacts", href: "/dashboard/contacts", icon: Users },
     { name: "Reports", href: "/dashboard/reports", icon: FileText },
     { name: "Notifications", href: "/dashboard/notifications", icon: Bell },

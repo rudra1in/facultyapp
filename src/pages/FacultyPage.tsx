@@ -23,8 +23,6 @@ import { FacultyMember } from "../types/faculty";
 // Placeholder navigation handlers (unchanged)
 const handleViewFacultyProfile = (id: number) =>
   console.log(`Navigating to profile for faculty ID: ${id}`);
-const handleMoreOptions = (id: number) =>
-  console.log(`Showing more options for faculty ID: ${id}`);
 
 const FacultyPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,7 +37,7 @@ const FacultyPage = () => {
     useFaculty();
 
   // -----------------------------------
-  // Workload Classification (UNCHANGED)
+  // Workload Classification
   // -----------------------------------
   const getWorkloadStatus = (sessions: number, threshold: number) => {
     if (sessions > threshold)
@@ -50,7 +48,7 @@ const FacultyPage = () => {
   };
 
   // -----------------------------------
-  // API-BASED SAVE
+  // API Actions
   // -----------------------------------
   const handleSaveFaculty = async (
     facultyData: FacultyMember,
@@ -71,14 +69,16 @@ const FacultyPage = () => {
   };
 
   const handleDeleteFaculty = async (id: number) => {
-    await removeFaculty(id);
+    if (window.confirm("Are you sure you want to delete this faculty?")) {
+      await removeFaculty(id);
+    }
   };
 
   // -----------------------------------
-  // Helpers (UNCHANGED)
+  // Helpers
   // -----------------------------------
   const getSubjectColor = (subject: string) => {
-    const colors: { [key: string]: string } = {
+    const colors: Record<string, string> = {
       "Advanced Calculus": "bg-blue-100 text-blue-800",
       "Linear Algebra": "bg-blue-100 text-blue-800",
       Statistics: "bg-blue-100 text-blue-800",
@@ -122,17 +122,17 @@ const FacultyPage = () => {
   );
 
   // -----------------------------------
-  // Loading UI
+  // Loading State
   // -----------------------------------
   if (loading) {
-    return <div className="p-6">Loading faculty...</div>;
+    return <div className="p-6 text-gray-500">Loading faculty...</div>;
   }
 
   // ===================================
-  // UI (UNCHANGED)
+  // UI
   // ===================================
   return (
-    <div className="p-6 max-w-7xl mx-auto font-sans bg-gray-50 min-h-screen">
+    <div className="p-6 max-w-7xl mx-auto bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="flex justify-between items-center mb-8">
         <div>
@@ -216,9 +216,92 @@ const FacultyPage = () => {
         Active Faculty ({activeFaculty.length})
       </h2>
 
-      {/* (CARDS UI REMAINS EXACTLY SAME AS YOUR FILE) */}
-      {/* Inactive section + modal also unchanged */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {activeFaculty.map((faculty) => {
+          const workload = getWorkloadStatus(
+            faculty.sessions,
+            faculty.workloadThreshold
+          );
+          const StatusIcon = workload.icon;
 
+          return (
+            <motion.div
+              key={faculty.id}
+              className="bg-white rounded-xl shadow-md border p-6 cursor-pointer"
+              onClick={() => handleViewFacultyProfile(faculty.id)}
+              whileHover={{ y: -5 }}
+            >
+              <div
+                className={`absolute top-0 right-0 px-3 py-1 text-xs text-white ${workload.color}`}
+              >
+                <StatusIcon className="w-3 h-3 inline mr-1" />
+                {workload.status}
+              </div>
+
+              <h3 className="text-lg font-semibold">{faculty.name}</h3>
+              <p className="text-sm text-gray-600">{faculty.title}</p>
+
+              <div className="mt-4 space-y-2 text-sm text-gray-600">
+                <div className="flex items-center">
+                  <Mail className="w-4 h-4 mr-2" />
+                  {faculty.email}
+                </div>
+                <div className="flex items-center">
+                  <MapPin className="w-4 h-4 mr-2" />
+                  {faculty.location}
+                </div>
+                <div className="flex items-center">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Last Activity: {faculty.lastActivity}
+                </div>
+              </div>
+
+              <div className="flex justify-between mt-4 border-t pt-4">
+                <motion.button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEditFaculty(faculty);
+                  }}
+                >
+                  <Edit />
+                </motion.button>
+
+                <motion.button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteFaculty(faculty.id);
+                  }}
+                  className="text-red-500"
+                >
+                  <Trash2 />
+                </motion.button>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {/* Inactive Faculty */}
+      {inactiveFaculty.length > 0 && (
+        <>
+          <h2 className="text-xl font-bold mt-12 mb-4">
+            Inactive Faculty ({inactiveFaculty.length})
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {inactiveFaculty.map((faculty) => (
+              <div
+                key={faculty.id}
+                className="bg-white p-6 rounded-xl border opacity-70"
+              >
+                <h3 className="font-semibold">{faculty.name}</h3>
+                <p className="text-sm text-gray-500">{faculty.title}</p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Modal */}
       <AddFacultyModal
         isOpen={isModalOpen}
         onClose={() => {

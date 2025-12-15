@@ -34,6 +34,7 @@ import photo2 from "../../assets/images/photo2.png";
 import photo3 from "../../assets/images/photo3.png";
 import photo4 from "../../assets/images/photo4.png";
 import photo5 from "../../assets/images/photo5.png";
+import LoginPage from "../../pages/auth/LoginPage";
 
 // --- NEW WAVE DIVIDER COMPONENT ---
 // This component uses a responsive SVG to create a wave-like separation.
