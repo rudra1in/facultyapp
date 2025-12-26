@@ -1,130 +1,177 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { GraduationCap } from "lucide-react";
-
-const ADMIN_EMAIL = "admin@facultyapp.com";
-const ADMIN_PASSWORD = "admin123";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 const LoginPage = () => {
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  // 🔒 Lock scrolling
+  useEffect(() => {
+    document.documentElement.style.overflow = "hidden";
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.documentElement.style.overflow = "auto";
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
 
-    // ⛔ ADMIN LOGIN (Hardcoded)
-    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      localStorage.setItem("role", "admin");
-      setLoading(false);
-      navigate("/admin");
-      return;
-    }
-
-    // 👨‍🏫 FACULTY LOGIN (API – later backend will verify)
-    try {
-      /**
-       * BACKEND WILL HANDLE:
-       * - email + password
-       * - check status (PENDING / ACTIVE)
-       */
-      // await authService.loginFaculty({ email, password });
-
-      localStorage.setItem("role", "faculty");
-      setLoading(false);
-      navigate("/faculty");
-    } catch (err) {
-      setError("Invalid credentials or approval pending");
-      setLoading(false);
+    if (email.includes("admin")) {
+      navigate("/admin", { replace: true });
+    } else {
+      navigate("/faculty", { replace: true });
     }
   };
 
+  const handleGoogleLogin = () => {
+    alert("Google login clicked");
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-200 px-4">
-      <div className="w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
-        {/* LEFT: LOGIN FORM */}
-        <div className="p-10 bg-gradient-to-br from-blue-600 to-indigo-700 text-white flex flex-col justify-center">
-          <div className="mb-8">
-            <div className="flex items-center gap-3 mb-4">
-              <GraduationCap className="w-10 h-10" />
-              <h1 className="text-3xl font-bold">Faculty App</h1>
-            </div>
-            <p className="text-blue-100">
-              Secure login for faculty members and administrators
-            </p>
-          </div>
+    <div
+      className="fixed inset-0 w-screen h-screen flex items-center justify-center"
+      style={{
+        backgroundImage:
+          "url('https://www.transparenttextures.com/patterns/gray-paper.png')",
+        backgroundRepeat: "repeat",
+        backgroundSize: "auto",
+        backgroundColor: "#f2f2f2",
+      }}
+    >
+      {/* BACK ARROW */}
+      <button
+        onClick={() => navigate("/")}
+        className="absolute top-6 left-6 z-20
+          p-2 rounded-full
+          bg-white/70 backdrop-blur
+          shadow-md hover:bg-white transition"
+        aria-label="Go back to landing page"
+      >
+        <ArrowLeft className="w-5 h-5 text-gray-700" />
+      </button>
+
+      {/* GLASS CARD */}
+      <div
+        className="
+        w-full max-w-5xl min-h-[600px]
+        bg-white/30 backdrop-blur-xl
+        border border-white/30
+        rounded-3xl shadow-2xl
+        overflow-hidden
+        grid grid-cols-1 md:grid-cols-2
+      "
+      >
+        {/* LEFT – IMAGE */}
+        <div className="flex items-center justify-center bg-gradient-to-br from-indigo-500/80 to-purple-600/80 relative p-6">
+          <div className="absolute top-6 left-6 w-16 h-16 bg-white/20 rounded-full" />
+          <div className="absolute bottom-10 right-10 w-20 h-20 bg-white/20 rounded-full" />
+
+          <img
+            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
+            alt="Login Illustration"
+            className="
+              w-full max-w-[280px] md:max-w-[340px]
+              h-auto object-contain
+              rounded-2xl shadow-xl
+            "
+          />
+        </div>
+
+        {/* RIGHT – LOGIN FORM */}
+        <div className="p-8 md:p-14 flex flex-col justify-center bg-white/40 backdrop-blur-lg">
+          <h1
+            className="text-3xl md:text-4xl font-semibold text-gray-800 mb-4 tracking-tight drop-shadow-sm"
+            style={{ fontFamily: "'Poppins', sans-serif" }}
+          >
+            LOGIN
+          </h1>
+
+          <p className="text-sm text-gray-600 mb-8">
+            Sign in to access your account
+          </p>
 
           <form onSubmit={handleLogin} className="space-y-5">
-            {error && (
-              <div className="bg-red-500/20 text-red-100 px-4 py-2 rounded-lg">
-                {error}
-              </div>
-            )}
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Username or Email"
+              className="
+                w-full px-4 py-3 rounded-lg
+                bg-white/70 backdrop-blur
+                border border-white/40
+                focus:ring-2 focus:ring-indigo-500
+                focus:outline-none
+              "
+            />
 
-            <div>
-              <label className="block text-sm mb-1">Email</label>
-              <input
-                type="email"
-                className="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm mb-1">Password</label>
-              <input
-                type="password"
-                className="w-full px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
+            <input
+              type="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              className="
+                w-full px-4 py-3 rounded-lg
+                bg-white/70 backdrop-blur
+                border border-white/40
+                focus:ring-2 focus:ring-indigo-500
+                focus:outline-none
+              "
+            />
 
             <button
               type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-lg bg-indigo-500 hover:bg-indigo-600 transition font-semibold shadow-lg disabled:opacity-70"
+              className="
+                w-full py-3 rounded-lg
+                bg-indigo-600/90 text-white font-semibold
+                hover:bg-indigo-700 transition
+              "
             >
-              {loading ? "Logging in..." : "Login"}
+              Login Now
             </button>
-
-            <p className="text-sm text-center text-blue-100">
-              New faculty?{" "}
-              <Link
-                to="/register"
-                className="underline font-medium hover:text-white"
-              >
-                Register here
-              </Link>
-            </p>
           </form>
-        </div>
 
-        {/* RIGHT: ILLUSTRATION / INFO */}
-        <div className="hidden md:flex items-center justify-center bg-blue-50 p-10">
-          <div className="text-center">
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
-              alt="Faculty"
-              className="w-64 mx-auto mb-6"
-            />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              Welcome Back!
-            </h2>
-            <p className="text-gray-600">
-              Manage faculty profiles, approvals, and dashboards in one place.
-            </p>
+          <div className="flex items-center my-4">
+            <hr className="flex-grow border-white/40" />
+            <span className="px-2 text-gray-500 text-sm">OR</span>
+            <hr className="flex-grow border-white/40" />
           </div>
+
+          <button
+            onClick={handleGoogleLogin}
+            className="
+              w-full flex items-center justify-center gap-3 py-3 rounded-lg
+              bg-white/70 backdrop-blur
+              border border-white/40
+              text-gray-700 font-medium
+              hover:bg-white/90 transition
+              shadow-sm
+            "
+          >
+            <img
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+              alt="Google Logo"
+              className="w-5 h-5"
+            />
+            Sign in with Google
+          </button>
+
+          <p className="text-sm text-gray-600 mt-6">
+            New faculty member?{" "}
+            <Link
+              to="/register"
+              className="text-indigo-600 font-medium hover:underline"
+            >
+              Request Registration
+            </Link>
+          </p>
         </div>
       </div>
     </div>

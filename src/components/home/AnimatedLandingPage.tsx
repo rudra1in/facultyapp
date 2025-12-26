@@ -163,7 +163,7 @@ const QuickStats: React.FC = () => {
           {stats.map((stat, index) => (
             <motion.div
               className="bg-gray-50 p-6 rounded-2xl shadow-2xl ring-1 ring-black/5
-flex flex-col items-center text-center space-y-3 transition-transform duration-300"
+              flex flex-col items-center text-center space-y-3 transition-transform duration-300"
               initial={{ opacity: 0, scale: 0.85 }}
               animate={isInView ? { opacity: 1, scale: 1 } : {}}
               transition={{
@@ -356,15 +356,16 @@ const TestimonialsSection: React.FC = () => {
           <div className="relative h-96">
             <AnimatePresence initial={false} mode="wait">
               <motion.div
-                key={currentIndex}
-                className="bg-white p-6 rounded-3xl shadow-[0_18px_40px_rgba(0,0,0,0.15)] h-full flex flex-col justify-between"
-                initial={{ opacity: 0, x: 50, scale: 0.95 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: -50, scale: 0.95 }}
-                transition={{ duration: 0.5, type: "tween" }}
-              >
-                <TestimonialCard testimonial={testimonials[currentIndex]} />
-              </motion.div>
+  key={currentIndex}
+  className="bg-white p-6 rounded-3xl shadow-[0_18px_40px_rgba(0,0,0,0.15)] h-full flex flex-col justify-between"
+  initial={{ opacity: 0, x: 50, scale: 0.95 }}
+  animate={{ opacity: 1, x: 0, scale: 1 }}
+  exit={{ opacity: 0, x: -50, scale: 0.95 }}
+  transition={{ duration: 0.5, type: "tween" }}
+>
+  <TestimonialCard testimonial={testimonials[currentIndex]} />
+</motion.div>
+
             </AnimatePresence>
           </div>
 
@@ -784,7 +785,7 @@ const AnimatedLandingPage: React.FC = () => {
                 animate="animate"
               >
                 <div className="p-3 bg-white rounded-full shadow-lg border border-blue-100">
-                  <BookOpen className="w-6 h-6 text-blue-500" />
+                  <BookOpen className="w-12 h-12 text-blue-500" />
                 </div>
               </motion.div>
               <motion.div
@@ -794,7 +795,7 @@ const AnimatedLandingPage: React.FC = () => {
                 animate="animate"
               >
                 <div className="p-3 bg-white rounded-full shadow-lg border border-teal-100">
-                  <Users className="w-6 h-6 text-teal-500" />
+                  <Users className="w-12 h-12 text-teal-500" />
                 </div>
               </motion.div>
               <motion.div
@@ -804,7 +805,7 @@ const AnimatedLandingPage: React.FC = () => {
                 animate="animate"
               >
                 <div className="p-3 bg-white rounded-full shadow-lg border border-purple-100">
-                  <BarChart className="w-6 h-6 text-purple-500" />
+                  <BarChart className="w-12 h-12 text-purple-500" />
                 </div>
               </motion.div>
               <motion.div
@@ -814,7 +815,7 @@ const AnimatedLandingPage: React.FC = () => {
                 animate="animate"
               >
                 <div className="p-3 bg-white rounded-full shadow-lg border border-orange-100">
-                  <Zap className="w-6 h-6 text-orange-500" />
+                  <Zap className="w-12 h-12 text-orange-500" />
                 </div>
               </motion.div>
               <motion.div
@@ -824,7 +825,7 @@ const AnimatedLandingPage: React.FC = () => {
                 animate="animate"
               >
                 <div className="p-3 bg-white rounded-full shadow-lg border border-green-100">
-                  <FileText className="w-6 h-6 text-green-500" />
+                  <FileText className="w-12 h-12 text-green-500" />
                 </div>
               </motion.div>
             </div>
