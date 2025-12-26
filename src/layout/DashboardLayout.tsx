@@ -1,6 +1,4 @@
-// src/components/DashboardLayout.tsx
-
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   Home,
@@ -8,29 +6,23 @@ import {
   Users,
   FolderOpen,
   FileText,
-  Search,
   Bell,
   Target,
   Menu,
-  X,
   Settings,
   ChevronDown,
   User,
   Moon,
   Sun,
-  Zap,
   MessageSquare,
+  LogOut,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../components/ui/ThemeContext";
 import defaultUserPhoto from "../assets/images/milan.png";
-
 import ChatComponent from "../components/chat/ChatComponent";
 
-// ------------------------------------
-// REMOVE AUTH COMPLETELY
-// REPLACE WITH SINGLE MOCK USER
-// ------------------------------------
+/* ---------------- MOCK USER ---------------- */
 const mockUser = {
   uid: "mock-001",
   displayName: "Demo User",
@@ -38,151 +30,18 @@ const mockUser = {
   photoURL: defaultUserPhoto,
 };
 
-// ------------------------------------
-// Faculty Mock Data
-// ------------------------------------
+/* ---------------- NAV TYPES ---------------- */
 interface NavItem {
   name: string;
   href: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
-interface MockFaculty {
-  id: string;
-  name: string;
-  role: string;
-  department: string;
-  email: string;
-}
-
-const mockFacultyData: MockFaculty[] = [
-  {
-    id: "faculty-milan",
-    name: "Dr. Milan Sharma",
-    role: "Assoc. Professor",
-    department: "Computer Science",
-    email: "milan.sharma@uni.edu",
-  },
-  {
-    id: "faculty-anya",
-    name: "Dr. Anya Smith",
-    role: "Professor",
-    department: "Physics",
-    email: "anya.smith@uni.edu",
-  },
-  {
-    id: "faculty-john",
-    name: "Prof. John Doe",
-    role: "Lecturer",
-    department: "Mathematics",
-    email: "john.doe@uni.edu",
-  },
-  {
-    id: "faculty-jane",
-    name: "Dr. Jane Wilson",
-    role: "Assoc. Professor",
-    department: "Biology",
-    email: "jane.wilson@uni.edu",
-  },
-];
-
-// ==================================
-// 🔍 FacultySearch Component
-// ==================================
-const FacultySearch = ({
-  onChatSelect,
-}: {
-  onChatSelect: (id: string, name: string) => void;
-}) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [resultsOpen, setResultsOpen] = useState(false);
-  const searchRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
-
-  const filteredFaculty = useMemo(() => {
-    if (!searchTerm) return [];
-    const t = searchTerm.toLowerCase();
-    return mockFacultyData.filter(
-      (f) =>
-        f.name.toLowerCase().includes(t) ||
-        f.department.toLowerCase().includes(t) ||
-        f.email.toLowerCase().includes(t)
-    );
-  }, [searchTerm]);
-
-  useEffect(() => {
-    const close = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
-        setResultsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
-  }, []);
-
-  return (
-    <div ref={searchRef} className="relative flex-1 mr-4 sm:mr-0 sm:max-w-lg">
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-gray-400" />
-        </div>
-        <input
-          className="block w-full pl-10 pr-3 py-2 border rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white"
-          placeholder="Search Faculty..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setResultsOpen(true);
-          }}
-        />
-      </div>
-
-      <AnimatePresence>
-        {searchTerm && resultsOpen && filteredFaculty.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="absolute mt-1 w-full rounded-lg shadow-xl bg-white dark:bg-gray-800 max-h-60 overflow-y-auto"
-          >
-            {filteredFaculty.map((f) => (
-              <div
-                key={f.id}
-                className="flex justify-between items-center px-2 py-2 border-b hover:bg-indigo-50 dark:hover:bg-gray-700"
-              >
-                <button
-                  className="flex-1 text-left px-2"
-                  onClick={() => navigate(`/dashboard/faculty/${f.id}`)}
-                >
-                  <span className="font-semibold">{f.name}</span>
-                  <span className="text-xs text-gray-500 block">
-                    {f.role} • {f.department}
-                  </span>
-                </button>
-
-                <motion.button
-                  onClick={() => onChatSelect(f.id, f.name)}
-                  className="p-2 rounded-full text-indigo-600 hover:bg-indigo-100"
-                >
-                  <MessageSquare className="h-5 w-5" />
-                </motion.button>
-              </div>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
-
-// ==================================
-// 🔽 User Dropdown (No Auth Needed)
-// ==================================
+/* ---------------- USER DROPDOWN ---------------- */
 const UserProfileDropdown = () => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const user = mockUser;
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
@@ -194,21 +53,22 @@ const UserProfileDropdown = () => {
   }, []);
 
   return (
-    <div ref={ref} className="relative flex items-center ml-4">
-      <motion.button
+    <div ref={ref} className="relative ml-4">
+      <button
         onClick={() => setOpen(!open)}
-        className="flex items-center p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
+        className="flex items-center gap-3 p-2 rounded-lg
+                   hover:bg-gray-200 dark:hover:bg-gray-700"
       >
         <img
-          src={user.photoURL}
+          src={mockUser.photoURL}
           className="h-9 w-9 rounded-full object-cover"
         />
-        <div className="hidden md:flex flex-col ml-3">
-          <span className="text-sm font-medium">{user.displayName}</span>
-          <span className="text-xs text-gray-400">User</span>
+        <div className="hidden md:block text-left">
+          <p className="text-sm font-semibold">{mockUser.displayName}</p>
+          <p className="text-xs text-gray-400">Demo Account</p>
         </div>
-        <ChevronDown className="ml-1 h-4 w-4" />
-      </motion.button>
+        <ChevronDown className="h-4 w-4" />
+      </button>
 
       <AnimatePresence>
         {open && (
@@ -216,19 +76,29 @@ const UserProfileDropdown = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="absolute top-12 right-0 w-56 rounded-xl shadow-xl bg-white dark:bg-gray-800 py-2"
+            className="absolute right-0 mt-2 w-52
+                       bg-white dark:bg-gray-800
+                       border border-gray-200 dark:border-gray-700
+                       rounded-xl shadow-xl"
           >
             <button
-              className="w-full text-left px-4 py-2 hover:bg-indigo-50 dark:hover:bg-gray-700"
               onClick={() => navigate("/dashboard/profile")}
+              className="w-full px-4 py-2 text-left hover:bg-indigo-50 dark:hover:bg-gray-700"
             >
               Profile
             </button>
             <button
-              className="w-full text-left px-4 py-2 hover:bg-indigo-50 dark:hover:bg-gray-700"
               onClick={() => navigate("/dashboard/settings")}
+              className="w-full px-4 py-2 text-left hover:bg-indigo-50 dark:hover:bg-gray-700"
             >
               Settings
+            </button>
+            <button
+              onClick={() => (window.location.href = "/")}
+              className="w-full px-4 py-2 text-left text-red-600
+                         hover:bg-red-50 dark:hover:bg-gray-700 flex items-center gap-2"
+            >
+              <LogOut className="h-4 w-4" /> Logout
             </button>
           </motion.div>
         )}
@@ -237,30 +107,33 @@ const UserProfileDropdown = () => {
   );
 };
 
-// ==================================
-// 📌 Sidebar Navigation
-// ==================================
+/* ---------------- SIDEBAR ---------------- */
 const SidebarContent = ({ navigation }: { navigation: NavItem[] }) => (
-  <div className="flex flex-col flex-grow bg-white dark:bg-gray-800 border-r pt-5 pb-4 overflow-y-auto">
-    <div className="flex items-center px-4">
+  <div
+    className="flex flex-col h-full bg-white dark:bg-gray-800
+               text-gray-900 dark:text-gray-100 border-r
+               border-gray-200 dark:border-gray-700"
+  >
+    <div className="flex items-center px-4 py-4">
       <Target className="h-8 w-8 text-indigo-600" />
       <span className="ml-2 text-xl font-bold">FacultyApp</span>
     </div>
 
-    <nav className="mt-5 flex-1 px-2 space-y-1">
+    <nav className="flex-1 px-2 space-y-1">
       {navigation.map((item) => (
         <NavLink
           key={item.name}
           to={item.href}
           className={({ isActive }) =>
-            `flex items-center px-3 py-2 rounded-lg ${
-              isActive
-                ? "bg-indigo-600 text-white"
-                : "hover:bg-indigo-50 dark:hover:bg-gray-700"
-            }`
+            `flex items-center px-3 py-2 rounded-lg transition
+             ${
+               isActive
+                 ? "bg-indigo-600 text-white"
+                 : "hover:bg-indigo-50 dark:hover:bg-gray-700"
+             }`
           }
         >
-          <item.icon className="mr-3 h-6 w-6" />
+          <item.icon className="mr-3 h-5 w-5" />
           {item.name}
         </NavLink>
       ))}
@@ -268,12 +141,9 @@ const SidebarContent = ({ navigation }: { navigation: NavItem[] }) => (
   </div>
 );
 
-// ==================================
-// MAIN DASHBOARD LAYOUT (NO AUTH)
-// ==================================
+/* ---------------- MAIN LAYOUT ---------------- */
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showBlast, setShowBlast] = useState(false);
   const [selectedChat, setSelectedChat] = useState<{
     id: string;
     name: string;
@@ -295,89 +165,59 @@ const DashboardLayout = () => {
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
 
-  const handleChatSelect = (facultyId: string, facultyName: string) => {
-    const chatId = `${mockUser.uid}-${facultyId}`;
-    setSelectedChat({ id: chatId, name: facultyName });
-  };
-
   return (
-    <div className="h-screen flex bg-gray-50 dark:bg-gray-900 overflow-hidden">
-      {/* Sidebar Mobile */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 lg:hidden"
-          >
-            <div
-              className="absolute inset-0 bg-black opacity-50"
-              onClick={() => setSidebarOpen(false)}
-            />
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: "0%" }}
-              exit={{ x: "-100%" }}
-              className="relative w-64 h-full bg-white dark:bg-gray-800"
-            >
-              <SidebarContent navigation={navigation} />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:flex lg:w-64">
+    <div
+      className="h-screen flex bg-gray-50 dark:bg-gray-900
+                    text-gray-900 dark:text-gray-100 transition-colors"
+    >
+      {/* SIDEBAR */}
+      <div className="hidden lg:flex w-64">
         <SidebarContent navigation={navigation} />
       </div>
 
-      {/* TOP BAR */}
+      {/* MAIN */}
       <div className="flex-1 flex flex-col">
-        <div className="flex items-center h-16 bg-white dark:bg-gray-800 shadow px-4">
+        {/* TOP BAR */}
+        <div
+          className="h-16 flex items-center px-4 bg-white dark:bg-gray-800
+                     border-b border-gray-200 dark:border-gray-700"
+        >
           <button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden mr-2"
+            className="lg:hidden mr-3"
           >
-            <Menu className="h-6 w-6" />
+            <Menu />
           </button>
 
-          <FacultySearch onChatSelect={handleChatSelect} />
-
-          {/* Right */}
-          <button onClick={toggleTheme} className="ml-4">
-            {isDarkMode ? <Sun /> : <Moon />}
-          </button>
-          <UserProfileDropdown />
+          {/* RIGHT */}
+          <div className="ml-auto flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+            >
+              {isDarkMode ? (
+                <Sun className="text-yellow-400" />
+              ) : (
+                <Moon className="text-indigo-600" />
+              )}
+            </button>
+            <UserProfileDropdown />
+          </div>
         </div>
 
-        {/* MAIN OUTLET */}
-        <main className="flex-1 overflow-y-auto relative">
+        {/* CONTENT */}
+        <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
 
-        {/* CHAT SIDEBAR */}
+        {/* CHAT SIDEBAR (UNCHANGED) */}
         <AnimatePresence>
           {selectedChat && (
-            <motion.div
-              initial={{ x: "100%" }}
-              animate={{ x: "0%" }}
-              exit={{ x: "100%" }}
-              className="fixed right-0 top-0 bottom-0 w-full lg:w-80 bg-white dark:bg-gray-800 shadow-2xl pt-16 z-50"
-            >
-              <div className="px-4 py-2 flex justify-between items-center border-b">
-                <h5 className="font-semibold">Chat with {selectedChat.name}</h5>
-                <button onClick={() => setSelectedChat(null)}>
-                  <X />
-                </button>
-              </div>
-
-              <ChatComponent
-                chatRoomId={selectedChat.id}
-                currentUserId={mockUser.uid}
-                currentUserName={mockUser.displayName}
-              />
-            </motion.div>
+            <ChatComponent
+              chatRoomId={selectedChat.id}
+              currentUserId={mockUser.uid}
+              currentUserName={mockUser.displayName}
+            />
           )}
         </AnimatePresence>
       </div>

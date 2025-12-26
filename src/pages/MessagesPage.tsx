@@ -1,16 +1,14 @@
-// src/pages/MessagesPage.tsx
 import React, { useState } from "react";
 import ChatComponent from "../components/chat/ChatComponent";
 import { Mail, MessageSquare, User, Search, ArrowLeft } from "lucide-react";
 
 /* =====================================================
    🔹 TEMP MOCK USER (NO AUTH / NO BACKEND)
-   Change role to "admin" | "faculty" later
 ===================================================== */
 const MOCK_CURRENT_USER = {
   uid: "faculty-milan",
   name: "Dr. Milan Sharma",
-  role: "faculty", // change to "admin" to test admin view
+  role: "faculty",
 };
 
 /* =====================================================
@@ -40,7 +38,7 @@ interface ChatListItem {
 const createChatId = (a: string, b: string) => [a, b].sort().join("--");
 
 /* =====================================================
-   🔹 FACULTY SEARCH PANEL
+   🔹 FACULTY SEARCH PANEL (DARK MODE FIXED)
 ===================================================== */
 const FacultySearchPanel = ({
   onSelectChat,
@@ -61,7 +59,14 @@ const FacultySearchPanel = ({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search faculty..."
-          className="w-full pl-10 p-2 border rounded-lg"
+          className="
+            w-full pl-10 p-2 rounded-lg
+            bg-white dark:bg-gray-700
+            text-gray-900 dark:text-white
+            placeholder-gray-400
+            border border-gray-300 dark:border-gray-600
+            focus:outline-none focus:ring-2 focus:ring-indigo-500
+          "
         />
       </div>
 
@@ -77,10 +82,14 @@ const FacultySearchPanel = ({
               lastMessageTime: new Date(),
             })
           }
-          className="p-3 rounded-lg cursor-pointer hover:bg-indigo-100 flex gap-3"
+          className="
+            p-3 rounded-lg cursor-pointer flex gap-3
+            hover:bg-indigo-100 dark:hover:bg-gray-700
+            transition
+          "
         >
-          <User />
-          <span>{f.name}</span>
+          <User className="text-indigo-600" />
+          <span className="font-medium">{f.name}</span>
         </div>
       ))}
     </div>
@@ -88,7 +97,7 @@ const FacultySearchPanel = ({
 };
 
 /* =====================================================
-   🔹 MAIN PAGE
+   🔹 MAIN PAGE (DARK MODE WORKING)
 ===================================================== */
 const MessagesPage = () => {
   const [selectedChat, setSelectedChat] = useState<ChatListItem | null>(null);
@@ -100,13 +109,25 @@ const MessagesPage = () => {
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-gray-50 overflow-hidden">
-      {/* LEFT PANEL */}
+    <div
+      className="
+        flex h-[calc(100vh-64px)]
+        bg-gray-50 dark:bg-gray-900
+        text-gray-900 dark:text-gray-100
+        overflow-hidden
+      "
+    >
+      {/* ================= LEFT PANEL ================= */}
       <div
-        className={`w-full md:w-80 bg-white border-r transition-transform
-        ${isMobileChat ? "-translate-x-full md:translate-x-0" : ""}`}
+        className={`
+          w-full md:w-80
+          bg-white dark:bg-gray-800
+          border-r border-gray-200 dark:border-gray-700
+          transition-transform
+          ${isMobileChat ? "-translate-x-full md:translate-x-0" : ""}
+        `}
       >
-        <div className="p-4 border-b flex items-center gap-2">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
           <Mail className="text-indigo-600" />
           <h2 className="font-bold text-lg">Messages</h2>
         </div>
@@ -116,14 +137,18 @@ const MessagesPage = () => {
         )}
       </div>
 
-      {/* RIGHT PANEL */}
+      {/* ================= RIGHT PANEL ================= */}
       <div
-        className={`flex-1 bg-white transition-transform
-        ${!isMobileChat ? "translate-x-full md:translate-x-0" : ""}`}
+        className={`
+          flex-1
+          bg-white dark:bg-gray-800
+          transition-transform
+          ${!isMobileChat ? "translate-x-full md:translate-x-0" : ""}
+        `}
       >
         {selectedChat ? (
           <div className="h-full flex flex-col">
-            <div className="p-3 border-b flex items-center gap-2">
+            <div className="p-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
               <button
                 className="md:hidden"
                 onClick={() => setIsMobileChat(false)}
@@ -142,7 +167,7 @@ const MessagesPage = () => {
             />
           </div>
         ) : (
-          <div className="h-full flex items-center justify-center text-gray-500">
+          <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
             Select a faculty to start chat
           </div>
         )}

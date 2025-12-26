@@ -35,6 +35,7 @@ import photo3 from "../../assets/images/photo3.png";
 import photo4 from "../../assets/images/photo4.png";
 import photo5 from "../../assets/images/photo5.png";
 import LoginPage from "../../pages/auth/LoginPage";
+import FeedbackWidget from "../../components/ui/FeedbackWidget";
 
 // --- NEW WAVE DIVIDER COMPONENT ---
 // This component uses a responsive SVG to create a wave-like separation.
@@ -914,6 +915,7 @@ const AnimatedLandingPage: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      <FeedbackWidget />
 
       <Footer />
     </div>
