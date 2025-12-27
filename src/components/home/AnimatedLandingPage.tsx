@@ -34,6 +34,7 @@ import photo2 from "../../assets/images/photo2.png";
 import photo3 from "../../assets/images/photo3.png";
 import photo4 from "../../assets/images/photo4.png";
 import photo5 from "../../assets/images/photo5.png";
+import LoginPage from "../../pages/auth/LoginPage";
 
 // --- NEW WAVE DIVIDER COMPONENT ---
 // This component uses a responsive SVG to create a wave-like separation.
@@ -91,7 +92,7 @@ const QuickStats: React.FC = () => {
     {
       value: "15,000+",
       label: "Sessions Conducted",
-      icon: BookOpen,
+      icon: BookOpen, // 📘 changed here
       color: "text-teal-600",
       endValue: 15000,
       format: (val: number) =>
@@ -106,7 +107,6 @@ const QuickStats: React.FC = () => {
       format: (val: number) => Math.round(val) + "%",
     },
   ];
-
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.5 });
 
@@ -149,32 +149,32 @@ const QuickStats: React.FC = () => {
     <div className="bg-white py-16 md:py-24 shadow-inner-top" ref={ref}>
       <div className="max-w-screen-xl mx-auto px-6 md:px-12">
         <motion.h2
-          className="text-3xl font-bold text-center mb-12"
+          className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-center mb-12"
           initial={{ opacity: 0, y: -20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5 }}
         >
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-teal-500">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-teal-500">
             Our Impact at a Glance
           </span>
         </motion.h2>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {stats.map((stat, index) => (
             <motion.div
-              key={index}
-              className="bg-gray-50 p-8 rounded-2xl shadow-xl border-t-4 border-blue-600 flex flex-col items-center text-center space-y-4 transition-transform duration-300"
-              initial={{ opacity: 0, scale: 0.8 }}
+              className="bg-gray-50 p-6 rounded-2xl shadow-2xl ring-1 ring-black/5
+flex flex-col items-center text-center space-y-3 transition-transform duration-300"
+              initial={{ opacity: 0, scale: 0.85 }}
               animate={isInView ? { opacity: 1, scale: 1 } : {}}
               transition={{
-                duration: 0.6,
-                delay: index * 0.2 + 0.5,
-                type: "spring",
-                stiffness: 100,
+                duration: 0.15, // VERY fast
+                delay: index * 0.05, // almost instant stagger
+                type: "tween", // faster than spring
+                ease: "easeOut",
               }}
               whileHover={{
-                scale: 1.03,
-                boxShadow:
-                  "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                scale: 1.05,
+                boxShadow: "0 25px 45px rgba(0,0,0,0.18)",
               }}
             >
               <div
@@ -201,40 +201,39 @@ const QuickStats: React.FC = () => {
 // --- Testimonials Section (UPDATED) ---
 // (Testimonials data and TestimonialCard component remain unchanged)
 const testimonials = [
-  // ... (Testimonials data as before)
   {
     quote:
-      "The integrated communication and document sharing features have streamlined my workflow immensely. I can focus more on teaching and less on administrative tasks.",
+      "The Faculty Portal has simplified my academic responsibilities significantly. Managing course materials, announcements, and student interactions is now seamless, allowing me to focus more on teaching and research.",
     name: "Dr. Sandeep Sharma",
     title: "Professor of Computer Science",
     image: photo1,
   },
   {
     quote:
-      "Being able to see all my course analytics and student progress reports in one place is a game-changer. The performance insights are robust and actionable.",
-    name: "Aisha Khan",
+      "Having access to detailed analytics and performance reports in one centralized platform has transformed departmental decision-making. It helps us monitor progress, identify gaps, and improve academic outcomes effectively.",
+    name: "Mr. Sudeep Patra",
     title: "Head of the Mathematics Department",
     image: photo2,
   },
   {
     quote:
-      "The system is incredibly intuitive. It helped me manage a large number of students and their diverse needs without getting overwhelmed.",
+      "As a parent, this platform gives me clarity and confidence about my child’s academic progress. Regular updates, communication, and transparency make it easier to stay involved and supportive.",
     name: "Father of Manav",
     title: "Parent, Class 9 | Bangalore",
     image: photo3,
   },
   {
     quote:
-      "The ability to connect with students instantly for doubt clearing has enhanced my teaching impact. It's truly a modern education tool.",
+      "The portal makes learning more organized and interactive. Accessing notes, assignments, and clarifications in one place has made my studies easier and more enjoyable.",
     name: "Harshita",
-    title: "Student, Class 4 | Mumbai",
+    title: "Student, Class 7 | Mumbai",
     image: photo4,
   },
   {
     quote:
-      "This platform fosters a great collaborative environment. Everything, from submitting assignments to getting feedback, is smooth and efficient.",
-    name: "Atri",
-    title: "Student, Class 9 | Kolkata",
+      "This platform has improved collaboration between students and teachers. Submitting assignments, receiving feedback, and staying updated on academics is now quick and hassle-free.",
+    name: "Atharv",
+    title: "Student, Class 12 | Kolkata",
     image: photo5,
   },
 ];
@@ -244,7 +243,9 @@ const TestimonialCard: React.FC<{ testimonial: (typeof testimonials)[0] }> = ({
 }) => (
   <motion.div
     key={testimonial.name}
-    className="bg-white p-6 rounded-2xl shadow-xl border-t-4 border-blue-500 h-full flex flex-col justify-between"
+    className="bg-white p-6 rounded-3xl
+             shadow-[0_20px_40px_rgba(0,0,0,0.12)]
+             h-full flex flex-col justify-between"
     initial={{ opacity: 0, scale: 0.9 }}
     animate={{ opacity: 1, scale: 1 }}
     exit={{ opacity: 0, scale: 0.9 }}
@@ -261,7 +262,7 @@ const TestimonialCard: React.FC<{ testimonial: (typeof testimonials)[0] }> = ({
         <img
           src={testimonial.image}
           alt={testimonial.name}
-          className="w-16 h-16 rounded-full object-cover border-4 border-blue-500/20"
+          className="w-20 h-20 rounded-full object-cover"
         />
         {/* Role badge overlay (Existing feature) */}
         <div className="absolute -bottom-1 -right-1 bg-teal-500 p-1 rounded-full border-2 border-white">
@@ -339,12 +340,15 @@ const TestimonialsSection: React.FC = () => {
     <section id="testimonials" className="bg-gray-50 pt-16 md:pt-24" ref={ref}>
       <div className="max-w-screen-xl mx-auto px-6 md:px-12 relative">
         <motion.h2
-          className="text-4xl md:text-5xl font-extrabold text-center text-gray-800 mb-16"
+          className="text-4xl md:text-5xl font-extrabold text-center mb-16"
           initial={{ opacity: 0, y: -30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
         >
-          Our <span className="text-teal-600">Community's Voice</span>
+          Our{" "}
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-teal-500">
+            Community's Voice
+          </span>
         </motion.h2>
 
         <div className="relative w-full max-w-lg mx-auto">
@@ -353,7 +357,7 @@ const TestimonialsSection: React.FC = () => {
             <AnimatePresence initial={false} mode="wait">
               <motion.div
                 key={currentIndex}
-                className="absolute inset-0"
+                className="bg-white p-6 rounded-3xl shadow-[0_18px_40px_rgba(0,0,0,0.15)] h-full flex flex-col justify-between"
                 initial={{ opacity: 0, x: 50, scale: 0.95 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
                 exit={{ opacity: 0, x: -50, scale: 0.95 }}
@@ -366,15 +370,15 @@ const TestimonialsSection: React.FC = () => {
 
           {/* Navigation Arrows */}
           <motion.button
-            className="absolute top-1/2 -left-12 transform -translate-y-1/2 p-3 bg-white rounded-full shadow-lg text-blue-600 hover:bg-blue-50 transition-all z-20"
+            className="absolute -left-16 top-1/2 -translate-y-1/2 bg-white shadow-lg rounded-full p-3"
             onClick={() => handleManualSlide("prev")}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-6 h-6 " />
           </motion.button>
           <motion.button
-            className="absolute top-1/2 -right-12 transform -translate-y-1/2 p-3 bg-white rounded-full shadow-lg text-blue-600 hover:bg-blue-50 transition-all z-20"
+            className="absolute -right-16 top-1/2 -translate-y-1/2 bg-white shadow-lg rounded-full p-3"
             onClick={() => handleManualSlide("next")}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -424,28 +428,33 @@ const AboutUsSection: React.FC = () => {
 
   const features = [
     {
-      icon: BookOpen,
       title: "Comprehensive Curriculum Management",
       description:
-        "Easily plan, organize, and update course materials and syllabi in a centralized location.",
+        "Easily plan, organize, and update course materials and syllabi.",
+      icon: BookOpen,
+      color: "from-blue-500 to-indigo-600",
+      iconColor: "text-blue-600 dark:text-blue-400",
     },
     {
-      icon: Users,
       title: "Enhanced Student Engagement",
-      description:
-        "Foster a collaborative learning environment with forums, announcements, and integrated communication tools.",
+      description: "Foster a collaborative learning environment.",
+      icon: Users,
+      color: "from-emerald-500 to-teal-600",
+      iconColor: "text-emerald-600 dark:text-emerald-400",
     },
     {
-      icon: BarChart,
       title: "Robust Performance Analytics",
-      description:
-        "Track student and faculty progress with detailed, insightful reports and visual dashboards.",
+      description: "Track performance using visual dashboards.",
+      icon: BarChart,
+      color: "from-purple-500 to-fuchsia-600",
+      iconColor: "text-purple-600 dark:text-purple-400",
     },
     {
-      icon: Zap,
       title: "Seamless Administrative Workflow",
-      description:
-        "Automate routine tasks like grading, attendance, and reporting to save valuable time.",
+      description: "Automate grading and attendance.",
+      icon: Zap,
+      color: "from-orange-500 to-amber-600",
+      iconColor: "text-orange-600 dark:text-orange-400",
     },
   ];
 
@@ -458,7 +467,10 @@ const AboutUsSection: React.FC = () => {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
         >
-          About <span className="text-blue-600">Faculty Portal</span>
+          About{" "}
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-teal-500">
+            Faculty Portal
+          </span>
         </motion.h2>
         <motion.p
           className="text-xl text-gray-600 text-center max-w-3xl mx-auto mb-16"
@@ -481,19 +493,37 @@ const AboutUsSection: React.FC = () => {
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              className="bg-white p-8 rounded-xl shadow-2xl border-t-4 border-teal-500 hover:shadow-blue-300/50 transition-shadow duration-300 transform hover:scale-[1.02]"
-              variants={featureVariants}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={{
-                boxShadow:
-                  "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+              className="
+    bg-white dark:bg-gray-900
+    p-8 shadow-lg border border-gray-100 dark:border-gray-800
+    transition-all duration-300 hover:shadow-2xl
+    text-gray-800 dark:text-gray-200
+  "
+              style={{
+                borderRadius: "40px 6px 40px 6px",
               }}
+              whileHover={{ y: -8 }}
             >
-              <feature.icon className="w-10 h-10 text-teal-600 mb-4" />
-              <h3 className="text-xl font-bold text-gray-800 mb-3">
+              {/* Icon */}
+              <motion.div
+                whileHover={{ rotate: 6, scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }} // <-- controls speed
+                className={`w-14 h-14 mb-6 flex items-center justify-center
+              rounded-2xl bg-gradient-to-br ${feature.color}
+              shadow-md`}
+              >
+                <feature.icon className="w-7 h-7 text-white" />
+              </motion.div>
+
+              {/* Title */}
+              <h3 className="text-lg font-bold mb-3 text-gray-900 dark:text-white">
                 {feature.title}
               </h3>
-              <p className="text-gray-600 text-sm">{feature.description}</p>
+
+              {/* Description */}
+              <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
+                {feature.description}
+              </p>
             </motion.div>
           ))}
         </motion.div>
@@ -523,7 +553,10 @@ const LocationMap: React.FC = () => {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
         >
-          Our <span className="text-blue-600">Campus Location</span>
+          Our{" "}
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-teal-500">
+            Campus Location
+          </span>
         </motion.h2>
         <motion.p
           className="text-xl text-gray-600 text-center max-w-3xl mx-auto mb-12"
