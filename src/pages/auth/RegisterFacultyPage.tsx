@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Upload, GraduationCap } from "lucide-react";
+import { Upload, ArrowLeft } from "lucide-react";
 
 const RegisterFacultyPage = () => {
   const navigate = useNavigate();
@@ -30,14 +30,9 @@ const RegisterFacultyPage = () => {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
-    /**
-     * 🔜 API CALL (later)
-     * facultyService.registerFaculty(form)
-     */
 
     setTimeout(() => {
       setLoading(false);
@@ -46,161 +41,132 @@ const RegisterFacultyPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-indigo-200 flex items-center justify-center px-4">
-      <div className="w-full max-w-3xl bg-white rounded-2xl shadow-2xl overflow-hidden">
-        {/* HEADER */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white p-8">
-          <div className="flex items-center gap-3 mb-2">
-            <GraduationCap className="w-8 h-8" />
-            <h1 className="text-2xl font-bold">Faculty Registration</h1>
-          </div>
-          <p className="text-blue-100">
-            Submit your details for admin approval
-          </p>
-        </div>
+    <div
+      className="min-h-screen flex items-center justify-center px-4
+      bg-gradient-to-br from-blue-100 via-sky-100 to-indigo-100"
+    >
+      <div
+        className="relative w-full max-w-3xl
+        bg-white/40 backdrop-blur-xl
+        border border-white/40
+        rounded-2xl shadow-2xl p-8"
+      >
+        {/* BACK ARROW */}
+        <button
+          onClick={() => navigate("/login")}
+          className="absolute top-6 left-6
+            p-2 rounded-full
+            bg-white/60 hover:bg-white
+            shadow-md transition"
+          aria-label="Go back to login"
+        >
+          <ArrowLeft className="w-5 h-5 text-gray-700" />
+        </button>
+
+        {/* TITLE */}
+        <h1 className="text-3xl font-semibold text-center text-gray-800 mb-2">
+          Register Here
+        </h1>
+        <p className="text-center text-gray-600 mb-8">
+          Faculty registration for admin approval
+        </p>
 
         {/* FORM */}
-        <form onSubmit={handleSubmit} className="p-8 space-y-6">
-          {/* Name */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Full Name *
-            </label>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {[
+            { name: "name", placeholder: "Full Name" },
+            { name: "phone", placeholder: "Phone Number" },
+            { name: "email", placeholder: "Email Address", type: "email" },
+            { name: "password", placeholder: "Password", type: "password" },
+          ].map((field) => (
             <input
-              name="name"
-              value={form.name}
+              key={field.name}
+              type={field.type || "text"}
+              name={field.name}
+              value={(form as any)[field.name]}
               onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-              placeholder="Dr. John Doe"
+              placeholder={field.placeholder}
+              className="w-full px-4 py-3 rounded-lg
+                bg-white/70 backdrop-blur
+                border border-white/50
+                focus:ring-2 focus:ring-indigo-500 outline-none"
               required
             />
-          </div>
-
-          {/* Phone */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Phone Number *
-            </label>
-            <input
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-              placeholder="9876543210"
-              required
-            />
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Email Address *
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-              placeholder="faculty@example.com"
-              required
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Password *</label>
-            <input
-              type="password"
-              name="password"
-              value={form.password}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-              placeholder="Minimum 6 characters"
-              required
-            />
-          </div>
+          ))}
 
           {/* Aadhaar Upload */}
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Aadhaar Card *
-            </label>
-            <label className="flex items-center justify-center gap-3 border-2 border-dashed rounded-xl p-6 cursor-pointer hover:border-indigo-500 transition">
-              <Upload className="w-6 h-6 text-indigo-600" />
-              <span className="text-sm text-gray-600">
-                Upload Aadhaar (Image/PDF, max 5MB)
-              </span>
-              <input
-                type="file"
-                className="hidden"
-                accept="image/*,.pdf"
-                onChange={handleFileChange}
-                required
-              />
-            </label>
-            {form.aadhaar && (
-              <p className="text-xs mt-2 text-green-600">
-                Selected: {form.aadhaar.name}
-              </p>
-            )}
-          </div>
-
-          {/* Address */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Full Address *
-            </label>
-            <textarea
-              name="address"
-              value={form.address}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-              rows={3}
-              required
-            />
-          </div>
-
-          {/* Subjects */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Subjects (comma separated) *
-            </label>
+          <label
+            className="flex items-center justify-center gap-3
+            border-2 border-dashed border-white/50
+            rounded-xl p-5 cursor-pointer
+            bg-white/50 backdrop-blur
+            hover:border-indigo-500 transition"
+          >
+            <Upload className="w-6 h-6 text-indigo-600" />
+            <span className="text-gray-700">Upload Aadhaar (Image / PDF)</span>
             <input
-              name="subjects"
-              value={form.subjects}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-              placeholder="Maths, Physics, Chemistry"
+              type="file"
+              className="hidden"
+              accept="image/*,.pdf"
+              onChange={handleFileChange}
               required
             />
-          </div>
+          </label>
 
-          {/* Specialisation */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Area of Specialisation *
-            </label>
-            <input
-              name="areaOfSpecialisation"
-              value={form.areaOfSpecialisation}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-500"
-              placeholder="Artificial Intelligence"
-              required
-            />
-          </div>
+          {form.aadhaar && (
+            <p className="text-xs text-green-700">
+              Selected: {form.aadhaar.name}
+            </p>
+          )}
 
-          {/* Submit */}
+          <textarea
+            name="address"
+            value={form.address}
+            onChange={handleChange}
+            rows={3}
+            placeholder="Full Address"
+            className="w-full px-4 py-3 rounded-lg
+              bg-white/70 backdrop-blur
+              border border-white/50
+              focus:ring-2 focus:ring-indigo-500 outline-none"
+            required
+          />
+
+          <input
+            name="subjects"
+            value={form.subjects}
+            onChange={handleChange}
+            placeholder="Subjects (comma separated)"
+            className="w-full px-4 py-3 rounded-lg
+              bg-white/70 backdrop-blur
+              border border-white/50
+              focus:ring-2 focus:ring-indigo-500 outline-none"
+            required
+          />
+
+          <input
+            name="areaOfSpecialisation"
+            value={form.areaOfSpecialisation}
+            onChange={handleChange}
+            placeholder="Area of Specialisation"
+            className="w-full px-4 py-3 rounded-lg
+              bg-white/70 backdrop-blur
+              border border-white/50
+              focus:ring-2 focus:ring-indigo-500 outline-none"
+            required
+          />
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-lg bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition disabled:opacity-70"
+            className="w-full py-3 rounded-lg
+              bg-indigo-600 text-white font-semibold
+              hover:bg-indigo-700 transition
+              shadow-lg disabled:opacity-70"
           >
             {loading ? "Submitting..." : "Submit for Approval"}
           </button>
 
-          {/* Login Link */}
           <p className="text-sm text-center text-gray-600">
             Already registered?{" "}
             <Link
