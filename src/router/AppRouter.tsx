@@ -1,12 +1,21 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
+// ==================== ROUTE GUARD ====================
+import ProtectedRoute from "../routes/ProtectedRoute";
+
 // ==================== LAYOUTS ====================
 import DashboardLayout from "../layout/DashboardLayout";
 import MobileLayout from "../layout/MobileLayout";
 
-// ==================== PAGES ====================
+// ==================== PUBLIC ====================
 import AnimatedLandingPage from "../components/home/AnimatedLandingPage";
+import LoginPage from "../pages/auth/LoginPage";
+import RegisterFacultyPage from "../pages/auth/RegisterFacultyPage";
 
+// ==================== ADMIN ====================
+import AdminFacultyPage from "../pages/auth/AdminFacultyPage";
+
+// ==================== SHARED PAGES ====================
 import HomePage from "../pages/HomePage";
 import OverviewPage from "../pages/OverviewPage";
 import CategoriesPage from "../pages/CategoriesPage";
@@ -18,11 +27,6 @@ import ProfilePage from "../pages/ProfilePage";
 import SettingsPage from "../pages/SettingsPage";
 import MessagesPage from "../pages/MessagesPage";
 
-// ==================== AUTH ====================
-import LoginPage from "../pages/auth/LoginPage";
-import RegisterFacultyPage from "../pages/auth/RegisterFacultyPage";
-import AdminFacultyPage from "../pages/auth/AdminFacultyPage";
-
 const AppRouter = () => {
   return (
     <Routes>
@@ -31,8 +35,15 @@ const AppRouter = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterFacultyPage />} />
 
-      {/* ================= ADMIN DASHBOARD ================= */}
-      <Route path="/dashboard" element={<DashboardLayout />}>
+      {/* ================= ADMIN (DESKTOP) ================= */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute allowedRoles={["ADMIN"]}>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route index element={<Navigate to="home" replace />} />
 
         <Route path="home" element={<HomePage />} />
@@ -49,8 +60,16 @@ const AppRouter = () => {
       </Route>
 
       {/* ================= FACULTY (MOBILE) ================= */}
-      <Route path="/faculty" element={<MobileLayout />}>
+      <Route
+        path="/faculty"
+        element={
+          <ProtectedRoute allowedRoles={["FACULTY"]}>
+            <MobileLayout />
+          </ProtectedRoute>
+        }
+      >
         <Route index element={<Navigate to="home" replace />} />
+
         <Route path="home" element={<HomePage />} />
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="calendar" element={<CalendarPage />} />
@@ -59,11 +78,7 @@ const AppRouter = () => {
         <Route path="settings" element={<SettingsPage />} />
       </Route>
 
-      {/* ================= SAFETY FALLBACK ================= */}
-      <Route
-        path="/dashboard/*"
-        element={<Navigate to="/dashboard/home" replace />}
-      />
+      {/* ================= FALLBACK ================= */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

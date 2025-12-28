@@ -15,12 +15,12 @@ import {
   Moon,
   Sun,
   MessageSquare,
-  LogOut,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../components/ui/ThemeContext";
 import defaultUserPhoto from "../assets/images/milan.png";
 import ChatComponent from "../components/chat/ChatComponent";
+import LogoutButton from "../components/common/LogoutButton";
 
 /* ---------------- MOCK USER ---------------- */
 const mockUser = {
@@ -45,8 +45,9 @@ const UserProfileDropdown = () => {
 
   useEffect(() => {
     const close = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node))
+      if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
+      }
     };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
@@ -93,13 +94,10 @@ const UserProfileDropdown = () => {
             >
               Settings
             </button>
-            <button
-              onClick={() => (window.location.href = "/")}
-              className="w-full px-4 py-2 text-left text-red-600
-                         hover:bg-red-50 dark:hover:bg-gray-700 flex items-center gap-2"
-            >
-              <LogOut className="h-4 w-4" /> Logout
-            </button>
+
+            <div className="px-4 py-2">
+              <LogoutButton />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -143,7 +141,7 @@ const SidebarContent = ({ navigation }: { navigation: NavItem[] }) => (
 
 /* ---------------- MAIN LAYOUT ---------------- */
 const DashboardLayout = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen] = useState(false);
   const [selectedChat, setSelectedChat] = useState<{
     id: string;
     name: string;
@@ -166,30 +164,17 @@ const DashboardLayout = () => {
   ];
 
   return (
-    <div
-      className="h-screen flex bg-gray-50 dark:bg-gray-900
-                    text-gray-900 dark:text-gray-100 transition-colors"
-    >
-      {/* SIDEBAR */}
+    <div className="h-screen flex bg-gray-50 dark:bg-gray-900 transition-colors">
       <div className="hidden lg:flex w-64">
         <SidebarContent navigation={navigation} />
       </div>
 
-      {/* MAIN */}
       <div className="flex-1 flex flex-col">
-        {/* TOP BAR */}
-        <div
-          className="h-16 flex items-center px-4 bg-white dark:bg-gray-800
-                     border-b border-gray-200 dark:border-gray-700"
-        >
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden mr-3"
-          >
+        <div className="h-16 flex items-center px-4 bg-white dark:bg-gray-800 border-b">
+          <button className="lg:hidden mr-3">
             <Menu />
           </button>
 
-          {/* RIGHT */}
           <div className="ml-auto flex items-center gap-3">
             <button
               onClick={toggleTheme}
@@ -201,16 +186,15 @@ const DashboardLayout = () => {
                 <Moon className="text-indigo-600" />
               )}
             </button>
+
             <UserProfileDropdown />
           </div>
         </div>
 
-        {/* CONTENT */}
         <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
 
-        {/* CHAT SIDEBAR (UNCHANGED) */}
         <AnimatePresence>
           {selectedChat && (
             <ChatComponent

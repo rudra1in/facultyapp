@@ -24,63 +24,47 @@ export const useFaculty = () => {
   };
 
   // =========================
-  // SEARCH / FILTER
-  // =========================
-  const searchFacultyList = async (params: {
-    q?: string;
-    subject?: string;
-    status?: "active" | "inactive" | "pending";
-  }) => {
-    setLoading(true);
-    try {
-      const data = await facultyService.searchFaculty(params);
-      setFaculty(data);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // =========================
-  // REGISTER (Faculty self-register)
-  // =========================
-  const createFaculty = async (data: FacultyMember) => {
-    const created = await facultyService.createFaculty(data);
-    setFaculty((prev) => [created, ...prev]);
-  };
-
-  // =========================
-  // ADMIN APPROVAL
+  // ADMIN: APPROVE (PENDING → ACTIVE)
   // =========================
   const approveFacultyByAdmin = async (id: number) => {
-    await facultyService.activateFaculty(id);
+    await facultyService.approveFaculty(id);
+
     setFaculty((prev) =>
       prev.map((f) => (f.id === id ? { ...f, status: "active" } : f))
     );
   };
 
   // =========================
-  // SOFT DELETE (Deactivate)
+  // ADMIN: REJECT (PENDING → INACTIVE)
   // =========================
-  const deactivateFacultyByAdmin = async (id: number) => {
-    await facultyService.deactivateFaculty(id);
+  const rejectFacultyByAdmin = async (id: number) => {
+    await facultyService.rejectFaculty(id);
+
     setFaculty((prev) =>
       prev.map((f) => (f.id === id ? { ...f, status: "inactive" } : f))
     );
   };
 
+  // =========================
+  // ACTIVATE (INACTIVE → ACTIVE)
+  // =========================
   const activateFacultyByAdmin = async (id: number) => {
     await facultyService.activateFaculty(id);
+
     setFaculty((prev) =>
       prev.map((f) => (f.id === id ? { ...f, status: "active" } : f))
     );
   };
 
   // =========================
-  // UPDATE
+  // DEACTIVATE (ACTIVE → INACTIVE)
   // =========================
-  const editFaculty = async (id: number, data: FacultyMember) => {
-    const updated = await facultyService.updateFaculty(id, data);
-    setFaculty((prev) => prev.map((f) => (f.id === id ? updated : f)));
+  const deactivateFacultyByAdmin = async (id: number) => {
+    await facultyService.deactivateFaculty(id);
+
+    setFaculty((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, status: "inactive" } : f))
+    );
   };
 
   // =========================
@@ -100,15 +84,10 @@ export const useFaculty = () => {
     loading,
     error,
 
-    fetchFaculty,
-    searchFacultyList,
-    createFaculty,
-    editFaculty,
-
     approveFacultyByAdmin,
-    deactivateFacultyByAdmin,
+    rejectFacultyByAdmin,
     activateFacultyByAdmin,
-
+    deactivateFacultyByAdmin,
     removeFaculty,
   };
 };

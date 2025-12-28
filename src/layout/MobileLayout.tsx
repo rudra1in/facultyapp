@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../components/ui/ThemeContext";
+import LogoutButton from "../components/common/LogoutButton";
 
 // ================= MOBILE NAV =================
 const mobileNavConfig = [
@@ -32,10 +33,15 @@ const MobileHeader: React.FC = () => {
         <button onClick={() => navigate(-1)}>
           <ChevronLeft className="w-6 h-6" />
         </button>
+
         <h1 className="text-lg font-semibold capitalize">{title}</h1>
-        <button onClick={() => navigate("/faculty/settings")}>
-          <Settings className="w-5 h-5" />
-        </button>
+
+        <div className="flex items-center gap-2">
+          <button onClick={() => navigate("/faculty/settings")}>
+            <Settings className="w-5 h-5" />
+          </button>
+          <LogoutButton />
+        </div>
       </div>
     </header>
   );
