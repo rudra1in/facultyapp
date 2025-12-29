@@ -9,7 +9,7 @@ import {
   Save,
   BookOpen,
   GraduationCap,
-  Link,
+  Link as LinkIcon,
   BarChart,
   Download,
   Zap,
@@ -316,7 +316,7 @@ const ProfilePage: React.FC = () => {
       <div className="space-y-2">
         {profile.externalLinks.map((link) => (
           <p key={link.label} className="flex items-center text-gray-700">
-            <Link className="h-4 w-4 mr-2 text-gray-500" />
+            <LinkIcon className="h-4 w-4 mr-2 text-gray-500" />
             <span className="font-medium mr-2">{link.label}:</span>
             <a
               href={link.url}
@@ -394,41 +394,8 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="p-4 md:p-8 max-w-6xl mx-auto font-sans bg-gray-50 min-h-screen">
-      <header className="mb-8 pb-4 flex justify-end">
-        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
-          <button
-            className="flex items-center justify-center bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-md text-sm"
-            onClick={triggerImportProfile}
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            Import Profile
-          </button>
-          <button
-            className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-md text-sm"
-            onClick={() => alert("Simulating PDF download...")}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export Profile
-          </button>
-          <button
-            className={`flex items-center justify-center px-4 py-2 rounded-lg font-semibold transition-colors shadow-md text-sm ${isEditing
-              ? "bg-indigo-600 text-white hover:bg-indigo-700"
-              : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-              }`}
-            onClick={handleSave}
-          >
-            {isEditing ? (
-              <Save className="h-4 w-4 mr-2" />
-            ) : (
-              <Edit className="h-4 w-4 mr-2" />
-            )}
-            {isEditing ? "Save Changes" : "Edit Profile"}
-          </button>
-        </div>
-      </header>
-
       <div className="bg-white rounded-xl shadow-2xl overflow-hidden p-6 md:p-10">
-        <div className="flex flex-col sm:flex-row items-center sm:items-start border-b pb-8">
+        <div className="flex flex-col sm:flex-row sm:items-start border-b pb-8">
           <div className="relative">
             <img
               className="h-28 w-28 rounded-full object-cover shadow-lg ring-4 ring-indigo-100"
@@ -446,20 +413,55 @@ const ProfilePage: React.FC = () => {
             )}
           </div>
 
-          <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left">
-            <h2 className="text-3xl font-extrabold text-gray-900">
-              {profile.name}
-            </h2>
-            <p className="text-xl text-gray-600 font-medium flex items-center justify-center sm:justify-start">
-              <GraduationCap className="h-6 w-6 mr-2 text-indigo-600" />
-              {profile.role}, {profile.department}
-            </p>
-            <button
-              className="mt-2 text-sm text-gray-500 hover:text-indigo-600 flex items-center mx-auto sm:mx-0"
-              onClick={triggerImageUpload}
-            >
-              <Edit className="h-4 w-4 mr-1" /> Change Photo
-            </button>
+          <div className="mt-4 sm:mt-0 sm:ml-6 flex-1">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-center sm:text-left">
+                <h2 className="text-3xl font-extrabold text-gray-900">
+                  {profile.name}
+                </h2>
+                <p className="text-xl text-gray-600 font-medium flex items-center justify-center sm:justify-start">
+                  <GraduationCap className="h-6 w-6 mr-2 text-indigo-600" />
+                  {profile.role}, {profile.department}
+                </p>
+                <button
+                  className="mt-2 text-sm text-gray-500 hover:text-indigo-600 flex items-center mx-auto sm:mx-0"
+                  onClick={triggerImageUpload}
+                >
+                  <Edit className="h-4 w-4 mr-1" /> Change Photo
+                </button>
+              </div>
+
+              <div className="mt-4 sm:mt-0 flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
+                <button
+                  className="flex items-center justify-center bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-md text-sm"
+                  onClick={triggerImportProfile}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import Profile
+                </button>
+                <button
+                  className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-md text-sm"
+                  onClick={() => alert("Simulating PDF download...")}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Profile
+                </button>
+                <button
+                  className={`flex items-center justify-center px-4 py-2 rounded-lg font-semibold transition-colors shadow-md text-sm ${isEditing
+                    ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                    }`}
+                  onClick={handleSave}
+                >
+                  {isEditing ? (
+                    <Save className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Edit className="h-4 w-4 mr-2" />
+                  )}
+                  {isEditing ? "Save Changes" : "Edit Profile"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -479,7 +481,8 @@ const ProfilePage: React.FC = () => {
           style={{ display: "none" }}
         />
 
-        <div className="mt-6 border-b border-gray-200 overflow-x-auto">
+        {/* overflow-x-auto removed here */}
+        <div className="mt-6 border-b border-gray-200">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             {[
               { id: "overview", label: "Overview", icon: User },
