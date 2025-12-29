@@ -397,7 +397,7 @@ const ProfilePage: React.FC = () => {
       <header className="mb-8 border-b border-gray-200 pb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between">
         <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center mb-4 sm:mb-0">
           <User className="h-6 w-6 sm:h-7 sm:w-7 mr-3 text-indigo-600" />
-          Faculty Profile: <span className="ml-1 truncate">{profile.name}</span>
+          Faculty Profile
         </h1>
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
           <button
