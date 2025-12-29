@@ -48,7 +48,6 @@ public class FacultyService {
             throw new RuntimeException("Email already registered");
         }
 
-        // 1️⃣ Create User
         User user = new User();
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
@@ -56,24 +55,20 @@ public class FacultyService {
         user.setEnabled(true);
         userRepository.save(user);
 
-        // 2️⃣ Save Aadhaar file
         String aadhaarPath;
         try {
             Path uploadDir = Paths.get("uploads/aadhaar");
             Files.createDirectories(uploadDir);
-
             aadhaarPath = uploadDir.resolve(
                     UUID.randomUUID() + "_" + aadhaarFile.getOriginalFilename()).toString();
 
-            Files.copy(
-                    aadhaarFile.getInputStream(),
+            Files.copy(aadhaarFile.getInputStream(),
                     Paths.get(aadhaarPath),
                     StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
             throw new RuntimeException("Aadhaar upload failed");
         }
 
-        // 3️⃣ Create Faculty
         Faculty faculty = new Faculty();
         faculty.setName(name);
         faculty.setPhone(phone);
@@ -82,6 +77,7 @@ public class FacultyService {
         faculty.setAreaOfSpecialisation(areaOfSpecialisation);
         faculty.setAadhaarFilePath(aadhaarPath);
         faculty.setStatus(FacultyStatus.PENDING);
+        faculty.setDeleted(false);
         faculty.setUser(user);
 
         facultyRepository.save(faculty);
@@ -90,30 +86,64 @@ public class FacultyService {
     // ==========================
     // ADMIN APIs
     // ==========================
-    public List<Faculty> getPendingFaculties() {
-        return facultyRepository.findByStatus(FacultyStatus.PENDING);
+    public List<Faculty> getAllFaculties() {
+        return facultyRepository.findByDeletedFalse();
     }
 
-    public void approveFaculty(Long facultyId) {
-        Faculty faculty = facultyRepository.findById(facultyId)
+    public List<Faculty> getPendingFaculties() {
+        return facultyRepository.findByStatusAndDeletedFalse(FacultyStatus.PENDING);
+    }
+
+    public void approveFaculty(Long id) {
+        Faculty faculty = facultyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Faculty not found"));
         faculty.setStatus(FacultyStatus.ACTIVE);
         facultyRepository.save(faculty);
     }
 
-    public void rejectFaculty(Long facultyId) {
-        Faculty faculty = facultyRepository.findById(facultyId)
+    public void rejectFaculty(Long id) {
+        Faculty faculty = facultyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Faculty not found"));
-
         faculty.setStatus(FacultyStatus.REJECTED);
         facultyRepository.save(faculty);
     }
 
+    public void deactivateFaculty(Long id) {
+        Faculty faculty = facultyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Faculty not found"));
+        faculty.setStatus(FacultyStatus.INACTIVE);
+        facultyRepository.save(faculty);
+    }
+
+    public void activateFaculty(Long id) {
+        Faculty faculty = facultyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Faculty not found"));
+        faculty.setStatus(FacultyStatus.ACTIVE);
+        facultyRepository.save(faculty);
+    }
+
     // ==========================
-    // ADMIN: GET ALL FACULTY
+    // ADMIN: HARD DELETE (DB + FILE)
     // ==========================
-    public List<Faculty> getAllFaculties() {
-        return facultyRepository.findAll();
+    public void deleteFaculty(Long facultyId) {
+        Faculty faculty = facultyRepository.findById(facultyId)
+                .orElseThrow(() -> new RuntimeException("Faculty not found"));
+
+        // 1️⃣ Delete Aadhaar file
+        String aadhaarPath = faculty.getAadhaarFilePath();
+        if (aadhaarPath != null) {
+            try {
+                Files.deleteIfExists(Paths.get(aadhaarPath));
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to delete Aadhaar file");
+            }
+        }
+
+        // 2️⃣ Delete Faculty record
+        facultyRepository.delete(faculty);
+
+        // 3️⃣ Delete linked User
+        userRepository.delete(faculty.getUser());
     }
 
 }

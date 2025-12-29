@@ -7,12 +7,8 @@ export const useFaculty = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // =========================
-  // FETCH ALL
-  // =========================
   const fetchFaculty = async () => {
     setLoading(true);
-    setError(null);
     try {
       const data = await facultyService.getAllFaculty();
       setFaculty(data);
@@ -23,53 +19,34 @@ export const useFaculty = () => {
     }
   };
 
-  // =========================
-  // ADMIN: APPROVE (PENDING → ACTIVE)
-  // =========================
   const approveFacultyByAdmin = async (id: number) => {
     await facultyService.approveFaculty(id);
-
     setFaculty((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, status: "active" } : f))
+      prev.map((f) => (f.id === id ? { ...f, status: "ACTIVE" } : f))
     );
   };
 
-  // =========================
-  // ADMIN: REJECT (PENDING → INACTIVE)
-  // =========================
   const rejectFacultyByAdmin = async (id: number) => {
     await facultyService.rejectFaculty(id);
-
     setFaculty((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, status: "inactive" } : f))
+      prev.map((f) => (f.id === id ? { ...f, status: "REJECTED" } : f))
     );
   };
 
-  // =========================
-  // ACTIVATE (INACTIVE → ACTIVE)
-  // =========================
-  const activateFacultyByAdmin = async (id: number) => {
-    await facultyService.activateFaculty(id);
-
-    setFaculty((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, status: "active" } : f))
-    );
-  };
-
-  // =========================
-  // DEACTIVATE (ACTIVE → INACTIVE)
-  // =========================
   const deactivateFacultyByAdmin = async (id: number) => {
     await facultyService.deactivateFaculty(id);
-
     setFaculty((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, status: "inactive" } : f))
+      prev.map((f) => (f.id === id ? { ...f, status: "INACTIVE" } : f))
     );
   };
 
-  // =========================
-  // HARD DELETE
-  // =========================
+  const activateFacultyByAdmin = async (id: number) => {
+    await facultyService.activateFaculty(id);
+    setFaculty((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, status: "ACTIVE" } : f))
+    );
+  };
+
   const removeFaculty = async (id: number) => {
     await facultyService.deleteFaculty(id);
     setFaculty((prev) => prev.filter((f) => f.id !== id));
@@ -83,11 +60,10 @@ export const useFaculty = () => {
     faculty,
     loading,
     error,
-
     approveFacultyByAdmin,
     rejectFacultyByAdmin,
-    activateFacultyByAdmin,
     deactivateFacultyByAdmin,
+    activateFacultyByAdmin,
     removeFaculty,
   };
 };

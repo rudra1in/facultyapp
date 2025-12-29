@@ -6,16 +6,17 @@ import FacultyDetailModal from "./FacultyDetailModal";
 /* ================= STATUS BADGE ================= */
 const StatusBadge = ({ status }: { status: string }) => {
   const colors: Record<string, string> = {
-    pending: "bg-yellow-100 text-yellow-800",
-    active: "bg-green-100 text-green-800",
-    inactive: "bg-gray-200 text-gray-800",
+    PENDING: "bg-yellow-100 text-yellow-800",
+    ACTIVE: "bg-green-100 text-green-800",
+    INACTIVE: "bg-gray-200 text-gray-800",
+    REJECTED: "bg-red-100 text-red-800",
   };
 
   return (
     <span
       className={`px-3 py-1 rounded-full text-xs font-semibold ${colors[status]}`}
     >
-      {status.toUpperCase()}
+      {status}
     </span>
   );
 };
@@ -37,9 +38,8 @@ const FacultyCard = ({
     <div>
       <h3 className="font-semibold text-gray-900">{faculty.name}</h3>
       <p className="text-sm text-gray-600">{faculty.email}</p>
-      <p className="text-xs text-gray-500 mt-1">
-        Subjects: {faculty.subjects.join(", ")}
-      </p>
+      <p className="text-xs text-gray-500 mt-1">Subjects: {faculty.subjects}</p>
+
       <div className="mt-2">
         <StatusBadge status={faculty.status} />
       </div>
@@ -85,9 +85,9 @@ const AdminFacultyPage = () => {
   if (loading) return <div className="p-6">Loading faculty...</div>;
   if (error) return <div className="p-6 text-red-600">{error}</div>;
 
-  const pending = faculty.filter((f) => f.status === "pending");
-  const active = faculty.filter((f) => f.status === "active");
-  const inactive = faculty.filter((f) => f.status === "inactive");
+  const pending = faculty.filter((f) => f.status === "PENDING");
+  const active = faculty.filter((f) => f.status === "ACTIVE");
+  const inactive = faculty.filter((f) => f.status === "INACTIVE");
 
   const toast = (msg: string) => alert(msg); // simple toast
 

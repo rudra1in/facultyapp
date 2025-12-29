@@ -72,7 +72,7 @@ const RegisterFacultyPage = () => {
       setTimeout(() => navigate("/login"), 2500);
     } catch (err: any) {
       setError(
-        err?.response?.data?.message || "Registration failed. Please try again."
+        err?.response?.data?.message || err?.message || "Registration failed"
       );
     } finally {
       setLoading(false);

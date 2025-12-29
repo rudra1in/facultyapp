@@ -2,25 +2,31 @@ import api from "../api/axios";
 
 export const facultyService = {
   // =========================
-  // ADMIN: FETCH ALL FACULTY
+  // ADMIN
   // =========================
   getAllFaculty: async () => {
     const res = await api.get("/admin/faculties");
     return res.data;
   },
 
-  // =========================
-  // ADMIN: APPROVE
-  // =========================
   approveFaculty: async (id: number) => {
     await api.put(`/admin/faculty/${id}/approve`);
   },
 
-  // =========================
-  // ADMIN: REJECT
-  // =========================
   rejectFaculty: async (id: number) => {
     await api.put(`/admin/faculty/${id}/reject`);
+  },
+
+  activateFaculty: async (id: number) => {
+    await api.put(`/admin/faculty/${id}/activate`);
+  },
+
+  deactivateFaculty: async (id: number) => {
+    await api.put(`/admin/faculty/${id}/deactivate`);
+  },
+
+  deleteFaculty: async (id: number) => {
+    await api.delete(`/admin/faculty/${id}`);
   },
 
   // =========================

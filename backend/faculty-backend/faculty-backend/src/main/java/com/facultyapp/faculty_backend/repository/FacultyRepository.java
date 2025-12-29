@@ -10,7 +10,11 @@ import java.util.Optional;
 
 public interface FacultyRepository extends JpaRepository<Faculty, Long> {
 
+    // 🔹 Used in AuthService
     Optional<Faculty> findByUser(User user);
 
-    List<Faculty> findByStatus(FacultyStatus status);
+    // 🔹 Admin listings
+    List<Faculty> findByStatusAndDeletedFalse(FacultyStatus status);
+
+    List<Faculty> findByDeletedFalse();
 }

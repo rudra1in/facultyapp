@@ -29,9 +29,10 @@ const FacultyDetailModal: React.FC<Props> = ({ faculty, onClose }) => {
         <div className="p-6 space-y-4 text-sm">
           <Detail label="Phone" value={faculty.phone} />
           <Detail label="Address" value={faculty.address} />
-          <Detail label="Subjects" value={faculty.subjects.join(", ")} />
+          <Detail label="Subjects" value={faculty.subjects} />
+
           <Detail label="Specialisation" value={faculty.areaOfSpecialisation} />
-          <Detail label="Status" value={faculty.status.toUpperCase()} />
+          <Detail label="Status" value={faculty.status} />
           <Detail
             label="Created At"
             value={new Date(faculty.createdAt).toLocaleString()}

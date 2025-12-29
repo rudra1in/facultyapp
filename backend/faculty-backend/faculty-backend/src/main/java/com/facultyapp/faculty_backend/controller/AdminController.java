@@ -43,4 +43,22 @@ public class AdminController {
         return facultyService.getAllFaculties();
     }
 
+    @PutMapping("/faculty/{id}/deactivate")
+    public String deactivateFaculty(@PathVariable Long id) {
+        facultyService.deactivateFaculty(id);
+        return "Faculty deactivated";
+    }
+
+    @PutMapping("/faculty/{id}/activate")
+    public String activateFaculty(@PathVariable Long id) {
+        facultyService.activateFaculty(id);
+        return "Faculty activated";
+    }
+
+    @DeleteMapping("/faculty/{id}")
+    public String deleteFaculty(@PathVariable Long id) {
+        facultyService.deleteFaculty(id);
+        return "Faculty deleted";
+    }
+
 }
