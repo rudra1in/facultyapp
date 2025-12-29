@@ -16,7 +16,9 @@ import {
   PlusCircle,
   Upload,
 } from "lucide-react";
+
 // --- Local Storage Initialization and Data Types ---
+
 interface ProfileData {
   name: string;
   role: string;
@@ -27,15 +29,18 @@ interface ProfileData {
   officeHours: string;
   bio: string;
   imageUrl: string;
+
   // Academic Data
   researchInterests: string[];
   publications: { id: number; title: string; journal: string; year: number }[];
   externalLinks: { label: string; url: string }[];
+
   // Activity Stats (Simulated)
   totalStudents: number;
   avgCourseRating: number;
   assignmentsGraded: number;
 }
+
 const defaultProfile: ProfileData = {
   name: "Dr. Milan Sharma",
   role: "Associate Professor",
@@ -47,6 +52,7 @@ const defaultProfile: ProfileData = {
   bio: "Specializing in Artificial Intelligence and Machine Learning. Dedicated to fostering critical thinking and hands-on experience in students.",
   imageUrl:
     "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400",
+
   researchInterests: [
     "Artificial Intelligence",
     "Neural Networks",
@@ -70,10 +76,12 @@ const defaultProfile: ProfileData = {
     { label: "LinkedIn", url: "https://linkedin.com/drmilan" },
     { label: "ResearchGate", url: "https://researchgate.net/drmilan" },
   ],
+
   totalStudents: 145,
   avgCourseRating: 4.6,
   assignmentsGraded: 98,
 };
+
 const getInitialProfile = (): ProfileData => {
   const stored = localStorage.getItem("facultyProfile");
   if (stored) {
@@ -86,7 +94,9 @@ const getInitialProfile = (): ProfileData => {
   }
   return defaultProfile;
 };
+
 // --- Helper Components ---
+
 const DetailBlock: React.FC<{
   icon: React.ReactNode;
   label: string;
@@ -100,13 +110,17 @@ const DetailBlock: React.FC<{
     <span className="text-gray-800 font-semibold mt-1">{value}</span>
   </div>
 );
+
 // --- Main Profile Page Component ---
+
 const ProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<ProfileData>(getInitialProfile);
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const importInputRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     return () => {
       if (profile.imageUrl && profile.imageUrl.startsWith("blob:")) {
@@ -114,6 +128,7 @@ const ProfilePage: React.FC = () => {
       }
     };
   }, [profile.imageUrl]);
+
   const handleSave = () => {
     if (isEditing) {
       localStorage.setItem("facultyProfile", JSON.stringify(profile));
@@ -121,25 +136,31 @@ const ProfilePage: React.FC = () => {
     }
     setIsEditing(!isEditing);
   };
+
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
+
       if (profile.imageUrl && profile.imageUrl.startsWith("blob:")) {
         URL.revokeObjectURL(profile.imageUrl);
       }
+
       const newImageUrl = URL.createObjectURL(file);
       setProfile((prev) => ({ ...prev, imageUrl: newImageUrl }));
     }
   };
+
   const triggerImageUpload = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
+
   const handleImportProfile = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       const reader = new FileReader();
+
       reader.onload = (e) => {
         try {
           const importedData = JSON.parse(e.target?.result as string);
@@ -150,18 +171,23 @@ const ProfilePage: React.FC = () => {
           alert("❌ Error importing profile. Please check the file format.");
         }
       };
+
       reader.readAsText(file);
     }
   };
+
   const triggerImportProfile = () => {
     if (importInputRef.current) {
       importInputRef.current.click();
     }
   };
+
   const handleFieldChange = (field: keyof ProfileData, value: any) => {
     setProfile((prev) => ({ ...prev, [field]: value }));
   };
+
   // --- Tab Content Renderers ---
+
   const OverviewTab: React.FC = () => (
     <div className="space-y-6">
       <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
@@ -228,6 +254,7 @@ const ProfilePage: React.FC = () => {
           }
         />
       </div>
+
       <h3 className="text-xl font-semibold text-gray-800 pt-4 mb-4 border-b pb-2">
         Professional Bio
       </h3>
@@ -243,6 +270,7 @@ const ProfilePage: React.FC = () => {
       )}
     </div>
   );
+
   const ResearchTab: React.FC = () => (
     <div className="space-y-8">
       <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
@@ -268,6 +296,7 @@ const ProfilePage: React.FC = () => {
           )}
         </div>
       </div>
+
       <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
         Publications & Honors
       </h3>
@@ -281,6 +310,7 @@ const ProfilePage: React.FC = () => {
           </li>
         ))}
       </ul>
+
       <h3 className="text-xl font-semibold text-gray-800 pt-4 mb-4 border-b pb-2">
         External Profiles
       </h3>
@@ -302,11 +332,13 @@ const ProfilePage: React.FC = () => {
       </div>
     </div>
   );
+
   const PerformanceTab: React.FC = () => (
     <div className="space-y-6">
       <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
         Teaching & Engagement Statistics
       </h3>
+
       <div className="grid sm:grid-cols-3 gap-6">
         <div className="p-4 bg-indigo-50 rounded-lg shadow-sm border-l-4 border-indigo-500">
           <p className="text-3xl font-bold text-indigo-700">
@@ -328,6 +360,7 @@ const ProfilePage: React.FC = () => {
           <p className="text-sm text-yellow-600">Assignments Graded</p>
         </div>
       </div>
+
       <h3 className="text-xl font-semibold text-gray-800 pt-4 mb-4 border-b pb-2">
         Recent Activity Feed
       </h3>
@@ -347,6 +380,7 @@ const ProfilePage: React.FC = () => {
       </ul>
     </div>
   );
+
   const renderContent = () => {
     switch (activeTab) {
       case "research":
@@ -358,30 +392,27 @@ const ProfilePage: React.FC = () => {
         return <OverviewTab />;
     }
   };
+
   return (
     <div className="p-4 md:p-8 max-w-6xl mx-auto font-sans bg-gray-50 min-h-screen">
-      <header className="mb-8 border-b border-gray-200 pb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center mb-4 sm:mb-0">
-          <User className="h-6 w-6 sm:h-7 sm:w-7 mr-3 text-indigo-600" />
-          Faculty Profile: <span className="ml-1 truncate">{profile.name}</span>
-        </h1>
-        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+      <header className="mb-8 pb-4 flex justify-end">
+        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
           <button
-            className="flex items-center justify-center bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-md text-sm w-full sm:w-auto"
+            className="flex items-center justify-center bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-md text-sm"
             onClick={triggerImportProfile}
           >
             <Upload className="h-4 w-4 mr-2" />
             Import Profile
           </button>
           <button
-            className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-md text-sm w-full sm:w-auto"
+            className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-md text-sm"
             onClick={() => alert("Simulating PDF download...")}
           >
             <Download className="h-4 w-4 mr-2" />
             Export Profile
           </button>
           <button
-            className={`flex items-center justify-center px-4 py-2 rounded-lg font-semibold transition-colors shadow-md text-sm w-full sm:w-auto ${
+            className={`flex items-center justify-center px-4 py-2 rounded-lg font-semibold transition-colors shadow-md text-sm ${
               isEditing
                 ? "bg-indigo-600 text-white hover:bg-indigo-700"
                 : "bg-gray-200 text-gray-800 hover:bg-gray-300"
@@ -397,13 +428,14 @@ const ProfilePage: React.FC = () => {
           </button>
         </div>
       </header>
+
       <div className="bg-white rounded-xl shadow-2xl overflow-hidden p-6 md:p-10">
         <div className="flex flex-col sm:flex-row items-center sm:items-start border-b pb-8">
           <div className="relative">
             <img
               className="h-28 w-28 rounded-full object-cover shadow-lg ring-4 ring-indigo-100"
               src={profile.imageUrl}
-              alt={`${profile.name} Profile`}
+              alt={profile.name + " Profile"}
             />
             {isEditing && (
               <button
@@ -415,6 +447,7 @@ const ProfilePage: React.FC = () => {
               </button>
             )}
           </div>
+
           <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left">
             <h2 className="text-3xl font-extrabold text-gray-900">
               {profile.name}
@@ -431,6 +464,7 @@ const ProfilePage: React.FC = () => {
             </button>
           </div>
         </div>
+
         <input
           type="file"
           ref={fileInputRef}
@@ -438,6 +472,7 @@ const ProfilePage: React.FC = () => {
           accept="image/*"
           style={{ display: "none" }}
         />
+
         <input
           type="file"
           ref={importInputRef}
@@ -445,6 +480,7 @@ const ProfilePage: React.FC = () => {
           accept=".json"
           style={{ display: "none" }}
         />
+
         <div className="mt-6 border-b border-gray-200 overflow-x-auto">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             {[
@@ -456,13 +492,13 @@ const ProfilePage: React.FC = () => {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`
-                 ${
-                   activeTab === tab.id
-                     ? "border-indigo-500 text-indigo-600"
-                     : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                 }
-                 whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm flex items-center transition-colors
-               `}
+                  ${
+                    activeTab === tab.id
+                      ? "border-indigo-500 text-indigo-600"
+                      : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  } 
+                  whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm flex items-center transition-colors
+                `}
               >
                 <tab.icon className="h-5 w-5 mr-2" />
                 {tab.label}
@@ -470,9 +506,11 @@ const ProfilePage: React.FC = () => {
             ))}
           </nav>
         </div>
+
         <div className="mt-8">{renderContent()}</div>
       </div>
     </div>
   );
 };
+
 export default ProfilePage;

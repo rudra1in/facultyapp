@@ -24,9 +24,16 @@ public class JwtFilter extends OncePerRequestFilter {
         this.userDetailsService = userDetailsService;
     }
 
+    /**
+     * ✅ Skip JWT filter for public endpoints
+     */
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return request.getServletPath().startsWith("/auth");
+        String path = request.getServletPath();
+
+        return path.startsWith("/auth")
+                || path.startsWith("/faculty/register")
+                || request.getMethod().equalsIgnoreCase("OPTIONS");
     }
 
     @Override
@@ -43,6 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             if (jwtUtil.validateToken(token)) {
+
                 String email = jwtUtil.extractEmail(token);
 
                 var userDetails = userDetailsService.loadUserByUsername(email);
