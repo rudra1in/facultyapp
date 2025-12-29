@@ -101,151 +101,6 @@ const allCategories = [
   "Other",
 ];
 
-// --- Add Event Modal Component ---
-interface AddEventModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSave: (
-    event: Omit<AcademicEvent, "id" | "color" | "isUserEvent"> & {
-      color: string;
-    }
-  ) => void;
-  defaultDate: Date;
-}
-
-const AddEventModal: React.FC<AddEventModalProps> = ({
-  isOpen,
-  onClose,
-  onSave,
-  defaultDate,
-}) => {
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState(allCategories[1]);
-  const [courseId] = useState<string | null>(null);
-
-  const [date, setDate] = useState(defaultDate.toISOString().split("T")[0]);
-
-  React.useEffect(() => {
-    if (isOpen) {
-      setDate(defaultDate.toISOString().split("T")[0]);
-      setTitle("");
-      setCategory(allCategories[1]);
-      // setCourseId(allCourses[1]);
-    }
-  }, [defaultDate, isOpen]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!title || !category || !date) return;
-
-    let color = "bg-gray-200 text-gray-800 border-gray-500";
-    if (category === "Exam")
-      color = "bg-blue-200 text-blue-800 border-blue-500";
-    if (category === "Assignment")
-      color = "bg-yellow-200 text-yellow-800 border-yellow-500";
-    if (category === "Meeting")
-      color = "bg-red-200 text-red-800 border-red-500";
-    if (category === "Office Hour")
-      color = "bg-green-200 text-green-800 border-green-500";
-    if (category === "Quiz")
-      color = "bg-orange-200 text-orange-800 border-orange-500";
-
-    onSave({
-      title,
-      date,
-      category,
-      courseId,
-      color,
-    });
-    onClose(); // Close on successful save
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-2xl font-bold text-indigo-700">
-            Add New Task/Event 📝
-          </h3>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-full text-gray-500 hover:bg-gray-100"
-          >
-            <X size={20} />
-          </button>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Title
-            </label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., Final Grade Submission, Thesis Review"
-              className="mt-1 block w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Date
-            </label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Category
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                {allCategories.slice(1).map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Course/Dept (Optional)
-              </label>
-            </div>
-          </div>
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 transition flex items-center"
-            >
-              <CheckCircle size={18} className="mr-2" /> Save Event
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
 // --- Event Details and Delete Modal Component ---
 interface EventDetailsModalProps {
   isOpen: boolean;
@@ -366,7 +221,8 @@ export const CalendarPage: React.FC = () => {
   const [batch, setBatch] = useState("");
   const [comments, setComments] = useState("");
   const [selectedDate, setSelectedDate] = useState<string>(""); // IMPORTANT
-  const [taskTitle, setTaskTitle] = useState("");
+  // const [taskTitle, setTaskTitle] = useState("");
+  const [modalCategory, setModalCategory] = useState("All Categories");
 
   // State for events and modals
   const [events, setEvents] = useState<AcademicEvent[]>(mockEvents);
@@ -530,6 +386,10 @@ export const CalendarPage: React.FC = () => {
       : null;
   }, [events]);
 
+  function setTaskTitle(_arg0: string) {
+    throw new Error("Function not implemented.");
+  }
+
   // --- UI Structure ---
   return (
     <div className="p-4 md:p-8 font-sans bg-gray-50 min-h-screen">
@@ -652,7 +512,7 @@ export const CalendarPage: React.FC = () => {
             onClick={() => {
               const today = new Date().toISOString().split("T")[0];
               setSelectedDate(today); // date auto-filled
-              setTaskTitle(""); // reset subject
+
               setIsCenterOpen(true); // OPEN detailed modal
             }}
             className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition shadow-md"
@@ -813,15 +673,19 @@ export const CalendarPage: React.FC = () => {
                         ✕
                       </button>
                     </div>
-                    <input
-                      type="text"
-                      value={taskTitle}
-                      onChange={(e) => setTaskTitle(e.target.value)}
-                      placeholder="Subject / Title"
+                    <select
+                      value={modalCategory}
+                      onChange={(e) => setModalCategory(e.target.value)}
                       className="w-full border border-gray-300 rounded-lg bg-gray-50
-             text-gray-800 px-3 py-2 mb-3
-             focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
+  text-gray-800 px-3 py-2 mb-3
+  focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    >
+                      {allCategories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
 
                     {/* TIME */}
                     <div className="flex items-center gap-2 mb-3">
@@ -915,6 +779,7 @@ export const CalendarPage: React.FC = () => {
                       {/* Cancel */}
                       <button
                         onClick={() => {
+                          setModalCategory("All Categories"); // ✅ STEP-6
                           setStartTime("");
                           setEndTime("");
                           setIsCenterOpen(false);
@@ -932,21 +797,39 @@ export const CalendarPage: React.FC = () => {
                             alert("Please fill time and date");
                             return;
                           }
-                          const generatedTitle =
-                            taskTitle.trim() ||
-                            collegeName.trim() ||
-                            (batch ? `Batch ${batch}` : "Task / Meeting");
+                          if (modalCategory === "All Categories") {
+                            alert("Please select a specific category");
+                            return;
+                          }
+
+                          // const generatedTitle =
+                          //   taskTitle.trim() ||
+                          //   collegeName.trim() ||
+                          //   (batch ? `Batch ${batch}` : "Task / Meeting");
 
                           const newEvent: AcademicEvent = {
                             id: Date.now(),
-                            title: generatedTitle, // ✅ DYNAMIC
+
+                            // ✅ STEP-4 (HERE)
+                            title: modalCategory,
+                            category: modalCategory,
+
                             date: selectedDate,
-                            category: "Meeting",
                             courseId: null,
                             color:
-                              "bg-purple-200 text-purple-800 border-purple-500",
-                            isUserEvent: true,
+                              modalCategory === "Quiz"
+                                ? "bg-orange-200 text-orange-800 border-orange-500"
+                                : modalCategory === "Assignment"
+                                ? "bg-yellow-200 text-yellow-800 border-yellow-500"
+                                : modalCategory === "Exam"
+                                ? "bg-blue-200 text-blue-800 border-blue-500"
+                                : modalCategory === "Meeting"
+                                ? "bg-red-200 text-red-800 border-red-500"
+                                : modalCategory === "Office Hour"
+                                ? "bg-green-200 text-green-800 border-green-500"
+                                : "bg-gray-200 text-gray-800 border-gray-500",
 
+                            isUserEvent: true,
                             startTime,
                             endTime,
                             meetingType: meetingType || undefined,
@@ -958,13 +841,14 @@ export const CalendarPage: React.FC = () => {
                           setEvents((prev) => [...prev, newEvent]); // ✅ SAVE TO CALENDAR
 
                           // Reset
+                          // ✅ STEP-5 RESET (HERE)
+                          setModalCategory("All Categories");
                           setStartTime("");
                           setEndTime("");
                           setMeetingType("");
                           setCollegeName("");
                           setBatch("");
                           setComments("");
-
                           setIsCenterOpen(false);
                         }}
                         className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"

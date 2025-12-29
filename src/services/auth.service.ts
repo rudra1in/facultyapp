@@ -36,4 +36,9 @@ export const authService = {
     });
     return res.data;
   },
+  // FORGOT PASSWORD
+  forgotPassword: async (email: string): Promise<{ message: string }> => {
+    const res = await api.post("/auth/forgot-password", { email });
+    return res.data;
+  },
 };

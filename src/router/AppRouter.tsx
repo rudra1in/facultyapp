@@ -3,18 +3,17 @@ import { Routes, Route, Navigate } from "react-router-dom";
 // ==================== ROUTE GUARD ====================
 import ProtectedRoute from "../routes/ProtectedRoute";
 
-// ==================== LAYOUTS ====================
+// ==================== LAYOUT ====================
 import DashboardLayout from "../layout/DashboardLayout";
-import MobileLayout from "../layout/MobileLayout";
 
 // ==================== PUBLIC ====================
 import AnimatedLandingPage from "../components/home/AnimatedLandingPage";
 import LoginPage from "../pages/auth/LoginPage";
 import RegisterFacultyPage from "../pages/auth/RegisterFacultyPage";
 
-// ==================== ADMIN ====================
+// ==================== ADMIN ONLY ====================
 import AdminFacultyPage from "../pages/auth/AdminFacultyPage";
-
+import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 // ==================== SHARED PAGES ====================
 import HomePage from "../pages/HomePage";
 import OverviewPage from "../pages/OverviewPage";
@@ -35,11 +34,11 @@ const AppRouter = () => {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterFacultyPage />} />
 
-      {/* ================= ADMIN (DESKTOP) ================= */}
+      {/* ================= DASHBOARD (ADMIN + FACULTY) ================= */}
       <Route
         path="/dashboard"
         element={
-          <ProtectedRoute allowedRoles={["ADMIN"]}>
+          <ProtectedRoute allowedRoles={["ADMIN", "FACULTY"]}>
             <DashboardLayout />
           </ProtectedRoute>
         }
@@ -48,7 +47,10 @@ const AppRouter = () => {
 
         <Route path="home" element={<HomePage />} />
         <Route path="overview" element={<OverviewPage />} />
-        <Route path="faculty" element={<AdminFacultyPage />} />
+
+        {/* NORMAL FACULTY PAGE (if you want one) */}
+        <Route path="faculty" element={<HomePage />} />
+
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="calendar" element={<CalendarPage />} />
         <Route path="contacts" element={<ContactsPage />} />
@@ -57,29 +59,21 @@ const AppRouter = () => {
         <Route path="messages" element={<MessagesPage />} />
         <Route path="profile" element={<ProfilePage />} />
         <Route path="settings" element={<SettingsPage />} />
-      </Route>
 
-      {/* ================= FACULTY (MOBILE) ================= */}
-      <Route
-        path="/faculty"
-        element={
-          <ProtectedRoute allowedRoles={["FACULTY"]}>
-            <MobileLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route index element={<Navigate to="home" replace />} />
-
-        <Route path="home" element={<HomePage />} />
-        <Route path="categories" element={<CategoriesPage />} />
-        <Route path="calendar" element={<CalendarPage />} />
-        <Route path="notifications" element={<NotificationPage />} />
-        <Route path="profile" element={<ProfilePage />} />
-        <Route path="settings" element={<SettingsPage />} />
+        {/* ================= ADMIN ONLY ================= */}
+        <Route
+          path="admin-faculty"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <AdminFacultyPage />
+            </ProtectedRoute>
+          }
+        />
       </Route>
 
       {/* ================= FALLBACK ================= */}
       <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
     </Routes>
   );
 };
