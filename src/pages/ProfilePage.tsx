@@ -1,33 +1,21 @@
-// src/components/ProfilePage.tsx
-
 import React, { useState, useRef, useEffect } from "react";
 import {
   User,
   Mail,
-  Briefcase,
-  Calendar,
+  Phone,
   MapPin,
+  Clock,
   Edit,
   Save,
-  Clock,
-  Phone,
   BookOpen,
   GraduationCap,
   Link,
-  Heart,
   BarChart,
   Download,
   Zap,
-  Lock,
-  FileText,
-  ArrowLeftRight,
   PlusCircle,
-  AlertTriangle,
+  Upload,
 } from "lucide-react";
-
-// --- IMPORTANT: Update the import for your profile photo ---
-// 💡 Based on your file structure (src/assets/milan.png), this path is correct.
-import defaultMilanPhoto from "../assets/images/milan.png";
 
 // --- Local Storage Initialization and Data Types ---
 
@@ -40,16 +28,12 @@ interface ProfileData {
   office: string;
   officeHours: string;
   bio: string;
-  imageUrl: string; // Stored as a URL (either external, local asset, or object URL)
+  imageUrl: string;
 
   // Academic Data
   researchInterests: string[];
   publications: { id: number; title: string; journal: string; year: number }[];
   externalLinks: { label: string; url: string }[];
-
-  // Private Data
-  emergencyContact: { name: string; relationship: string; phone: string };
-  personalAddress: string;
 
   // Activity Stats (Simulated)
   totalStudents: number;
@@ -58,7 +42,6 @@ interface ProfileData {
 }
 
 const defaultProfile: ProfileData = {
-  // 🚀 CUSTOMIZATION 1: Set your default name
   name: "Dr. Milan Sharma",
   role: "Associate Professor",
   department: "Computer Science",
@@ -67,8 +50,7 @@ const defaultProfile: ProfileData = {
   office: "ENG-304",
   officeHours: "Tues/Thurs: 2:00 PM - 4:00 PM",
   bio: "Specializing in Artificial Intelligence and Machine Learning. Dedicated to fostering critical thinking and hands-on experience in students.",
-  // 🚀 CUSTOMIZATION 2: Use the imported local asset for the default photo
-  imageUrl: defaultMilanPhoto,
+  imageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400",
 
   researchInterests: [
     "Artificial Intelligence",
@@ -94,13 +76,6 @@ const defaultProfile: ProfileData = {
     { label: "ResearchGate", url: "https://researchgate.net/drmilan" },
   ],
 
-  emergencyContact: {
-    name: "Raj Sharma",
-    relationship: "Husband",
-    phone: "+1 (555) 111-2222",
-  },
-  personalAddress: "123 University Ave, Campus Town, CA 90210",
-
   totalStudents: 145,
   avgCourseRating: 4.6,
   assignmentsGraded: 98,
@@ -110,20 +85,7 @@ const getInitialProfile = (): ProfileData => {
   const stored = localStorage.getItem("facultyProfile");
   if (stored) {
     try {
-      const parsed = JSON.parse(stored);
-      // Ensure the imageUrl has a fallback if the stored data is old
-      if (
-        !parsed.imageUrl ||
-        parsed.imageUrl.startsWith("https://images.unsplash.com")
-      ) {
-        // Fallback to the new local asset if no image is stored or it's the old default URL
-        return {
-          ...parsed,
-          imageUrl: defaultMilanPhoto,
-          name: "Dr. Milan Sharma",
-        };
-      }
-      return parsed;
+      return JSON.parse(stored);
     } catch (e) {
       console.error("Failed to parse local storage profile", e);
       return defaultProfile;
@@ -134,7 +96,6 @@ const getInitialProfile = (): ProfileData => {
 
 // --- Helper Components ---
 
-// Data Display Block
 const DetailBlock: React.FC<{
   icon: React.ReactNode;
   label: string;
@@ -155,72 +116,71 @@ const ProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<ProfileData>(getInitialProfile);
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
-  const [passwordRequired, setPasswordRequired] = useState(false);
 
-  // Ref for the hidden file input
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const importInputRef = useRef<HTMLInputElement>(null);
 
-  // Clean up Object URL when component unmounts or image changes
   useEffect(() => {
     return () => {
-      // Revoke the object URL if it exists and is not the default one
       if (profile.imageUrl && profile.imageUrl.startsWith("blob:")) {
         URL.revokeObjectURL(profile.imageUrl);
       }
     };
   }, [profile.imageUrl]);
 
-  // Function to handle saving/editing mode
   const handleSave = () => {
     if (isEditing) {
-      // Save current state to local storage
       localStorage.setItem("facultyProfile", JSON.stringify(profile));
       alert("✅ Profile changes saved successfully!");
     }
     setIsEditing(!isEditing);
   };
 
-  // Function to handle image file selection
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
 
-      // Revoke previous object URL if it exists
       if (profile.imageUrl && profile.imageUrl.startsWith("blob:")) {
         URL.revokeObjectURL(profile.imageUrl);
       }
 
-      // Create a new object URL for the selected file
       const newImageUrl = URL.createObjectURL(file);
-
-      // Update the profile state
       setProfile((prev) => ({ ...prev, imageUrl: newImageUrl }));
     }
   };
 
-  // Helper to trigger the hidden file input
   const triggerImageUpload = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  // Simulate password check for private info access
-  const handleAccessPrivate = () => {
-    if (!passwordRequired) {
-      const password = prompt(
-        "Enter portal password to view sensitive information:"
-      );
-      if (password === "demo123") {
-        // Mock check
-        setPasswordRequired(true);
-      } else {
-        alert("❌ Incorrect password. Access denied.");
-      }
+  const handleImportProfile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        try {
+          const importedData = JSON.parse(e.target?.result as string);
+          setProfile(importedData);
+          localStorage.setItem("facultyProfile", JSON.stringify(importedData));
+          alert("✅ Profile imported successfully!");
+        } catch (error) {
+          alert("❌ Error importing profile. Please check the file format.");
+        }
+      };
+
+      reader.readAsText(file);
     }
   };
 
-  // Function to update any field in the profile state
+  const triggerImportProfile = () => {
+    if (importInputRef.current) {
+      importInputRef.current.click();
+    }
+  };
+
   const handleFieldChange = (field: keyof ProfileData, value: any) => {
     setProfile((prev) => ({ ...prev, [field]: value }));
   };
@@ -251,7 +211,7 @@ const ProfilePage: React.FC = () => {
                 type="text"
                 value={profile.phone}
                 onChange={(e) => handleFieldChange("phone", e.target.value)}
-                className="w-full border-gray-300 rounded p-1 text-base"
+                className="w-full border border-gray-300 rounded p-1 text-base"
               />
             ) : (
               profile.phone
@@ -267,7 +227,7 @@ const ProfilePage: React.FC = () => {
                 type="text"
                 value={profile.office}
                 onChange={(e) => handleFieldChange("office", e.target.value)}
-                className="w-full border-gray-300 rounded p-1 text-base"
+                className="w-full border border-gray-300 rounded p-1 text-base"
               />
             ) : (
               profile.office
@@ -285,7 +245,7 @@ const ProfilePage: React.FC = () => {
                 onChange={(e) =>
                   handleFieldChange("officeHours", e.target.value)
                 }
-                className="w-full border-gray-300 rounded p-1 text-base"
+                className="w-full border border-gray-300 rounded p-1 text-base"
               />
             ) : (
               profile.officeHours
@@ -301,32 +261,12 @@ const ProfilePage: React.FC = () => {
         <textarea
           value={profile.bio}
           onChange={(e) => handleFieldChange("bio", e.target.value)}
-          className="w-full border-gray-300 rounded-lg p-3"
+          className="w-full border border-gray-300 rounded-lg p-3"
           rows={5}
         />
       ) : (
         <p className="text-gray-700 leading-relaxed">{profile.bio}</p>
       )}
-
-      <h3 className="text-xl font-semibold text-gray-800 pt-4 mb-4 border-b pb-2">
-        Current Courses
-      </h3>
-      <div className="space-y-2">
-        <p className="flex items-center text-indigo-700 font-medium">
-          <BookOpen className="h-5 w-5 mr-2 text-indigo-500" /> CS 401: Advanced
-          AI (Fall 2025)
-        </p>
-        <p className="flex items-center text-indigo-700 font-medium">
-          <BookOpen className="h-5 w-5 mr-2 text-indigo-500" /> CS 101: Intro to
-          Programming (Fall 2025)
-        </p>
-        <p className="text-sm text-gray-500 ml-7">
-          3 Active Courses this term.{" "}
-          <a href="#" className="text-blue-500 hover:underline">
-            Go to Course Management
-          </a>
-        </p>
-      </div>
     </div>
   );
 
@@ -392,83 +332,12 @@ const ProfilePage: React.FC = () => {
     </div>
   );
 
-  const PrivateInfoTab: React.FC = () => {
-    if (!passwordRequired) {
-      return (
-        <div className="text-center p-12 bg-red-50 rounded-lg border border-red-200 space-y-4">
-          <Lock className="h-10 w-10 text-red-500 mx-auto" />
-          <p className="text-lg font-semibold text-red-700">
-            Access Restricted
-          </p>
-          <p className="text-sm text-red-600">
-            Sensitive personal and administrative data is protected.
-          </p>
-          <button
-            onClick={handleAccessPrivate}
-            className="px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors flex items-center mx-auto"
-          >
-            <ArrowLeftRight className="h-4 w-4 mr-2" /> Verify Identity to
-            Access
-          </button>
-        </div>
-      );
-    }
-
-    return (
-      <div className="space-y-6">
-        <h3 className="text-xl font-semibold text-red-700 mb-4 border-b pb-2 flex items-center">
-          <AlertTriangle className="h-5 w-5 mr-2" /> Emergency Contact &
-          Personal Data
-        </h3>
-
-        <div className="grid sm:grid-cols-2 gap-6 p-4 bg-gray-50 rounded-lg border">
-          <DetailBlock
-            icon={<User className="h-4 w-4 mr-1 text-gray-400" />}
-            label="Emergency Name"
-            value={profile.emergencyContact.name}
-          />
-          <DetailBlock
-            icon={<Heart className="h-4 w-4 mr-1 text-gray-400" />}
-            label="Relationship"
-            value={profile.emergencyContact.relationship}
-          />
-          <DetailBlock
-            icon={<Phone className="h-4 w-4 mr-1 text-gray-400" />}
-            label="Emergency Phone"
-            value={profile.emergencyContact.phone}
-          />
-        </div>
-
-        <h3 className="text-xl font-semibold text-gray-800 pt-4 mb-4 border-b pb-2">
-          Home Address
-        </h3>
-        <DetailBlock
-          icon={<MapPin className="h-4 w-4 mr-1 text-gray-400" />}
-          label="Private Address"
-          value={profile.personalAddress}
-        />
-
-        <div className="flex justify-between items-center pt-4 border-t">
-          <DetailBlock
-            icon={<FileText className="h-4 w-4 mr-1 text-gray-400" />}
-            label="Employee ID"
-            value="EID-7890"
-          />
-          <button className="text-indigo-600 hover:text-indigo-800 font-medium">
-            Reset Password
-          </button>
-        </div>
-      </div>
-    );
-  };
-
   const PerformanceTab: React.FC = () => (
     <div className="space-y-6">
       <h3 className="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">
         Teaching & Engagement Statistics
       </h3>
 
-      {/* The grid sm:grid-cols-3 handles responsiveness well */}
       <div className="grid sm:grid-cols-3 gap-6">
         <div className="p-4 bg-indigo-50 rounded-lg shadow-sm border-l-4 border-indigo-500">
           <p className="text-3xl font-bold text-indigo-700">
@@ -508,22 +377,6 @@ const ProfilePage: React.FC = () => {
           minutes ago.
         </li>
       </ul>
-
-      <h3 className="text-xl font-semibold text-gray-800 pt-4 mb-4 border-b pb-2">
-        Data Management
-      </h3>
-      <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg border">
-        <p className="text-gray-700 flex items-center">
-          <BarChart className="h-5 w-5 mr-2 text-gray-500" /> Storage Usage
-        </p>
-        <div className="w-1/2 bg-gray-200 rounded-full h-2.5">
-          <div
-            className="bg-indigo-600 h-2.5 rounded-full"
-            style={{ width: "45%" }}
-          ></div>
-        </div>
-        <span className="text-sm text-gray-600">45% Used (450MB / 1GB)</span>
-      </div>
     </div>
   );
 
@@ -531,8 +384,6 @@ const ProfilePage: React.FC = () => {
     switch (activeTab) {
       case "research":
         return <ResearchTab />;
-      case "private":
-        return <PrivateInfoTab />;
       case "performance":
         return <PerformanceTab />;
       case "overview":
@@ -550,6 +401,13 @@ const ProfilePage: React.FC = () => {
         </h1>
         <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
           <button
+            className="flex items-center justify-center bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-md text-sm w-full sm:w-auto"
+            onClick={triggerImportProfile}
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            Import Profile
+          </button>
+          <button
             className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-md text-sm w-full sm:w-auto"
             onClick={() => alert("Simulating PDF download...")}
           >
@@ -557,11 +415,10 @@ const ProfilePage: React.FC = () => {
             Export Profile
           </button>
           <button
-            className={`flex items-center justify-center px-4 py-2 rounded-lg font-semibold transition-colors shadow-md text-sm w-full sm:w-auto ${
-              isEditing
+            className={`flex items-center justify-center px-4 py-2 rounded-lg font-semibold transition-colors shadow-md text-sm w-full sm:w-auto ${isEditing
                 ? "bg-indigo-600 text-white hover:bg-indigo-700"
                 : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-            }`}
+              }`}
             onClick={handleSave}
           >
             {isEditing ? (
@@ -575,15 +432,13 @@ const ProfilePage: React.FC = () => {
       </header>
 
       <div className="bg-white rounded-xl shadow-2xl overflow-hidden p-6 md:p-10">
-        {/* Header Section (Image, Role) */}
         <div className="flex flex-col sm:flex-row items-center sm:items-start border-b pb-8">
           <div className="relative">
             <img
               className="h-28 w-28 rounded-full object-cover shadow-lg ring-4 ring-indigo-100"
               src={profile.imageUrl}
-              alt={`${profile.name} Profile`}
+              alt={profile.name + " Profile"}
             />
-            {/* Image overlay button for upload - visible when editing */}
             {isEditing && (
               <button
                 onClick={triggerImageUpload}
@@ -603,7 +458,6 @@ const ProfilePage: React.FC = () => {
               <GraduationCap className="h-6 w-6 mr-2 text-indigo-600" />
               {profile.role}, {profile.department}
             </p>
-            {/* Button to trigger the hidden file input */}
             <button
               className="mt-2 text-sm text-gray-500 hover:text-indigo-600 flex items-center mx-auto sm:mx-0"
               onClick={triggerImageUpload}
@@ -613,35 +467,39 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Hidden File Input Element - Crucial for the upload feature */}
         <input
           type="file"
           ref={fileInputRef}
           onChange={handleImageChange}
           accept="image/*"
-          style={{ display: "none" }} // Hide the input visually
+          style={{ display: "none" }}
         />
 
-        {/* Tabs Navigation - Added overflow-x-auto to ensure scrollability on small screens */}
+        <input
+          type="file"
+          ref={importInputRef}
+          onChange={handleImportProfile}
+          accept=".json"
+          style={{ display: "none" }}
+        />
+
         <div className="mt-6 border-b border-gray-200 overflow-x-auto">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             {[
               { id: "overview", label: "Overview", icon: User },
               { id: "research", label: "Academic & Research", icon: BookOpen },
               { id: "performance", label: "Activity & Stats", icon: BarChart },
-              { id: "private", label: "Private Info", icon: Lock },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`
-                                ${
-                                  activeTab === tab.id
-                                    ? "border-indigo-500 text-indigo-600"
-                                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                                } 
-                                whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm flex items-center transition-colors
-                            `}
+                  ${activeTab === tab.id
+                    ? "border-indigo-500 text-indigo-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                  } 
+                  whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm flex items-center transition-colors
+                `}
               >
                 <tab.icon className="h-5 w-5 mr-2" />
                 {tab.label}
@@ -650,7 +508,6 @@ const ProfilePage: React.FC = () => {
           </nav>
         </div>
 
-        {/* Tab Content */}
         <div className="mt-8">{renderContent()}</div>
       </div>
     </div>
