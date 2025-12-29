@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useRef } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -9,25 +9,28 @@ import {
   Clock,
   Calendar as CalendarIcon,
   UploadCloud,
-  Download,
   X,
   Trash2,
-  Share2,
-  Mail,
-  MessageCircle,
-  Copy,
 } from "lucide-react";
+
 import { motion, AnimatePresence } from "framer-motion";
 
 // --- Type Definitions for Academic Events ---
 interface AcademicEvent {
   id: number;
   title: string;
-  date: string; // YYYY-MM-DD
-  category: string; // e.g., Quiz, Assignment, Exam, Meeting, Office Hour, Other
-  courseId: string | null; // e.g., "CS 301" - Used for Departmental/Course Filtering
+  date: string;
+  category: string;
+  courseId: string | null;
   color: string;
-  isUserEvent: boolean; // Flag to denote if the current faculty member created it (for delete permissions)
+  isUserEvent: boolean;
+
+  startTime?: string; // "10:00"
+  endTime?: string; // "12:30"
+  meetingType?: "inhouse" | "outhouse";
+  collegeName?: string;
+  batch?: string;
+  comments?: string;
 }
 
 // --- Mock Data ---
@@ -98,36 +101,6 @@ const allCategories = [
   "Other",
 ];
 
-const allCourses = ["All Courses", "CS 301", "EE 205", "ME 410"];
-
-// --- Utility: Get Share Text (Placeholder/Example) ---
-const getShareContent = (events: AcademicEvent[]) => {
-  const todayString = new Date().toISOString().split("T")[0];
-  const upcomingEvents = events
-    .filter((e) => e.date >= todayString)
-    .slice(0, 5);
-
-  let text = "📅 Faculty Scheduler - Upcoming Tasks:\n\n";
-
-  if (upcomingEvents.length === 0) {
-    text += "No major events scheduled soon!";
-    return text;
-  }
-
-  upcomingEvents.forEach((event) => {
-    const formattedDate = new Date(event.date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-    });
-    text += `• [${event.category}] ${event.title} (${
-      event.courseId || "General"
-    }) on ${formattedDate}\n`;
-  });
-
-  text += "\nAccess the full calendar here: [YOUR_APP_URL/calendar]";
-  return text;
-};
-
 // --- Add Event Modal Component ---
 interface AddEventModalProps {
   isOpen: boolean;
@@ -148,7 +121,8 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
 }) => {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState(allCategories[1]);
-  const [courseId, setCourseId] = useState(allCourses[1]);
+  const [courseId] = useState<string | null>(null);
+
   const [date, setDate] = useState(defaultDate.toISOString().split("T")[0]);
 
   React.useEffect(() => {
@@ -156,7 +130,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
       setDate(defaultDate.toISOString().split("T")[0]);
       setTitle("");
       setCategory(allCategories[1]);
-      setCourseId(allCourses[1]);
+      // setCourseId(allCourses[1]);
     }
   }, [defaultDate, isOpen]);
 
@@ -180,7 +154,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
       title,
       date,
       category,
-      courseId: courseId === "All Courses" ? null : courseId,
+      courseId,
       color,
     });
     onClose(); // Close on successful save
@@ -249,17 +223,6 @@ const AddEventModal: React.FC<AddEventModalProps> = ({
               <label className="block text-sm font-medium text-gray-700">
                 Course/Dept (Optional)
               </label>
-              <select
-                value={courseId || allCourses[0]}
-                onChange={(e) => setCourseId(e.target.value)}
-                className="mt-1 block w-full border border-gray-300 rounded-lg p-3 shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              >
-                {allCourses.map((course) => (
-                  <option key={course} value={course}>
-                    {course}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
           <div className="flex justify-end space-x-3 pt-4">
@@ -377,112 +340,39 @@ const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
   );
 };
 
-// --- Share Dropdown Component ---
-interface ShareDropdownProps {
-  events: AcademicEvent[];
-}
-
-const ShareDropdown: React.FC<ShareDropdownProps> = ({ events }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Close dropdown when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const shareContent = getShareContent(events);
-  const encodedContent = encodeURIComponent(shareContent);
-
-  const handleShare = (type: "whatsapp" | "email" | "copy") => {
-    setIsOpen(false);
-
-    if (type === "whatsapp") {
-      const whatsappUrl = `https://wa.me/?text=${encodedContent}`;
-      window.open(whatsappUrl, "_blank");
-    } else if (type === "email") {
-      const subject = encodeURIComponent("Upcoming Faculty Scheduler Events");
-      const emailUrl = `mailto:?subject=${subject}&body=${encodedContent}`;
-      window.open(emailUrl);
-    } else if (type === "copy") {
-      navigator.clipboard
-        .writeText(shareContent)
-        .then(() => alert("Upcoming events list copied to clipboard!"))
-        .catch(() => alert("Failed to copy."));
-    }
-  };
-
-  return (
-    <div className="relative" ref={dropdownRef}>
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 px-4 py-2 bg-indigo-500 text-white rounded-lg hover:bg-indigo-600 text-sm font-medium transition shadow-md"
-      >
-        <Share2 size={16} />
-        <span>Share</span>
-      </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-10 overflow-hidden"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="p-1">
-              <button
-                onClick={() => handleShare("whatsapp")}
-                className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-green-50 rounded-md transition"
-              >
-                <MessageCircle size={16} className="mr-2 text-green-600" />{" "}
-                Share via WhatsApp
-              </button>
-              <button
-                onClick={() => handleShare("email")}
-                className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 rounded-md transition"
-              >
-                <Mail size={16} className="mr-2 text-blue-600" /> Share via
-                Email
-              </button>
-              <button
-                onClick={() => handleShare("copy")}
-                className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition"
-              >
-                <Copy size={16} className="mr-2 text-gray-600" /> Copy Link/Text
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
-
 // --- Main Calendar Page Component ---
 export const CalendarPage: React.FC = () => {
   const [view, setView] = useState<"month" | "week" | "day">("month");
-  const [currentDate, setCurrentDate] = useState(new Date("2025-09-01"));
+  const [currentDate, setCurrentDate] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1);
+  });
+
   const [selectedCategory, setSelectedCategory] = useState("All Categories");
-  const [selectedCourse, setSelectedCourse] = useState("All Courses");
+
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [isCourseOpen, setIsCourseOpen] = useState(false);
+  const [focusedEvents, setFocusedEvents] = useState<AcademicEvent[] | null>(
+    null
+  );
+  const [focusedLabel, setFocusedLabel] =
+    useState<string>("Next Hard Deadline");
+  const [isCenterOpen, setIsCenterOpen] = useState(false);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+  const [meetingType, setMeetingType] = useState<"inhouse" | "outhouse" | "">(
+    ""
+  );
+  const [collegeName, setCollegeName] = useState("");
+  const [batch, setBatch] = useState("");
+  const [comments, setComments] = useState("");
+  const [selectedDate, setSelectedDate] = useState<string>(""); // IMPORTANT
+  const [taskTitle, setTaskTitle] = useState("");
 
   // State for events and modals
   const [events, setEvents] = useState<AcademicEvent[]>(mockEvents);
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  // const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [modalDefaultDate, setModalDefaultDate] = useState(new Date());
+  // const [modalDefaultDate, setModalDefaultDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState<AcademicEvent | null>(
     null
   );
@@ -522,6 +412,12 @@ export const CalendarPage: React.FC = () => {
       (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
     );
   const goToToday = () => setCurrentDate(new Date());
+  const toLocalDateString = (date: Date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  };
 
   // --- Filtering Logic ---
   const filteredEvents = useMemo(() => {
@@ -530,37 +426,38 @@ export const CalendarPage: React.FC = () => {
         const categoryMatch =
           selectedCategory === "All Categories" ||
           event.category === selectedCategory;
-        const courseMatch =
-          selectedCourse === "All Courses" || event.courseId === selectedCourse;
-        return categoryMatch && courseMatch;
+        // const courseMatch =
+        //   selectedCourse === "All Courses" || event.courseId === selectedCourse;
+        return categoryMatch;
       })
       .sort((a, b) => a.date.localeCompare(b.date));
-  }, [selectedCategory, selectedCourse, events]);
+  }, [selectedCategory, events]);
 
   const getEventsForDay = (day: Date | null) => {
     if (!day) return [];
-    const dayString = day.toISOString().split("T")[0];
+    const dayString = toLocalDateString(day);
+
     return filteredEvents.filter((event) => event.date === dayString);
   };
 
   // --- CRUD Event Handlers ---
-  const handleAddEvent = useCallback(
-    (
-      eventData: Omit<AcademicEvent, "id" | "color" | "isUserEvent"> & {
-        color: string;
-      }
-    ) => {
-      const newEvent: AcademicEvent = {
-        ...eventData,
-        id: Date.now(),
-        isUserEvent: true,
-      };
-      // API CALL: POST /api/v1/schedules
-      setEvents((prev) => [...prev, newEvent]);
-      setIsAddModalOpen(false); // Close the modal upon successful save
-    },
-    []
-  );
+  // const handleAddEvent = useCallback(
+  //   (
+  //     eventData: Omit<AcademicEvent, "id" | "color" | "isUserEvent"> & {
+  //       color: string;
+  //     }
+  //   ) => {
+  //     const newEvent: AcademicEvent = {
+  //       ...eventData,
+  //       id: Date.now(),
+  //       isUserEvent: true,
+  //     };
+  //     // API CALL: POST /api/v1/schedules
+  //     setEvents((prev) => [...prev, newEvent]);
+  //     // setIsAddModalOpen(false); // Close the modal upon successful save
+  //   },
+  //   []
+  // );
 
   const handleDeleteEvent = useCallback((id: number) => {
     // API CALL: DELETE /api/v1/schedules/{id}
@@ -571,9 +468,42 @@ export const CalendarPage: React.FC = () => {
 
   const handleDayClick = (day: Date | null) => {
     if (!day) return;
-    setModalDefaultDate(day);
-    setIsAddModalOpen(true);
+
+    const clickedDateStr = toLocalDateString(day);
+
+    setSelectedDate(clickedDateStr);
+
+    const clickedMonth = day.getMonth();
+    const clickedYear = day.getFullYear();
+
+    // 🔥 EVENTS FROM CLICKED DATE → END OF THAT MONTH
+    const monthUpcomingEvents = events
+      .filter((event) => {
+        const eventDate = new Date(event.date);
+        return (
+          eventDate.getFullYear() === clickedYear &&
+          eventDate.getMonth() === clickedMonth &&
+          event.date >= clickedDateStr
+        );
+      })
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    setFocusedEvents(monthUpcomingEvents);
+
+    setFocusedLabel(
+      `Upcoming events from ${day.toLocaleDateString("en-IN", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })}`
+    );
+
+    setIsCenterOpen(true);
   };
+
+  {
+    /* Total Time */
+  }
 
   const handleEventClick = (event: AcademicEvent) => {
     setSelectedEvent(event);
@@ -585,14 +515,15 @@ export const CalendarPage: React.FC = () => {
     setIsCategoryOpen(false);
   };
 
-  const handleCourseSelect = (course: string) => {
-    setSelectedCourse(course);
-    setIsCourseOpen(false);
-  };
+  // const handleCourseSelect = (course: string) => {
+  //   setSelectedCourse(course);
+  //   setIsCourseOpen(false);
+  // };
 
   // --- Next Task Widget Logic ---
   const nextTask = useMemo(() => {
-    const todayString = new Date().toISOString().split("T")[0];
+    const todayString = toLocalDateString(new Date());
+
     const upcomingEvents = events.filter((e) => e.date >= todayString);
     return upcomingEvents.length > 0
       ? upcomingEvents.sort((a, b) => a.date.localeCompare(b.date))[0]
@@ -603,12 +534,13 @@ export const CalendarPage: React.FC = () => {
   return (
     <div className="p-4 md:p-8 font-sans bg-gray-50 min-h-screen">
       {/* Modals */}
-      <AddEventModal
+      {/* <AddEventModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSave={handleAddEvent}
         defaultDate={modalDefaultDate}
-      />
+      /> */}
+
       <EventDetailsModal
         isOpen={isDetailsModalOpen}
         event={selectedEvent}
@@ -617,12 +549,12 @@ export const CalendarPage: React.FC = () => {
       />
 
       {/* Header and Controls */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-white p-6 rounded-xl shadow-xl border-t-4 border-indigo-600 mb-6">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center bg-white p-6 rounded-xl shadow-xl border-t-4 border-400 mb-6">
         {/* Title and Navigation */}
         <div className="flex items-center space-x-6 mb-4 lg:mb-0">
           <h1 className="text-3xl font-extrabold text-gray-900 flex items-center">
             <CalendarIcon size={28} className="mr-3 text-indigo-600" />
-            Faculty Scheduler 🎯
+            Faculty Scheduler
           </h1>
           <div className="flex items-center space-x-1 border border-gray-300 rounded-lg p-1 bg-gray-50">
             <button
@@ -715,54 +647,18 @@ export const CalendarPage: React.FC = () => {
             )}
           </div>
 
-          <div className="relative">
-            <button
-              onClick={() => setIsCourseOpen(!isCourseOpen)}
-              className="flex items-center space-x-2 bg-white px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-100 transition w-full"
-            >
-              <Filter size={16} />
-              <span>{selectedCourse}</span>
-              <ChevronDown
-                size={16}
-                className={`transform transition-transform ${
-                  isCourseOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-            {isCourseOpen && (
-              <div className="absolute top-12 right-0 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-10">
-                {allCourses.map((course) => (
-                  <button
-                    key={course}
-                    onClick={() => handleCourseSelect(course)}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-indigo-50 hover:text-indigo-700 transition"
-                  >
-                    {course}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
           {/* New Task Button */}
           <button
-            onClick={() => handleDayClick(new Date())}
+            onClick={() => {
+              const today = new Date().toISOString().split("T")[0];
+              setSelectedDate(today); // date auto-filled
+              setTaskTitle(""); // reset subject
+              setIsCenterOpen(true); // OPEN detailed modal
+            }}
             className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium transition shadow-md"
           >
             <Plus size={16} />
             <span>New Task</span>
-          </button>
-
-          {/* SHARE Dropdown */}
-          <ShareDropdown events={events} />
-
-          {/* Export Action (Still Available) */}
-          <button
-            onClick={() => alert("iCal/CSV Export initiated!")}
-            className="p-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition"
-            title="Export Calendar"
-          >
-            <Download size={18} />
           </button>
         </div>
       </div>
@@ -820,6 +716,18 @@ export const CalendarPage: React.FC = () => {
                             onClick={(e) => {
                               e.stopPropagation();
                               handleEventClick(event);
+
+                              setFocusedEvents([event]);
+                              setFocusedLabel(
+                                new Date(event.date).toLocaleDateString(
+                                  "en-IN",
+                                  {
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                  }
+                                )
+                              );
                             }}
                           >
                             {event.courseId && (
@@ -881,49 +789,292 @@ export const CalendarPage: React.FC = () => {
         {/* Right Sidebar: Next Task Widget (Sticky) */}
         <div className="lg:w-1/4">
           <div className="bg-indigo-700 text-white rounded-xl shadow-xl p-5 sticky lg:top-8">
-            <h3 className="text-lg font-bold mb-3 flex items-center">
-              <Clock size={20} className="mr-2" />
-              Next Hard Deadline
-            </h3>
-            {nextTask ? (
-              <div className="space-y-2">
-                <p className="text-2xl font-extrabold leading-tight">
-                  {nextTask.title}
-                </p>
-                <p className="text-sm font-medium opacity-80">
-                  {nextTask.category}{" "}
-                  {nextTask.courseId ? `for ${nextTask.courseId}` : ""}
-                </p>
-                <div className="pt-3 border-t border-indigo-500">
-                  <p className="text-sm font-bold text-yellow-300">Due Date:</p>
-                  <p className="text-xl font-bold">
-                    {new Date(nextTask.date).toLocaleDateString("en-US", {
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </p>
+            <div className="bg-indigo-700 text-white rounded-xl shadow-xl p-5 sticky lg:top-8">
+              <h3 className="text-lg font-bold mb-3 flex items-center">
+                <Clock size={20} className="mr-2" />
+                {focusedLabel}
+              </h3>
+
+              {/* CLICKED DATE / EVENT VIEW */}
+              {/* CENTER DATE CONTAINER */}
+              {/* CENTER TASK CONTAINER */}
+              {isCenterOpen && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                  <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+                    {/* HEADER */}
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-xl font-bold text-indigo-700">
+                        Task / Meeting Details
+                      </h2>
+                      <button
+                        onClick={() => setIsCenterOpen(false)}
+                        className="text-gray-500 hover:text-gray-700 text-xl"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={taskTitle}
+                      onChange={(e) => setTaskTitle(e.target.value)}
+                      placeholder="Subject / Title"
+                      className="w-full border border-gray-300 rounded-lg bg-gray-50
+             text-gray-800 px-3 py-2 mb-3
+             focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+
+                    {/* TIME */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <input
+                        type="time"
+                        value={startTime}
+                        onChange={(e) => setStartTime(e.target.value)}
+                        className="w-full rounded-lg border border-gray-300
+             bg-gray-50 text-gray-800
+             px-3 py-2
+             focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+
+                      <span className="font-bold text-gray-700">-</span>
+
+                      <input
+                        type="time"
+                        value={endTime}
+                        onChange={(e) => setEndTime(e.target.value)}
+                        className="w-full rounded-lg border border-gray-300
+             bg-gray-50 text-gray-800
+             px-3 py-2
+             focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                    <div>
+                      <p
+                        className="w-full rounded-lg border border-gray-300 bg-gray-50 text-gray-800
+             px-3 py-2 "
+                      >
+                        Total Time: {calculateTotalTime(startTime, endTime)}
+                      </p>
+                      <br />
+                    </div>
+                    {/* DATE */}
+                    <div className="mb-3">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Date
+                      </label>
+                      <input
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        className="w-full rounded-lg border border-gray-300
+      bg-gray-50 text-gray-800
+      px-3 py-2
+      focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+
+                    {/* CATEGORY */}
+                    <select
+                      value={meetingType}
+                      onChange={(e) => setMeetingType(e.target.value as any)}
+                      className="w-full border border-gray-300 rounded-lg bg-grey-50 text-gray-800 px-3 py-2 mb-3"
+                    >
+                      <option value="">Select Category</option>
+                      <option value="inhouse">Inhouse</option>
+                      <option value="outhouse">Outhouse</option>
+                    </select>
+
+                    {/* COLLEGE */}
+                    <input
+                      type="text"
+                      value={collegeName}
+                      onChange={(e) => setCollegeName(e.target.value)}
+                      placeholder="College Name"
+                      className="w-full border border-gray-300 rounded-lg bg-gray-50 text-gray-800 px-3 py-2 mb-3"
+                    />
+
+                    {/* BATCH */}
+                    <input
+                      type="text"
+                      value={batch}
+                      onChange={(e) => setBatch(e.target.value)}
+                      placeholder="Batch"
+                      className="w-full border border-gray-300 rounded-lg bg-gray-50 text-gray-800 px-3 py-2 mb-3"
+                    />
+
+                    {/* COMMENTS */}
+                    <textarea
+                      value={comments}
+                      onChange={(e) => setComments(e.target.value)}
+                      placeholder="Comments"
+                      className="w-full border border-gray-300 rounded-lg bg-gray-50 text-gray-800 px-3 py-2"
+                      rows={3}
+                    />
+
+                    {/* SAVE & CANCEL BUTTONS */}
+                    <div className="flex justify-end gap-3 mt-6">
+                      {/* Cancel */}
+                      <button
+                        onClick={() => {
+                          setStartTime("");
+                          setEndTime("");
+                          setIsCenterOpen(false);
+                        }}
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg
+               hover:bg-gray-300 transition"
+                      >
+                        Cancel
+                      </button>
+
+                      {/* Save */}
+                      <button
+                        onClick={() => {
+                          if (!startTime || !endTime || !selectedDate) {
+                            alert("Please fill time and date");
+                            return;
+                          }
+                          const generatedTitle =
+                            taskTitle.trim() ||
+                            collegeName.trim() ||
+                            (batch ? `Batch ${batch}` : "Task / Meeting");
+
+                          const newEvent: AcademicEvent = {
+                            id: Date.now(),
+                            title: generatedTitle, // ✅ DYNAMIC
+                            date: selectedDate,
+                            category: "Meeting",
+                            courseId: null,
+                            color:
+                              "bg-purple-200 text-purple-800 border-purple-500",
+                            isUserEvent: true,
+
+                            startTime,
+                            endTime,
+                            meetingType: meetingType || undefined,
+                            collegeName,
+                            batch,
+                            comments,
+                          };
+
+                          setEvents((prev) => [...prev, newEvent]); // ✅ SAVE TO CALENDAR
+
+                          // Reset
+                          setStartTime("");
+                          setEndTime("");
+                          setMeetingType("");
+                          setCollegeName("");
+                          setBatch("");
+                          setComments("");
+
+                          setIsCenterOpen(false);
+                        }}
+                        className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 flex items-center gap-2"
+                      >
+                        <CheckCircle size={18} />
+                        Save Task
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <button
-                  onClick={() => handleEventClick(nextTask)}
-                  className="w-full text-center mt-4 px-3 py-2 bg-indigo-500 text-white rounded-lg text-sm font-medium hover:bg-indigo-600 transition"
-                >
-                  View Details
-                </button>
-              </div>
-            ) : (
-              <div className="text-sm opacity-90 p-4 bg-indigo-600 rounded-lg">
-                <p className="font-semibold mb-1">Schedule Clear! 🎉</p>
-                <p>
-                  No upcoming tasks or deadlines found on your filtered list.
-                </p>
-              </div>
-            )}
+              )}
+
+              <AnimatePresence mode="wait">
+                {focusedEvents ? (
+                  focusedEvents.length > 0 ? (
+                    focusedEvents.map((event) => (
+                      <motion.div
+                        key={event.id}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{ duration: 0.3 }}
+                        className="space-y-2 mb-3"
+                        onClick={() => handleEventClick(event)}
+                      >
+                        <p className="text-xl font-bold">{event.title}</p>
+                        <p className="text-sm opacity-80">
+                          {event.category}
+                          {event.courseId ? ` • ${event.courseId}` : ""}
+                        </p>
+                        <p className="text-sm text-yellow-300 font-semibold">
+                          {new Date(event.date).toLocaleDateString("en-IN", {
+                            day: "numeric",
+                            month: "long",
+                            year: "numeric",
+                          })}
+                        </p>
+                      </motion.div>
+                    ))
+                  ) : (
+                    <motion.p
+                      key="no-events"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-sm opacity-80"
+                    >
+                      No events on this date.
+                    </motion.p>
+                  )
+                ) : nextTask ? (
+                  <motion.div
+                    key="next-deadline"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.3 }}
+                    className="space-y-2"
+                  >
+                    <p className="text-2xl font-extrabold">{nextTask.title}</p>
+                    <p className="text-sm opacity-80">
+                      {nextTask.category}
+                      {nextTask.courseId ? ` • ${nextTask.courseId}` : ""}
+                    </p>
+                    <div className="pt-3 border-t border-indigo-500">
+                      <p className="text-sm font-bold text-yellow-300">
+                        Due Date:
+                      </p>
+                      <p className="text-xl font-bold">
+                        {new Date(nextTask.date).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.p
+                    key="clear"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="text-sm opacity-80"
+                  >
+                    No upcoming deadlines 🎉
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
+};
+const calculateTotalTime = (start: string = "", end: string = ""): string => {
+  if (!start || !end) return "—";
+
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+
+  const startMinutes = sh * 60 + sm;
+  const endMinutes = eh * 60 + em;
+
+  const diff = endMinutes - startMinutes;
+  if (diff <= 0) return "—";
+
+  const hours = Math.floor(diff / 60);
+  const minutes = diff % 60;
+
+  return `${hours}h ${minutes}m`;
 };
 
 export default CalendarPage;

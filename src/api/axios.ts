@@ -1,11 +1,12 @@
 import axios, { AxiosError } from "axios";
+import { getToken, isTokenExpired, logout } from "../utils/auth";
 
 // ==============================
 // BASE API CONFIGURATION
 // ==============================
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 // ==============================
 // AXIOS INSTANCE
@@ -13,7 +14,7 @@ const API_BASE_URL =
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 15000, // 15 seconds
+  timeout: 15000,
   headers: {
     "Content-Type": "application/json",
   },
@@ -25,19 +26,28 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    // 🔐 Future Auth Support
-    // const token = localStorage.getItem("accessToken");
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+    const token = getToken();
 
-    console.log(`[API REQUEST] ${config.method?.toUpperCase()} ${config.url}`);
+    // Attach token (except login/register)
+    if (token && config.url !== "/auth/login") {
+      if (isTokenExpired(token)) {
+        console.warn("[AUTH] Token expired → auto logout");
+        logout();
+        return Promise.reject(new Error("Token expired"));
+      }
+
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    console.log(
+      `[API REQUEST] ${config.method?.toUpperCase()} ${config.baseURL}${
+        config.url
+      }`
+    );
 
     return config;
   },
-  (error: AxiosError) => {
-    return Promise.reject(error);
-  }
+  (error: AxiosError) => Promise.reject(error)
 );
 
 // ==============================
@@ -55,6 +65,11 @@ api.interceptors.response.use(
         `[API ERROR] ${error.response.status}`,
         error.response.data
       );
+
+      if (error.response.status === 401) {
+        console.warn("[AUTH] Unauthorized → auto logout");
+        logout();
+      }
     } else if (error.request) {
       console.error("[API ERROR] No response from server");
     } else {

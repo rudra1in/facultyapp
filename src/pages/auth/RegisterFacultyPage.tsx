@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Upload, ArrowLeft } from "lucide-react";
+import { facultyService } from "../../services/faculty.service";
 
 const RegisterFacultyPage = () => {
   const navigate = useNavigate();
@@ -17,6 +18,8 @@ const RegisterFacultyPage = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -30,14 +33,50 @@ const RegisterFacultyPage = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // ==============================
+  // SUBMIT (API)
+  // ==============================
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(null);
     setLoading(true);
 
-    setTimeout(() => {
+    try {
+      const formData = new FormData();
+
+      formData.append("name", form.name);
+      formData.append("email", form.email);
+      formData.append("phone", form.phone);
+      formData.append("password", form.password);
+      formData.append("address", form.address);
+      formData.append(
+        "subjects",
+        form.subjects
+          .split(",")
+          .map((s) => s.trim())
+          .join(",")
+      );
+      formData.append("areaOfSpecialisation", form.areaOfSpecialisation);
+
+      if (form.aadhaar) {
+        formData.append("aadhaarFile", form.aadhaar);
+      }
+
+      await facultyService.registerFacultyMultipart(formData);
+
+      setSuccess(
+        "Registration submitted successfully. Please wait for admin approval."
+      );
+
+      setTimeout(() => navigate("/login"), 2500);
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message || err?.message || "Registration failed"
+      );
+    } finally {
       setLoading(false);
-      navigate("/login");
-    }, 1500);
+    }
   };
 
   return (
@@ -51,129 +90,93 @@ const RegisterFacultyPage = () => {
         border border-white/40
         rounded-2xl shadow-2xl p-8"
       >
-        {/* BACK ARROW */}
+        {/* BACK */}
         <button
           onClick={() => navigate("/login")}
-          className="absolute top-6 left-6
-            p-2 rounded-full
-            bg-white/60 hover:bg-white
-            shadow-md transition"
-          aria-label="Go back to login"
+          className="absolute top-6 left-6 p-2 rounded-full bg-white shadow"
         >
-          <ArrowLeft className="w-5 h-5 text-gray-700" />
+          <ArrowLeft className="w-5 h-5" />
         </button>
 
-        {/* TITLE */}
-        <h1 className="text-3xl font-semibold text-center text-gray-800 mb-2">
-          Register Here
+        <h1 className="text-3xl font-semibold text-center mb-2">
+          Faculty Registration
         </h1>
-        <p className="text-center text-gray-600 mb-8">
-          Faculty registration for admin approval
+
+        <p className="text-center text-gray-600 mb-6">
+          Registration requires admin approval
         </p>
 
-        {/* FORM */}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {[
-            { name: "name", placeholder: "Full Name" },
-            { name: "phone", placeholder: "Phone Number" },
-            { name: "email", placeholder: "Email Address", type: "email" },
-            { name: "password", placeholder: "Password", type: "password" },
-          ].map((field) => (
+        {success && (
+          <div className="mb-4 p-3 rounded bg-green-100 text-green-700">
+            {success}
+          </div>
+        )}
+
+        {error && (
+          <div className="mb-4 p-3 rounded bg-red-100 text-red-700">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {["name", "phone", "email", "password"].map((field) => (
             <input
-              key={field.name}
-              type={field.type || "text"}
-              name={field.name}
-              value={(form as any)[field.name]}
+              key={field}
+              type={field === "password" ? "password" : "text"}
+              name={field}
+              placeholder={field.toUpperCase()}
+              value={(form as any)[field]}
               onChange={handleChange}
-              placeholder={field.placeholder}
-              className="w-full px-4 py-3 rounded-lg
-                bg-white/70 backdrop-blur
-                border border-white/50
-                focus:ring-2 focus:ring-indigo-500 outline-none"
               required
+              className="w-full px-4 py-3 rounded bg-white"
             />
           ))}
 
-          {/* Aadhaar Upload */}
-          <label
-            className="flex items-center justify-center gap-3
-            border-2 border-dashed border-white/50
-            rounded-xl p-5 cursor-pointer
-            bg-white/50 backdrop-blur
-            hover:border-indigo-500 transition"
-          >
-            <Upload className="w-6 h-6 text-indigo-600" />
-            <span className="text-gray-700">Upload Aadhaar (Image / PDF)</span>
-            <input
-              type="file"
-              className="hidden"
-              accept="image/*,.pdf"
-              onChange={handleFileChange}
-              required
-            />
-          </label>
-
-          {form.aadhaar && (
-            <p className="text-xs text-green-700">
-              Selected: {form.aadhaar.name}
-            </p>
-          )}
-
           <textarea
             name="address"
+            placeholder="Address"
             value={form.address}
             onChange={handleChange}
-            rows={3}
-            placeholder="Full Address"
-            className="w-full px-4 py-3 rounded-lg
-              bg-white/70 backdrop-blur
-              border border-white/50
-              focus:ring-2 focus:ring-indigo-500 outline-none"
             required
+            className="w-full px-4 py-3 rounded bg-white"
           />
 
           <input
             name="subjects"
+            placeholder="Subjects (comma separated)"
             value={form.subjects}
             onChange={handleChange}
-            placeholder="Subjects (comma separated)"
-            className="w-full px-4 py-3 rounded-lg
-              bg-white/70 backdrop-blur
-              border border-white/50
-              focus:ring-2 focus:ring-indigo-500 outline-none"
             required
+            className="w-full px-4 py-3 rounded bg-white"
           />
 
           <input
             name="areaOfSpecialisation"
+            placeholder="Area of Specialisation"
             value={form.areaOfSpecialisation}
             onChange={handleChange}
-            placeholder="Area of Specialisation"
-            className="w-full px-4 py-3 rounded-lg
-              bg-white/70 backdrop-blur
-              border border-white/50
-              focus:ring-2 focus:ring-indigo-500 outline-none"
             required
+            className="w-full px-4 py-3 rounded bg-white"
           />
+
+          <label className="flex items-center gap-3 p-4 border-dashed border rounded cursor-pointer bg-white">
+            <Upload className="w-5 h-5" />
+            Upload Aadhaar
+            <input type="file" hidden onChange={handleFileChange} />
+          </label>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-lg
-              bg-indigo-600 text-white font-semibold
-              hover:bg-indigo-700 transition
-              shadow-lg disabled:opacity-70"
+            className="w-full py-3 bg-indigo-600 text-white rounded disabled:opacity-70"
           >
             {loading ? "Submitting..." : "Submit for Approval"}
           </button>
 
           <p className="text-sm text-center text-gray-600">
             Already registered?{" "}
-            <Link
-              to="/login"
-              className="text-indigo-600 font-medium hover:underline"
-            >
-              Login here
+            <Link to="/login" className="text-indigo-600 font-medium">
+              Login
             </Link>
           </p>
         </form>

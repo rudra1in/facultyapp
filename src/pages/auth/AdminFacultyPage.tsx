@@ -6,16 +6,17 @@ import FacultyDetailModal from "./FacultyDetailModal";
 /* ================= STATUS BADGE ================= */
 const StatusBadge = ({ status }: { status: string }) => {
   const colors: Record<string, string> = {
-    pending: "bg-yellow-100 text-yellow-800",
-    active: "bg-green-100 text-green-800",
-    inactive: "bg-gray-200 text-gray-800",
+    PENDING: "bg-yellow-100 text-yellow-800",
+    ACTIVE: "bg-green-100 text-green-800",
+    INACTIVE: "bg-gray-200 text-gray-800",
+    REJECTED: "bg-red-100 text-red-800",
   };
 
   return (
     <span
       className={`px-3 py-1 rounded-full text-xs font-semibold ${colors[status]}`}
     >
-      {status.toUpperCase()}
+      {status}
     </span>
   );
 };
@@ -37,15 +38,13 @@ const FacultyCard = ({
     <div>
       <h3 className="font-semibold text-gray-900">{faculty.name}</h3>
       <p className="text-sm text-gray-600">{faculty.email}</p>
-      <p className="text-xs text-gray-500 mt-1">
-        Subjects: {faculty.subjects.join(", ")}
-      </p>
+      <p className="text-xs text-gray-500 mt-1">Subjects: {faculty.subjects}</p>
+
       <div className="mt-2">
         <StatusBadge status={faculty.status} />
       </div>
     </div>
 
-    {/* Stop click propagation so modal does NOT open */}
     <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
       {actions}
     </div>
@@ -73,6 +72,7 @@ const AdminFacultyPage = () => {
     loading,
     error,
     approveFacultyByAdmin,
+    rejectFacultyByAdmin,
     deactivateFacultyByAdmin,
     activateFacultyByAdmin,
     removeFaculty,
@@ -85,9 +85,11 @@ const AdminFacultyPage = () => {
   if (loading) return <div className="p-6">Loading faculty...</div>;
   if (error) return <div className="p-6 text-red-600">{error}</div>;
 
-  const pending = faculty.filter((f) => f.status === "pending");
-  const active = faculty.filter((f) => f.status === "active");
-  const inactive = faculty.filter((f) => f.status === "inactive");
+  const pending = faculty.filter((f) => f.status === "PENDING");
+  const active = faculty.filter((f) => f.status === "ACTIVE");
+  const inactive = faculty.filter((f) => f.status === "INACTIVE");
+
+  const toast = (msg: string) => alert(msg); // simple toast
 
   return (
     <div className="p-8 max-w-6xl mx-auto bg-gray-50 min-h-screen">
@@ -109,14 +111,20 @@ const AdminFacultyPage = () => {
             actions={
               <>
                 <button
-                  onClick={() => approveFacultyByAdmin(f.id)}
-                  className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm hover:bg-green-700"
+                  onClick={() => {
+                    approveFacultyByAdmin(f.id);
+                    toast("Faculty approved successfully");
+                  }}
+                  className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm"
                 >
                   Approve
                 </button>
                 <button
-                  onClick={() => removeFaculty(f.id)}
-                  className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm hover:bg-red-700"
+                  onClick={() => {
+                    rejectFacultyByAdmin(f.id);
+                    toast("Faculty rejected");
+                  }}
+                  className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm"
                 >
                   Reject
                 </button>
@@ -128,10 +136,6 @@ const AdminFacultyPage = () => {
 
       {/* ===================== ACTIVE ===================== */}
       <Section title={`Active Faculty (${active.length})`}>
-        {active.length === 0 && (
-          <p className="text-sm text-gray-500">No active faculty</p>
-        )}
-
         {active.map((f) => (
           <FacultyCard
             key={f.id}
@@ -140,14 +144,20 @@ const AdminFacultyPage = () => {
             actions={
               <>
                 <button
-                  onClick={() => deactivateFacultyByAdmin(f.id)}
-                  className="px-4 py-2 rounded-lg bg-yellow-500 text-white text-sm hover:bg-yellow-600"
+                  onClick={() => {
+                    deactivateFacultyByAdmin(f.id);
+                    toast("Faculty deactivated");
+                  }}
+                  className="px-4 py-2 rounded-lg bg-yellow-500 text-white text-sm"
                 >
                   Deactivate
                 </button>
                 <button
-                  onClick={() => removeFaculty(f.id)}
-                  className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm hover:bg-red-700"
+                  onClick={() => {
+                    removeFaculty(f.id);
+                    toast("Faculty deleted");
+                  }}
+                  className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm"
                 >
                   Hard Delete
                 </button>
@@ -159,10 +169,6 @@ const AdminFacultyPage = () => {
 
       {/* ===================== INACTIVE ===================== */}
       <Section title={`Inactive Faculty (${inactive.length})`}>
-        {inactive.length === 0 && (
-          <p className="text-sm text-gray-500">No inactive faculty</p>
-        )}
-
         {inactive.map((f) => (
           <FacultyCard
             key={f.id}
@@ -171,14 +177,20 @@ const AdminFacultyPage = () => {
             actions={
               <>
                 <button
-                  onClick={() => activateFacultyByAdmin(f.id)}
-                  className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700"
+                  onClick={() => {
+                    activateFacultyByAdmin(f.id);
+                    toast("Faculty activated");
+                  }}
+                  className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm"
                 >
                   Activate
                 </button>
                 <button
-                  onClick={() => removeFaculty(f.id)}
-                  className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm hover:bg-red-700"
+                  onClick={() => {
+                    removeFaculty(f.id);
+                    toast("Faculty deleted");
+                  }}
+                  className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm"
                 >
                   Hard Delete
                 </button>
@@ -188,7 +200,6 @@ const AdminFacultyPage = () => {
         ))}
       </Section>
 
-      {/* ================= MODAL ================= */}
       {selectedFaculty && (
         <FacultyDetailModal
           faculty={selectedFaculty}
