@@ -394,30 +394,26 @@ const ProfilePage: React.FC = () => {
 
   return (
     <div className="p-4 md:p-8 max-w-6xl mx-auto font-sans bg-gray-50 min-h-screen">
-      <header className="mb-8 border-b border-gray-200 pb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center mb-4 sm:mb-0">
-          <User className="h-6 w-6 sm:h-7 sm:w-7 mr-3 text-indigo-600" />
-          Faculty Profile
-        </h1>
-        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+      <header className="mb-8 pb-4 flex justify-end">
+        <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
           <button
-            className="flex items-center justify-center bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-md text-sm w-full sm:w-auto"
+            className="flex items-center justify-center bg-purple-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-purple-700 transition-colors shadow-md text-sm"
             onClick={triggerImportProfile}
           >
             <Upload className="h-4 w-4 mr-2" />
             Import Profile
           </button>
           <button
-            className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-md text-sm w-full sm:w-auto"
+            className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition-colors shadow-md text-sm"
             onClick={() => alert("Simulating PDF download...")}
           >
             <Download className="h-4 w-4 mr-2" />
             Export Profile
           </button>
           <button
-            className={`flex items-center justify-center px-4 py-2 rounded-lg font-semibold transition-colors shadow-md text-sm w-full sm:w-auto ${isEditing
-                ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+            className={`flex items-center justify-center px-4 py-2 rounded-lg font-semibold transition-colors shadow-md text-sm ${isEditing
+              ? "bg-indigo-600 text-white hover:bg-indigo-700"
+              : "bg-gray-200 text-gray-800 hover:bg-gray-300"
               }`}
             onClick={handleSave}
           >
