@@ -46,7 +46,6 @@ public class SecurityConfig {
 
                         // 🔓 PUBLIC
                         .requestMatchers("/uploads/**").permitAll()
-
                         .requestMatchers("/auth/login").permitAll()
                         .requestMatchers("/auth/forgot-password").permitAll()
                         .requestMatchers("/auth/reset-password").permitAll()
@@ -54,10 +53,15 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/faculty/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/faculty/directory").permitAll()
 
+                        // 🔹 CHAT & SHARED ACCESS
+                        .requestMatchers(HttpMethod.GET, "/faculty/active")
+                        .hasAnyRole("ADMIN", "FACULTY")
+
                         // 🔒 ROLE-BASED
                         .requestMatchers("/calendar/**").hasAnyRole("ADMIN", "FACULTY")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/faculty/**").hasRole("FACULTY")
+                        .requestMatchers("/users/**").hasAnyRole("ADMIN", "FACULTY")
 
                         .anyRequest().authenticated())
 

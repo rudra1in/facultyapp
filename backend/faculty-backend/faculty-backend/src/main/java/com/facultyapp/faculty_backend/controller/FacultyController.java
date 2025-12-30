@@ -45,4 +45,10 @@ public class FacultyController {
     public List<FacultyDirectoryResponse> getFacultyDirectory() {
         return facultyService.getFacultyDirectory();
     }
+
+    @GetMapping("/active")
+    public List<FacultyDirectoryResponse> getActiveFaculties() {
+        return facultyService.getActiveFaculties();
+    }
+
 }
