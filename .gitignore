@@ -22,3 +22,16 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# =========================
+# Environment / Secrets
+# =========================
+.env
+*.env
+
+# =========================
+# Uploaded files (DO NOT PUSH)
+# =========================
+uploads/
+uploads/**
+uploads/profile/
+uploads/aadhaar/
