@@ -6,10 +6,11 @@ import com.facultyapp.faculty_backend.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
+import com.facultyapp.faculty_backend.dto.FacultyDirectoryResponse;
 import java.nio.file.*;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class FacultyService {
@@ -144,6 +145,40 @@ public class FacultyService {
 
         // 3️⃣ Delete linked User
         userRepository.delete(faculty.getUser());
+    }
+
+    public List<FacultyDirectoryResponse> getFacultyDirectory() {
+
+        List<Faculty> faculties = facultyRepository.findByDeletedFalseAndStatusIn(
+                List.of(FacultyStatus.ACTIVE, FacultyStatus.INACTIVE));
+
+        return faculties.stream().map(f -> {
+
+            FacultyDirectoryResponse dto = new FacultyDirectoryResponse();
+
+            dto.setId(f.getId());
+            dto.setName(f.getName());
+            dto.setDepartment(f.getSubjects());
+            dto.setRole("Faculty");
+
+            dto.setEmail(f.getUser().getEmail());
+            dto.setPhoneExtension(f.getPhone());
+            dto.setOfficeLocation(f.getAddress());
+
+            dto.setResearchInterests(
+                    List.of(f.getAreaOfSpecialisation().split(",")));
+
+            dto.setStatus(f.getStatus().name());
+            dto.setAvailable(f.getStatus() == FacultyStatus.ACTIVE);
+
+            dto.setOfficeHours(
+                    f.getStatus() == FacultyStatus.ACTIVE
+                            ? "Mon–Fri: 10 AM – 4 PM"
+                            : "Currently unavailable");
+
+            return dto;
+
+        }).collect(Collectors.toList());
     }
 
 }

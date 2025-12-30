@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   Home,
   BarChart3,
@@ -18,14 +18,8 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../components/ui/ThemeContext";
 import { getRole } from "../utils/auth";
-import defaultUserPhoto from "../assets/images/milan.png";
 import LogoutButton from "../components/common/LogoutButton";
-
-/* ---------------- USER ---------------- */
-const mockUser = {
-  displayName: "Demo User",
-  photoURL: defaultUserPhoto,
-};
+import { profileService } from "../services/profile.service";
 
 /* ---------------- NAV TYPES ---------------- */
 interface NavItem {
@@ -36,7 +30,7 @@ interface NavItem {
 
 /* ---------------- SIDEBAR ---------------- */
 const SidebarContent = ({ navigation }: { navigation: NavItem[] }) => (
-  <div className="flex flex-col h-full bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700">
+  <div className="flex flex-col h-full bg-white dark:bg-gray-800 border-r">
     <div className="flex items-center px-4 py-4">
       <Target className="h-8 w-8 text-indigo-600" />
       <span className="ml-2 text-xl font-bold">FacultyApp</span>
@@ -48,7 +42,7 @@ const SidebarContent = ({ navigation }: { navigation: NavItem[] }) => (
           key={item.name}
           to={item.href}
           className={({ isActive }) =>
-            `flex items-center px-3 py-2 rounded-lg transition ${
+            `flex items-center px-3 py-2 rounded-lg ${
               isActive
                 ? "bg-indigo-600 text-white"
                 : "hover:bg-indigo-50 dark:hover:bg-gray-700"
@@ -68,8 +62,32 @@ const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
+  const location = useLocation(); // ✅ IMPORTANT
+  const role = getRole();
 
-  const role = getRole(); // "ADMIN" | "FACULTY"
+  const [user, setUser] = useState({
+    name: "",
+    photo: "/default-avatar.png",
+  });
+
+  // 🔥 Load dashboard profile (ADMIN & FACULTY)
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const data = await profileService.getMyProfile();
+        setUser({
+          name: data.name,
+          photo: data.profileImage
+            ? `http://localhost:8080/uploads/profile/${data.profileImage}`
+            : "/default-avatar.png",
+        });
+      } catch (e) {
+        console.error("Failed to load dashboard profile");
+      }
+    };
+
+    loadUser();
+  }, [location.pathname]); // 🔥 FIX LINE
 
   /* ---------------- ROLE-BASED NAV ---------------- */
   const navigation: NavItem[] =
@@ -77,11 +95,7 @@ const DashboardLayout = () => {
       ? [
           { name: "Home", href: "/dashboard/home", icon: Home },
           { name: "Overview", href: "/dashboard/overview", icon: BarChart3 },
-          {
-            name: "Faculty",
-            href: "/dashboard/admin-faculty", // ✅ ADMIN PAGE
-            icon: Users,
-          },
+          { name: "Faculty", href: "/dashboard/admin-faculty", icon: Users },
           {
             name: "Categories",
             href: "/dashboard/categories",
@@ -129,7 +143,7 @@ const DashboardLayout = () => {
         ];
 
   return (
-    <div className="h-screen flex bg-gray-50 dark:bg-gray-900 transition-colors">
+    <div className="h-screen flex bg-gray-50 dark:bg-gray-900">
       {/* DESKTOP SIDEBAR */}
       <div className="hidden lg:flex w-64">
         <SidebarContent navigation={navigation} />
@@ -147,41 +161,23 @@ const DashboardLayout = () => {
           </button>
 
           <div className="ml-auto flex items-center gap-4">
-            {/* Dark Mode */}
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-            >
-              {isDarkMode ? (
-                <Sun className="text-yellow-400" />
-              ) : (
-                <Moon className="text-indigo-600" />
-              )}
+            {/* Theme Toggle */}
+            <button onClick={toggleTheme}>
+              {isDarkMode ? <Sun /> : <Moon />}
             </button>
 
             {/* Profile */}
             <button
               onClick={() => navigate("/dashboard/profile")}
-              className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700"
+              className="flex items-center gap-2"
             >
               <img
-                src={mockUser.photoURL}
+                src={user.photo}
                 className="h-8 w-8 rounded-full object-cover"
               />
-              <span className="hidden md:block text-sm font-semibold">
-                {mockUser.displayName}
-              </span>
+              <span className="hidden md:block font-semibold">{user.name}</span>
             </button>
 
-            {/* Settings */}
-            <button
-              onClick={() => navigate("/dashboard/settings")}
-              className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
-            >
-              <Settings />
-            </button>
-
-            {/* Logout */}
             <LogoutButton />
           </div>
         </div>
@@ -196,19 +192,14 @@ const DashboardLayout = () => {
           {sidebarOpen && (
             <>
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.4 }}
-                exit={{ opacity: 0 }}
                 onClick={() => setSidebarOpen(false)}
-                className="fixed inset-0 bg-black z-40 lg:hidden"
+                className="fixed inset-0 bg-black/40 z-40"
               />
-
               <motion.div
+                className="fixed left-0 top-0 h-full w-64 z-50"
                 initial={{ x: -300 }}
                 animate={{ x: 0 }}
                 exit={{ x: -300 }}
-                transition={{ type: "spring", stiffness: 260, damping: 25 }}
-                className="fixed left-0 top-0 h-full w-64 z-50 lg:hidden"
               >
                 <SidebarContent navigation={navigation} />
               </motion.div>

@@ -1,9 +1,12 @@
 package com.facultyapp.faculty_backend.controller;
 
+import com.facultyapp.faculty_backend.dto.FacultyDirectoryResponse;
 import com.facultyapp.faculty_backend.service.FacultyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List; // ✅ IMPORTANT
 
 @RestController
 @RequestMapping("/faculty")
@@ -16,9 +19,6 @@ public class FacultyController {
         this.facultyService = facultyService;
     }
 
-    // ===============================
-    // FACULTY REGISTRATION (MULTIPART)
-    // ===============================
     @PostMapping(value = "/register", consumes = "multipart/form-data")
     public ResponseEntity<?> registerFaculty(
             @RequestParam String name,
@@ -29,19 +29,20 @@ public class FacultyController {
             @RequestParam String subjects,
             @RequestParam String areaOfSpecialisation,
             @RequestParam("aadhaarFile") MultipartFile aadhaarFile) {
+
         facultyService.registerFaculty(
-                name,
-                email,
-                phone,
-                password,
-                address,
-                subjects,
-                areaOfSpecialisation,
-                aadhaarFile);
+                name, email, phone, password,
+                address, subjects, areaOfSpecialisation, aadhaarFile);
 
         return ResponseEntity.ok().body(
                 java.util.Map.of(
                         "message",
                         "Registration submitted successfully. Please wait for admin approval."));
+    }
+
+    // ✅ PUBLIC DIRECTORY
+    @GetMapping("/directory")
+    public List<FacultyDirectoryResponse> getFacultyDirectory() {
+        return facultyService.getFacultyDirectory();
     }
 }
