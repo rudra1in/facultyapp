@@ -17,4 +17,7 @@ public interface FacultyRepository extends JpaRepository<Faculty, Long> {
     List<Faculty> findByStatusAndDeletedFalse(FacultyStatus status);
 
     List<Faculty> findByDeletedFalse();
+
+    List<Faculty> findByDeletedFalseAndStatusIn(List<FacultyStatus> statuses);
+
 }

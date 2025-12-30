@@ -2,11 +2,14 @@ package com.facultyapp.faculty_backend.controller;
 
 import com.facultyapp.faculty_backend.dto.LoginRequest;
 import com.facultyapp.faculty_backend.dto.LoginResponse;
+import com.facultyapp.faculty_backend.dto.UserProfileResponse;
 import com.facultyapp.faculty_backend.service.AuthService;
 import com.facultyapp.faculty_backend.service.PasswordResetService;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -23,6 +26,15 @@ public class AuthController {
             PasswordResetService passwordResetService) {
         this.authService = authService;
         this.passwordResetService = passwordResetService;
+    }
+
+    // ================= CURRENT USER PROFILE =================
+    @GetMapping("/me")
+    public ResponseEntity<UserProfileResponse> getMyProfile(
+            Authentication authentication) {
+
+        String email = authentication.getName();
+        return ResponseEntity.ok(authService.getMyProfile(email));
     }
 
     // ================= LOGIN =================
@@ -74,4 +86,14 @@ public class AuthController {
         return ResponseEntity.ok(
                 Map.of("message", "Password reset successful"));
     }
+
+    @PostMapping("/profile-photo")
+    public ResponseEntity<?> uploadProfilePhoto(
+            Authentication authentication,
+            @RequestParam MultipartFile file) {
+
+        authService.updateProfilePhoto(authentication.getName(), file);
+        return ResponseEntity.ok().build();
+    }
+
 }

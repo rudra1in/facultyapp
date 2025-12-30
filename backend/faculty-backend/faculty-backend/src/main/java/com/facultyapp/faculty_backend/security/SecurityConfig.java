@@ -43,12 +43,24 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/faculty/register").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // 🔓 PUBLIC
+                        .requestMatchers("/uploads/**").permitAll()
+
+                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/auth/forgot-password").permitAll()
+                        .requestMatchers("/auth/reset-password").permitAll()
+
+                        .requestMatchers(HttpMethod.POST, "/faculty/register").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/faculty/directory").permitAll()
+
+                        // 🔒 ROLE-BASED
+                        .requestMatchers("/calendar/**").hasAnyRole("ADMIN", "FACULTY")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/faculty/**").hasRole("FACULTY")
+
                         .anyRequest().authenticated())
+
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
