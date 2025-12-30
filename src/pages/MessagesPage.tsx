@@ -1,174 +1,169 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ChatComponent from "../components/chat/ChatComponent";
-import { Mail, MessageSquare, User, Search, ArrowLeft } from "lucide-react";
+import {
+  Mail,
+  MessageSquare,
+  User,
+  Search,
+  ArrowLeft,
+  MoreHorizontal,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { chatUserService, ChatUser } from "../services/chatUser.service";
+import { conversationService } from "../services/conversation.service";
+import { getUserFromToken } from "../utils/auth";
 
-/* =====================================================
-   🔹 TEMP MOCK USER (NO AUTH / NO BACKEND)
-===================================================== */
-const MOCK_CURRENT_USER = {
-  uid: "faculty-milan",
-  name: "Dr. Milan Sharma",
-  role: "faculty",
-};
-
-/* =====================================================
-   🔹 MOCK FACULTY DATABASE
-===================================================== */
-const MOCK_FACULTY = [
-  { id: "faculty-milan", name: "Dr. Milan Sharma" },
-  { id: "faculty-anya", name: "Dr. Anya Smith" },
-  { id: "faculty-john", name: "Prof. John Doe" },
-  { id: "faculty-jane", name: "Dr. Jane Wilson" },
-];
-
-/* =====================================================
-   🔹 TYPES
-===================================================== */
 interface ChatListItem {
-  id: string;
-  otherUserId: string;
+  conversationId: number;
+  otherUserId: number;
   otherUserName: string;
-  lastMessageText: string;
-  lastMessageTime: Date;
 }
 
-/* =====================================================
-   🔹 UTILS
-===================================================== */
-const createChatId = (a: string, b: string) => [a, b].sort().join("--");
-
-/* =====================================================
-   🔹 FACULTY SEARCH PANEL (DARK MODE FIXED)
-===================================================== */
-const FacultySearchPanel = ({
-  onSelectChat,
-}: {
-  onSelectChat: (chat: ChatListItem) => void;
-}) => {
-  const [search, setSearch] = useState("");
-
-  const filtered = MOCK_FACULTY.filter((f) =>
-    f.name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  return (
-    <div className="p-4 space-y-3">
-      <div className="relative">
-        <Search className="absolute left-3 top-3 text-gray-400" size={18} />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search faculty..."
-          className="
-            w-full pl-10 p-2 rounded-lg
-            bg-white dark:bg-gray-700
-            text-gray-900 dark:text-white
-            placeholder-gray-400
-            border border-gray-300 dark:border-gray-600
-            focus:outline-none focus:ring-2 focus:ring-indigo-500
-          "
-        />
-      </div>
-
-      {filtered.map((f) => (
-        <div
-          key={f.id}
-          onClick={() =>
-            onSelectChat({
-              id: createChatId(MOCK_CURRENT_USER.uid, f.id),
-              otherUserId: f.id,
-              otherUserName: f.name,
-              lastMessageText: "Start a conversation",
-              lastMessageTime: new Date(),
-            })
-          }
-          className="
-            p-3 rounded-lg cursor-pointer flex gap-3
-            hover:bg-indigo-100 dark:hover:bg-gray-700
-            transition
-          "
-        >
-          <User className="text-indigo-600" />
-          <span className="font-medium">{f.name}</span>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-/* =====================================================
-   🔹 MAIN PAGE (DARK MODE WORKING)
-===================================================== */
 const MessagesPage = () => {
+  const [users, setUsers] = useState<ChatUser[]>([]);
   const [selectedChat, setSelectedChat] = useState<ChatListItem | null>(null);
   const [isMobileChat, setIsMobileChat] = useState(false);
 
-  const handleSelectChat = (chat: ChatListItem) => {
-    setSelectedChat(chat);
+  const currentUser = getUserFromToken();
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const res = await chatUserService.getChatUsers();
+        setUsers(res.filter((u) => u.id !== currentUser.id));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadUsers();
+  }, [currentUser.id]);
+
+  const handleSelectUser = async (user: ChatUser) => {
+    const conversationId = await conversationService.findOrCreate(user.id);
+    setSelectedChat({
+      conversationId,
+      otherUserId: user.id,
+      otherUserName: user.name,
+    });
     setIsMobileChat(true);
   };
 
   return (
-    <div
-      className="
-        flex h-[calc(100vh-64px)]
-        bg-gray-50 dark:bg-gray-900
-        text-gray-900 dark:text-gray-100
-        overflow-hidden
-      "
-    >
-      {/* ================= LEFT PANEL ================= */}
+    <div className="flex h-[calc(100vh-64px)] bg-white dark:bg-gray-950 overflow-hidden">
+      {/* SIDEBAR */}
       <div
-        className={`
-          w-full md:w-80
-          bg-white dark:bg-gray-800
-          border-r border-gray-200 dark:border-gray-700
-          transition-transform
-          ${isMobileChat ? "-translate-x-full md:translate-x-0" : ""}
-        `}
+        className={`fixed inset-0 z-30 md:relative md:inset-auto w-full md:w-80 lg:w-96 bg-white dark:bg-gray-900 border-r dark:border-gray-800 transition-transform duration-300 shadow-2xl md:shadow-none
+        ${
+          isMobileChat ? "-translate-x-full md:translate-x-0" : "translate-x-0"
+        }`}
       >
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
-          <Mail className="text-indigo-600" />
-          <h2 className="font-bold text-lg">Messages</h2>
+        <div className="p-6 border-b dark:border-gray-800">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-black tracking-tight dark:text-white">
+              Messages
+            </h2>
+            <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full">
+              <Mail size={20} />
+            </div>
+          </div>
+          <div className="relative">
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              size={16}
+            />
+            <input
+              placeholder="Search people..."
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-100 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 dark:text-white"
+            />
+          </div>
         </div>
 
-        {!selectedChat && (
-          <FacultySearchPanel onSelectChat={handleSelectChat} />
-        )}
+        <div className="overflow-y-auto h-[calc(100%-140px)]">
+          {users.map((u) => (
+            <motion.div
+              key={u.id}
+              whileHover={{ x: 4 }}
+              onClick={() => handleSelectUser(u)}
+              className={`p-4 mx-2 my-1 rounded-2xl cursor-pointer flex items-center gap-3 transition-colors ${
+                selectedChat?.otherUserId === u.id
+                  ? "bg-indigo-50 dark:bg-indigo-900/20"
+                  : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
+              }`}
+            >
+              <div className="relative">
+                <div className="p-3 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full text-white">
+                  <User size={20} />
+                </div>
+                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-900 rounded-full"></div>
+              </div>
+              <div className="flex flex-col">
+                <span className="font-bold text-gray-900 dark:text-gray-100">
+                  {u.name}
+                </span>
+                <span className="text-[11px] font-black uppercase text-gray-400 tracking-tighter">
+                  {u.role}
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
-      {/* ================= RIGHT PANEL ================= */}
+      {/* CHAT MAIN CONTENT */}
       <div
-        className={`
-          flex-1
-          bg-white dark:bg-gray-800
-          transition-transform
-          ${!isMobileChat ? "translate-x-full md:translate-x-0" : ""}
-        `}
+        className={`flex-1 flex flex-col bg-slate-50 dark:bg-gray-900 transition-transform duration-300
+        ${
+          !isMobileChat ? "translate-x-full md:translate-x-0" : "translate-x-0"
+        }`}
       >
         {selectedChat ? (
-          <div className="h-full flex flex-col">
-            <div className="p-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-2">
-              <button
-                className="md:hidden"
-                onClick={() => setIsMobileChat(false)}
-              >
-                <ArrowLeft />
+          <>
+            <div className="px-6 py-4 bg-white dark:bg-gray-800 border-b dark:border-gray-700 flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setIsMobileChat(false)}
+                  className="md:hidden p-2 -ml-2 text-gray-500"
+                >
+                  <ArrowLeft />
+                </button>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                    <User size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-black text-gray-900 dark:text-white leading-tight">
+                      {selectedChat.otherUserName}
+                    </h3>
+                    <p className="text-[10px] text-green-500 font-bold uppercase tracking-widest">
+                      Online Now
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <button className="text-gray-400 hover:text-gray-600">
+                <MoreHorizontal />
               </button>
-              <MessageSquare className="text-indigo-600" />
-              <h3 className="font-semibold">{selectedChat.otherUserName}</h3>
             </div>
 
             <ChatComponent
-              chatRoomId={selectedChat.id}
-              currentUserId={MOCK_CURRENT_USER.uid}
-              currentUserName={MOCK_CURRENT_USER.name}
-              currentUserRole={MOCK_CURRENT_USER.role}
+              chatRoomId={selectedChat.conversationId}
+              currentUserId={currentUser.id}
+              currentUserName={currentUser.name}
+              currentUserRole={currentUser.role}
             />
-          </div>
+          </>
         ) : (
-          <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
-            Select a faculty to start chat
+          <div className="hidden md:flex flex-1 flex-col items-center justify-center text-center p-8">
+            <div className="w-24 h-24 bg-white dark:bg-gray-800 rounded-3xl shadow-xl flex items-center justify-center mb-6 border dark:border-gray-700">
+              <MessageSquare size={40} className="text-indigo-600" />
+            </div>
+            <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">
+              Welcome to Secure Messages
+            </h3>
+            <p className="text-gray-500 max-w-xs">
+              Select a colleague from the left to start a professional
+              conversation.
+            </p>
           </div>
         )}
       </div>

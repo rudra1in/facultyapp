@@ -1,5 +1,10 @@
 import api from "../api/axios";
 
+export interface FacultyUser {
+  id: number;
+  name: string;
+}
+
 export const facultyService = {
   // =========================
   // ADMIN
@@ -36,6 +41,11 @@ export const facultyService = {
     const res = await api.post("/faculty/register", formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });
+    return res.data;
+  },
+
+  getActiveFaculties: async (): Promise<FacultyUser[]> => {
+    const res = await api.get("/faculty/active");
     return res.data;
   },
 };

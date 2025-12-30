@@ -35,6 +35,7 @@ import photo3 from "../../assets/images/photo3.png";
 import photo4 from "../../assets/images/photo4.png";
 import photo5 from "../../assets/images/photo5.png";
 import LoginPage from "../../pages/auth/LoginPage";
+import FeedbackWidget from "../../components/ui/FeedbackWidget";
 
 // --- NEW WAVE DIVIDER COMPONENT ---
 // This component uses a responsive SVG to create a wave-like separation.
@@ -886,35 +887,37 @@ const AnimatedLandingPage: React.FC = () => {
       </AnimatePresence>
 
       {/* Login Modal (unchanged) */}
+      {/* Find this block in AnimatedLandingPage.tsx */}
       <AnimatePresence>
         {showLogin && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <div
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             onClick={() => setShowLogin(false)}
           >
+            {/* CHANGE THIS LINE BELOW: Change 'max-w-md' to 'max-w-5xl' */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", duration: 0.5 }}
-              className="relative max-w-md w-full max-h-[90vh] overflow-y-auto"
+              className="relative max-w-5xl w-full max-h-[95vh] overflow-y-auto bg-transparent"
               onClick={(e) => e.stopPropagation()}
             >
+              {/* The Close Button */}
               <button
                 onClick={() => setShowLogin(false)}
-                className="absolute -top-4 -right-4 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center z-10 hover:bg-gray-50 transition-colors"
+                className="absolute top-2 right-2 md:-top-4 md:-right-4 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center z-[60] hover:bg-gray-50 transition-colors"
               >
                 <X className="w-5 h-5 text-gray-600" />
               </button>
-              <LoginPage onLogin={handleLogin} />
+
+              {/* The LoginPage Component inside the container */}
+              <LoginPage />
             </motion.div>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
-
+      <FeedbackWidget />
       <Footer />
     </div>
   );

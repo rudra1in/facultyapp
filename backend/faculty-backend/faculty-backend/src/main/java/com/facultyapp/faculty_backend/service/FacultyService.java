@@ -181,4 +181,22 @@ public class FacultyService {
         }).collect(Collectors.toList());
     }
 
+    public List<FacultyDirectoryResponse> getActiveFaculties() {
+
+        List<Faculty> faculties = facultyRepository.findByStatusAndDeletedFalse(FacultyStatus.ACTIVE);
+
+        return faculties.stream().map(f -> {
+            FacultyDirectoryResponse dto = new FacultyDirectoryResponse();
+
+            // 🔥 IMPORTANT: use USER ID for chat
+            dto.setId(f.getUser().getId());
+            dto.setName(f.getName());
+            dto.setEmail(f.getUser().getEmail());
+            dto.setRole("Faculty");
+            dto.setAvailable(true);
+
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
 }

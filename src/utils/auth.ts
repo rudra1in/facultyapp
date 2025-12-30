@@ -11,12 +11,44 @@ export const getRole = (): "ADMIN" | "FACULTY" | null => {
 };
 
 // ==============================
-// JWT EXPIRY CHECK
+// JWT PAYLOAD TYPE
 // ==============================
 
 interface JwtPayload {
+  sub: string; // email
+  userId: number; // ✅ backend should include this
+  name: string; // ✅ backend should include this
+  role: "ADMIN" | "FACULTY";
   exp: number;
 }
+
+// ==============================
+// DECODE USER FROM TOKEN
+// ==============================
+
+export const getUserFromToken = () => {
+  const token = getToken();
+  if (!token) throw new Error("No token found");
+
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1])) as JwtPayload;
+
+    return {
+      id: payload.userId,
+      name: payload.name,
+      role: payload.role,
+      email: payload.sub,
+    };
+  } catch (err) {
+    console.error("Invalid token", err);
+    logout();
+    throw new Error("Invalid token");
+  }
+};
+
+// ==============================
+// JWT EXPIRY CHECK
+// ==============================
 
 export const isTokenExpired = (token: string): boolean => {
   try {
@@ -24,7 +56,7 @@ export const isTokenExpired = (token: string): boolean => {
     const currentTime = Math.floor(Date.now() / 1000);
     return payload.exp < currentTime;
   } catch {
-    return true; // invalid token → treat as expired
+    return true;
   }
 };
 
@@ -51,7 +83,5 @@ export const isAuthenticated = (): boolean => {
 export const logout = () => {
   localStorage.removeItem("accessToken");
   localStorage.removeItem("userRole");
-
-  // hard redirect (clears memory + state)
   window.location.href = "/login";
 };
