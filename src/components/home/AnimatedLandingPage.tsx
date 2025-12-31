@@ -1,13 +1,13 @@
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   motion,
   AnimatePresence,
   useInView,
   animate,
-  Variants,
+  useScroll,
+  useTransform,
 } from "framer-motion";
 import {
-  GraduationCap,
   ArrowRight,
   X,
   Mail,
@@ -20,14 +20,18 @@ import {
   Users,
   Zap,
   BarChart,
-  FileText,
   Heart,
   ChevronUp,
   ChevronDown,
   Quote,
-  ChevronLeft, // Import for Left Arrow
-  ChevronRight, // Import for Right Arrow
+  Hexagon,
+  Sparkles,
+  ShieldCheck,
+  Globe,
+  Star,
 } from "lucide-react";
+
+// Asset imports
 import landingPhoto from "../../assets/images/landingphoto.png";
 import photo1 from "../../assets/images/photo1.png";
 import photo2 from "../../assets/images/photo2.png";
@@ -37,1011 +41,568 @@ import photo5 from "../../assets/images/photo5.png";
 import LoginPage from "../../pages/auth/LoginPage";
 import FeedbackWidget from "../../components/ui/FeedbackWidget";
 
-// --- NEW WAVE DIVIDER COMPONENT ---
-// This component uses a responsive SVG to create a wave-like separation.
-// It sits at the BOTTOM of a section and its 'fill' color should match the NEXT section's background.
-interface WaveDividerProps {
-  fillColor: string; // Tailwind class for fill color (e.g., 'fill-white', 'fill-blue-50')
-  flip?: boolean; // Optional: To flip the wave vertically for different transitions
-}
+/* ===============================
+   1. ANIMATED BRAND LOGO
+================================ */
+const AnimatedLogo: React.FC<{ size?: number; showText?: boolean }> = ({
+  size = 32,
+  showText = true,
+}) => (
+  <div className="flex items-center space-x-3 group cursor-pointer">
+    <div className="relative flex items-center justify-center">
+      <motion.div
+        animate={{ scale: [1, 1.3, 1], opacity: [0.2, 0.5, 0.2] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute inset-0 bg-blue-500 rounded-full blur-2xl"
+      />
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        className="relative z-10 text-blue-600"
+      >
+        <Hexagon size={size + 10} strokeWidth={1.5} />
+      </motion.div>
+      {[0, 120, 240].map((angle, i) => (
+        <motion.div
+          key={i}
+          className="absolute z-20 text-blue-400"
+          animate={{ rotate: [angle, angle + 360], scale: [0.8, 1.2, 0.8] }}
+          transition={{
+            rotate: { duration: 5 + i, repeat: Infinity, ease: "linear" },
+            scale: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+          }}
+          style={{ width: size + 20, height: size + 20 }}
+        >
+          <Sparkles
+            size={10}
+            className="absolute top-0 left-1/2 -translate-x-1/2"
+          />
+        </motion.div>
+      ))}
+      <motion.div
+        animate={{ scale: [0.8, 1.1, 0.8] }}
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute z-30 bg-blue-600 h-4 w-4 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.6)] flex items-center justify-center"
+      >
+        <Star size={8} className="text-white fill-white" />
+      </motion.div>
+    </div>
+    {showText && (
+      <span className="text-2xl font-black tracking-tighter text-gray-800">
+        FACULTY<span className="text-blue-600">HUB</span>
+      </span>
+    )}
+  </div>
+);
 
-const WaveDivider: React.FC<WaveDividerProps> = ({
+/* ===============================
+   2. WAVE DIVIDER
+================================ */
+const WaveDivider: React.FC<{ fillColor: string; flip?: boolean }> = ({
   fillColor,
   flip = false,
 }) => (
   <div
-    className={`relative w-full overflow-hidden ${
-      flip ? "transform rotate-180" : ""
+    className={`relative w-full overflow-hidden leading-[0] ${
+      flip ? "rotate-180" : ""
     }`}
   >
     <svg
-      className={`block w-full h-16 ${fillColor}`} // h-16 is a good height for a smooth transition
-      viewBox="0 0 1440 100" // Define the original viewBox
+      className={`block w-full h-16 ${fillColor}`}
+      viewBox="0 0 1440 100"
       preserveAspectRatio="none"
-      xmlns="http://www.w3.org/2000/svg"
     >
       <path
         d="M0,50 C240,150 480,0 720,50 C960,100 1200,50 1440,50 L1440,100 L0,100 Z"
-        className={fillColor}
-        fill="currentColor" // Use currentColor to inherit from fillColor class on the SVG
-      ></path>
+        fill="currentColor"
+      />
     </svg>
   </div>
 );
-// --- END WAVE DIVIDER COMPONENT ---
 
-// --- QuickStats Component with Counter Animation (UPDATED background) ---
-interface StatItem {
-  value: string;
-  label: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  color: string;
-  endValue: number;
-  format: (val: number) => string;
-}
+/* ===============================
+   3. QUICK STATS COMPONENTS
+================================ */
+const Counter: React.FC<{
+  value: number;
+  suffix: string;
+  trigger: boolean;
+}> = ({ value, suffix, trigger }) => {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (trigger) {
+      animate(0, value, {
+        duration: 2,
+        onUpdate: (v) => setCount(Math.floor(v)),
+      });
+    }
+  }, [trigger, value]);
+  return (
+    <h3 className="text-5xl font-black text-gray-900 tracking-tighter">
+      {count.toLocaleString()}
+      {suffix}
+    </h3>
+  );
+};
 
 const QuickStats: React.FC = () => {
-  const stats: StatItem[] = [
+  const stats = [
     {
-      value: "2,500+",
       label: "Faculty Members",
+      val: 2500,
       icon: Users,
       color: "text-blue-600",
-      endValue: 2500,
-      format: (val: number) => Math.round(val / 10) * 10 + "+",
+      suffix: "+",
     },
     {
-      value: "15,000+",
       label: "Sessions Conducted",
-      icon: BookOpen, // 📘 changed here
+      val: 15000,
+      icon: BookOpen,
       color: "text-teal-600",
-      endValue: 15000,
-      format: (val: number) =>
-        (Math.round(val / 100) * 100).toLocaleString() + "+",
+      suffix: "+",
     },
     {
-      value: "98%",
       label: "Satisfaction Rate",
+      val: 98,
       icon: Heart,
       color: "text-red-600",
-      endValue: 98,
-      format: (val: number) => Math.round(val) + "%",
+      suffix: "%",
     },
   ];
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.5 });
-
-  const Counter: React.FC<{ stat: StatItem }> = ({ stat }) => {
-    const [currentValue, setCurrentValue] = useState(0);
-
-    useEffect(() => {
-      if (isInView) {
-        const controls = {
-          start: 0,
-          end: stat.endValue,
-          duration: 2,
-        };
-
-        const animation = animate(controls.start, controls.end, {
-          duration: controls.duration,
-          onUpdate: (latest) => {
-            setCurrentValue(latest);
-          },
-        });
-
-        return () => animation.stop();
-      }
-    }, [isInView, stat.endValue]);
-
-    return (
-      <motion.div
-        className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-800"
-        initial={{ opacity: 0, y: 20 }}
-        animate={isInView ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.5, delay: 0.3 }}
-      >
-        {stat.format(currentValue)}
-      </motion.div>
-    );
-  };
+  const isInView = useInView(ref, { once: true, amount: 0.3 });
 
   return (
-    // Keep QuickStats as bg-white for now to contrast with the preceding Testimonials' bg-gray-50
-    <div className="bg-white py-16 md:py-24 shadow-inner-top" ref={ref}>
-      <div className="max-w-screen-xl mx-auto px-6 md:px-12">
-        <motion.h2
-          className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-center mb-12"
-          initial={{ opacity: 0, y: -20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.5 }}
-        >
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-teal-500">
-            Our Impact at a Glance
-          </span>
-        </motion.h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+    <div className="bg-white py-24 relative overflow-hidden" ref={ref}>
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {stats.map((stat, index) => (
             <motion.div
-              className="bg-gray-50 p-6 rounded-2xl shadow-2xl ring-1 ring-black/5
-flex flex-col items-center text-center space-y-3 transition-transform duration-300"
-              initial={{ opacity: 0, scale: 0.85 }}
-              animate={isInView ? { opacity: 1, scale: 1 } : {}}
-              transition={{
-                duration: 0.15, // VERY fast
-                delay: index * 0.05, // almost instant stagger
-                type: "tween", // faster than spring
-                ease: "easeOut",
-              }}
-              whileHover={{
-                scale: 1.05,
-                boxShadow: "0 25px 45px rgba(0,0,0,0.18)",
-              }}
+              key={index}
+              initial={{ opacity: 0, y: 30 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: index * 0.2 }}
+              className="group p-10 rounded-[3rem] bg-gray-50 border border-gray-100 text-center hover:shadow-2xl transition-all"
             >
-              <div
-                className={`p-4 rounded-full bg-opacity-10 ${stat.color.replace(
-                  "text",
-                  "bg"
-                )} bg-blue-100`}
-              >
-                <stat.icon className={`w-8 h-8 ${stat.color}`} />
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl flex items-center justify-center bg-white shadow-lg text-blue-600 group-hover:scale-110 transition-transform">
+                <stat.icon size={32} />
               </div>
-              <Counter stat={stat} />
-              <p className="text-lg font-medium text-gray-600">{stat.label}</p>
+              <Counter
+                value={stat.val}
+                suffix={stat.suffix}
+                trigger={isInView}
+              />
+              <p className="text-gray-500 font-bold uppercase tracking-widest text-xs mt-2">
+                {stat.label}
+              </p>
             </motion.div>
           ))}
         </div>
       </div>
-      {/* ADD WAVE DIVIDER HERE to separate QuickStats (bg-white) from LocationMap (bg-blue-50) */}
       <WaveDivider fillColor="fill-blue-50" />
     </div>
   );
 };
-// --- End QuickStats Component ---
 
-// --- Testimonials Section (UPDATED) ---
-// (Testimonials data and TestimonialCard component remain unchanged)
+/* ===============================
+   4. TESTIMONIALS SECTION
+================================ */
 const testimonials = [
   {
     quote:
-      "The Faculty Portal has simplified my academic responsibilities significantly. Managing course materials, announcements, and student interactions is now seamless, allowing me to focus more on teaching and research.",
+      "The Faculty Portal has simplified my academic responsibilities significantly.",
     name: "Dr. Sandeep Sharma",
-    title: "Professor of Computer Science",
+    title: "Professor of CS",
     image: photo1,
   },
   {
     quote:
-      "Having access to detailed analytics and performance reports in one centralized platform has transformed departmental decision-making. It helps us monitor progress, identify gaps, and improve academic outcomes effectively.",
+      "Detailed analytics in one platform has transformed our departmental decision-making.",
     name: "Mr. Sudeep Patra",
-    title: "Head of the Mathematics Department",
+    title: "Head of Math",
     image: photo2,
   },
   {
     quote:
-      "As a parent, this platform gives me clarity and confidence about my child’s academic progress. Regular updates, communication, and transparency make it easier to stay involved and supportive.",
+      "As a parent, this platform gives me clarity about my child’s progress.",
     name: "Father of Manav",
-    title: "Parent, Class 9 | Bangalore",
+    title: "Parent",
     image: photo3,
   },
   {
     quote:
-      "The portal makes learning more organized and interactive. Accessing notes, assignments, and clarifications in one place has made my studies easier and more enjoyable.",
+      "Accessing notes and assignments in one place has made studies easier.",
     name: "Harshita",
-    title: "Student, Class 7 | Mumbai",
+    title: "Student, Class 7",
     image: photo4,
   },
   {
-    quote:
-      "This platform has improved collaboration between students and teachers. Submitting assignments, receiving feedback, and staying updated on academics is now quick and hassle-free.",
+    quote: "Collaboration is now quick and hassle-free. Best tool ever.",
     name: "Atharv",
-    title: "Student, Class 12 | Kolkata",
+    title: "Student, Class 12",
     image: photo5,
   },
 ];
 
-const TestimonialCard: React.FC<{ testimonial: (typeof testimonials)[0] }> = ({
-  testimonial,
-}) => (
-  <motion.div
-    key={testimonial.name}
-    className="bg-white p-6 rounded-3xl
-             shadow-[0_20px_40px_rgba(0,0,0,0.12)]
-             h-full flex flex-col justify-between"
-    initial={{ opacity: 0, scale: 0.9 }}
-    animate={{ opacity: 1, scale: 1 }}
-    exit={{ opacity: 0, scale: 0.9 }}
-    transition={{ duration: 0.5 }}
-  >
-    <Quote className="w-6 h-6 text-blue-500 mb-4" />
-    <p className="text-gray-600 text-base italic mb-6 flex-grow">
-      "{testimonial.quote}"
-    </p>
-
-    <div className="flex items-center space-x-4 pt-4 border-t border-gray-100">
-      <div className="relative">
-        {/* Testimonial Image Circle */}
-        <img
-          src={testimonial.image}
-          alt={testimonial.name}
-          className="w-20 h-20 rounded-full object-cover"
-        />
-        {/* Role badge overlay (Existing feature) */}
-        <div className="absolute -bottom-1 -right-1 bg-teal-500 p-1 rounded-full border-2 border-white">
-          {testimonial.title.includes("Professor") ||
-          testimonial.title.includes("Head") ? (
-            <GraduationCap className="w-3 h-3 text-white" />
-          ) : (
-            <Users className="w-3 h-3 text-white" />
-          )}
-        </div>
-      </div>
-      <div>
-        <h4 className="font-bold text-gray-800">{testimonial.name}</h4>
-        <p className="text-sm text-blue-600">{testimonial.title}</p>
-      </div>
-    </div>
-  </motion.div>
-);
-
 const TestimonialsSection: React.FC = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const totalTestimonials = testimonials.length;
-  const autoSlideInterval = useRef<number | null>(null);
-
-  // Function to move to the next slide
-  const nextSlide = useCallback(() => {
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % totalTestimonials);
-  }, [totalTestimonials]);
-
-  // Function to move to the previous slide
-  const prevSlide = () => {
-    setCurrentIndex(
-      (prevIndex) => (prevIndex - 1 + totalTestimonials) % totalTestimonials
-    );
-    resetAutoSlide();
-  };
-
-  // Function to reset and restart the auto-slide timer
-  const resetAutoSlide = () => {
-    if (autoSlideInterval.current) {
-      clearInterval(autoSlideInterval.current);
-    }
-    // Set a new interval for auto-sliding every 7 seconds
-    autoSlideInterval.current = setInterval(
-      nextSlide,
-      7000
-    ) as unknown as number;
-  };
-
-  // Start the auto-slide on mount
-  useEffect(() => {
-    resetAutoSlide();
-    // Clear the interval when the component unmounts
-    return () => {
-      if (autoSlideInterval.current) {
-        clearInterval(autoSlideInterval.current);
-      }
-    };
-  }, [nextSlide]);
-
-  // Manually clicking the arrows will reset the auto-slide timer
-  const handleManualSlide = (direction: "prev" | "next") => {
-    if (direction === "next") {
-      nextSlide();
-    } else {
-      prevSlide(); // prevSlide already calls resetAutoSlide inside it
-    }
-    resetAutoSlide();
-  };
-
+  const [index, setIndex] = useState(0);
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.5 });
+  const isInView = useInView(ref, { once: true });
+
+  useEffect(() => {
+    const timer = setInterval(
+      () => setIndex((p) => (p + 1) % testimonials.length),
+      6000
+    );
+    return () => clearInterval(timer);
+  }, []);
 
   return (
-    <section id="testimonials" className="bg-gray-50 pt-16 md:pt-24" ref={ref}>
-      <div className="max-w-screen-xl mx-auto px-6 md:px-12 relative">
-        <motion.h2
-          className="text-4xl md:text-5xl font-extrabold text-center mb-16"
-          initial={{ opacity: 0, y: -30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-        >
-          Our{" "}
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-teal-500">
-            Community's Voice
-          </span>
+    <section className="bg-gray-50 py-24" ref={ref}>
+      <div className="max-w-4xl mx-auto px-6 text-center">
+        <motion.h2 className="text-5xl font-black tracking-tighter mb-16 text-gray-900">
+          Community <span className="text-blue-600">Voice</span>
         </motion.h2>
-
-        <div className="relative w-full max-w-lg mx-auto">
-          {/* Testimonial Card Display */}
-          <div className="relative h-96">
-            <AnimatePresence initial={false} mode="wait">
-              <motion.div
-                key={currentIndex}
-                className="bg-white p-6 rounded-3xl shadow-[0_18px_40px_rgba(0,0,0,0.15)] h-full flex flex-col justify-between"
-                initial={{ opacity: 0, x: 50, scale: 0.95 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: -50, scale: 0.95 }}
-                transition={{ duration: 0.5, type: "tween" }}
-              >
-                <TestimonialCard testimonial={testimonials[currentIndex]} />
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Navigation Arrows */}
-          <motion.button
-            className="absolute -left-16 top-1/2 -translate-y-1/2 bg-white shadow-lg rounded-full p-3"
-            onClick={() => handleManualSlide("prev")}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <ChevronLeft className="w-6 h-6 " />
-          </motion.button>
-          <motion.button
-            className="absolute -right-16 top-1/2 -translate-y-1/2 bg-white shadow-lg rounded-full p-3"
-            onClick={() => handleManualSlide("next")}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <ChevronRight className="w-6 h-6" />
-          </motion.button>
-        </div>
-
-        {/* Indicator Dots */}
-        <div className="flex justify-center space-x-2 mt-12 mb-16">
-          {" "}
-          {/* Increased bottom margin for section end */}
-          {testimonials.map((_, index) => (
-            <motion.button
+        <div className="relative bg-white p-12 rounded-[3rem] shadow-2xl border border-gray-100 min-h-[400px] flex flex-col justify-center">
+          <Quote className="absolute top-10 left-10 w-12 h-12 text-blue-100" />
+          <AnimatePresence mode="wait">
+            <motion.div
               key={index}
-              onClick={() => {
-                setCurrentIndex(index);
-                resetAutoSlide(); // Reset timer on dot click
-              }}
-              className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-                index === currentIndex
-                  ? "bg-blue-600 scale-125 shadow-md"
-                  : "bg-gray-300 hover:bg-gray-400"
-              }`}
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
-            />
-          ))}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="relative z-10"
+            >
+              <p className="text-2xl font-medium text-gray-700 italic leading-relaxed">
+                "{testimonials[index].quote}"
+              </p>
+              <div className="mt-10 flex items-center justify-center space-x-4">
+                <img
+                  src={testimonials[index].image}
+                  className="w-16 h-16 rounded-full border-4 border-blue-50 object-cover"
+                  alt=""
+                />
+                <div className="text-left">
+                  <h4 className="font-black text-gray-900 text-lg">
+                    {testimonials[index].name}
+                  </h4>
+                  <p className="text-blue-600 font-bold text-sm">
+                    {testimonials[index].title}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
-      {/* ADD WAVE DIVIDER HERE to separate Testimonials (bg-gray-50) from QuickStats (bg-white) */}
       <WaveDivider fillColor="fill-white" />
     </section>
   );
 };
-// --- End Testimonials Section ---
 
-// --- AboutUs Section (UPDATED to add Wave Divider at the end) ---
+/* ===============================
+   5. ABOUT SECTION
+================================ */
 const AboutUsSection: React.FC = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.5 });
-
-  const featureVariants: Variants = {
-    hidden: { opacity: 0, y: 50 },
-    visible: { opacity: 1, y: 0 },
-  };
-
   const features = [
     {
-      title: "Comprehensive Curriculum Management",
-      description:
-        "Easily plan, organize, and update course materials and syllabi.",
+      title: "Curriculum Management",
+      desc: "Plan course materials effortlessly.",
       icon: BookOpen,
-      color: "from-blue-500 to-indigo-600",
-      iconColor: "text-blue-600 dark:text-blue-400",
+      color: "bg-blue-600",
     },
     {
-      title: "Enhanced Student Engagement",
-      description: "Foster a collaborative learning environment.",
+      title: "Student Engagement",
+      desc: "Foster collaborative environments.",
       icon: Users,
-      color: "from-emerald-500 to-teal-600",
-      iconColor: "text-emerald-600 dark:text-emerald-400",
+      color: "bg-teal-600",
     },
     {
-      title: "Robust Performance Analytics",
-      description: "Track performance using visual dashboards.",
+      title: "Performance Analytics",
+      desc: "Track progress visually.",
       icon: BarChart,
-      color: "from-purple-500 to-fuchsia-600",
-      iconColor: "text-purple-600 dark:text-purple-400",
+      color: "bg-purple-600",
     },
     {
-      title: "Seamless Administrative Workflow",
-      description: "Automate grading and attendance.",
+      title: "Workload Automation",
+      desc: "Automate grading workflows.",
       icon: Zap,
-      color: "from-orange-500 to-amber-600",
-      iconColor: "text-orange-600 dark:text-orange-400",
+      color: "bg-orange-500",
     },
   ];
 
   return (
-    <section id="about" className="bg-blue-50 pt-16 md:pt-24" ref={ref}>
-      <div className="max-w-screen-xl mx-auto px-6 md:px-12">
-        <motion.h2
-          className="text-4xl md:text-5xl font-extrabold text-center mb-6"
-          initial={{ opacity: 0, y: -30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-        >
-          About{" "}
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-teal-500">
-            Faculty Portal
-          </span>
-        </motion.h2>
-        <motion.p
-          className="text-xl text-gray-600 text-center max-w-3xl mx-auto mb-16"
-          initial={{ opacity: 0, y: -20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          We are committed to building the future of higher education by
-          providing an intuitive and powerful platform for academic excellence.
-        </motion.p>
-
-        <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16" // Added mb-16 to give space before the wave
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-          variants={{
-            visible: { transition: { staggerChildren: 0.15 } },
-          }}
-        >
-          {features.map((feature, index) => (
+    <section id="about" className="bg-blue-50/50 py-32">
+      <div className="max-w-7xl mx-auto px-6">
+        <h2 className="text-5xl font-black text-center mb-20 tracking-tighter">
+          Core Capabilities
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {features.map((f, i) => (
             <motion.div
-              key={index}
-              className="
-    bg-white dark:bg-gray-900
-    p-8 shadow-lg border border-gray-100 dark:border-gray-800
-    transition-all duration-300 hover:shadow-2xl
-    text-gray-800 dark:text-gray-200
-  "
-              style={{
-                borderRadius: "40px 6px 40px 6px",
-              }}
-              whileHover={{ y: -8 }}
+              key={i}
+              whileHover={{ y: -10 }}
+              className="bg-white p-10 rounded-[3rem] shadow-xl border border-gray-100 transition-all"
             >
-              {/* Icon */}
-              <motion.div
-                whileHover={{ rotate: 6, scale: 1.1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }} // <-- controls speed
-                className={`w-14 h-14 mb-6 flex items-center justify-center
-              rounded-2xl bg-gradient-to-br ${feature.color}
-              shadow-md`}
+              <div
+                className={`p-4 rounded-2xl ${f.color} text-white mb-6 w-fit shadow-lg`}
               >
-                <feature.icon className="w-7 h-7 text-white" />
-              </motion.div>
-
-              {/* Title */}
-              <h3 className="text-lg font-bold mb-3 text-gray-900 dark:text-white">
-                {feature.title}
+                <f.icon size={24} />
+              </div>
+              <h3 className="text-xl font-black mb-2 text-gray-900">
+                {f.title}
               </h3>
-
-              {/* Description */}
-              <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
-                {feature.description}
+              <p className="text-gray-500 text-sm font-medium leading-relaxed">
+                {f.desc}
               </p>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </div>
-      {/* ADD WAVE DIVIDER HERE to separate AboutUs (bg-blue-50) from Testimonials (bg-gray-50) */}
-      <WaveDivider fillColor="fill-gray-50" />
+      <WaveDivider fillColor="fill-white" />
     </section>
   );
 };
-// --- End AboutUs Section ---
 
-// --- LocationMap Section (UPDATED background and Wave Divider) ---
-const LocationMap: React.FC = () => {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, amount: 0.5 });
-  // Placeholder Google Maps Embed URL for a university (e.g., Stanford University)
-  const mapUrl =
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3167.3147817454254!2d-122.1748286846985!3d37.42747427982269!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808fbb2c552554e9%3A0x628e9b6a71e89b25!2sStanford%20University!5e0!3m2!1sen!2sin!4v1633512000000!5m2!1sen!2sin";
-
-  return (
-    // CHANGED: From bg-white to bg-blue-50 for better integration with the site's palette
-    <section id="map" className="bg-blue-50 pt-16 md:pt-24" ref={ref}>
-      <div className="max-w-screen-xl mx-auto px-6 md:px-12">
-        <motion.h2
-          className="text-4xl md:text-5xl font-extrabold text-center text-gray-800 mb-6"
-          initial={{ opacity: 0, y: -30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
-        >
-          Our{" "}
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-900 to-teal-500">
-            Campus Location
-          </span>
-        </motion.h2>
-        <motion.p
-          className="text-xl text-gray-600 text-center max-w-3xl mx-auto mb-12"
-          initial={{ opacity: 0, y: -20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          Visit us at our main campus to experience our vibrant academic
-          community first-hand.
-        </motion.p>
-        <motion.div
-          className="aspect-video w-full h-96 lg:h-[600px] rounded-2xl shadow-2xl overflow-hidden border-4 border-blue-200"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={isInView ? { opacity: 1, scale: 1 } : {}}
-          transition={{ duration: 1, delay: 0.4 }}
-          whileHover={{
-            scale: 1.01,
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
-          }}
-        >
-          <iframe
-            src={mapUrl}
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            allowFullScreen={false}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Campus Location Map"
-          ></iframe>
-        </motion.div>
-      </div>
-      {/* ADD WAVE DIVIDER HERE to separate LocationMap (bg-blue-50) from Footer (dark blue/indigo) */}
-      {/* We use 'fill-white' for the wave and flip it so the white "wave" comes up from the bottom */}
-      {/* This creates a clean line between the map section and the "Back to Top" section which is now inside the Conditional Content block. */}
-      {/* Note: I'll update AnimatedLandingPage to make the "Back to Top" area part of the map section, or the overall Conditional Content, to make the wave transition correctly. */}
-
-      {/* Since the Footer is dark and the Map is light, let's keep the map background light blue and add a custom visual break.
-      The Footer's gradient start color is 'blue-700', which is dark. We will use a wave here. */}
-      <WaveDivider fillColor="fill-blue-700" flip={true} />
-    </section>
-  );
-};
-// --- End LocationMap Section ---
-
-// --- AnimatedLandingPage (UPDATED to integrate Wave Dividers) ---
-
+/* ===============================
+   6. MAIN LANDING PAGE
+================================ */
 const AnimatedLandingPage: React.FC = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [showContent, setShowContent] = useState(false);
-
   const contentRef = useRef<HTMLDivElement>(null);
-
-  const handleLogin = () => {
-    setShowLogin(false);
-  };
+  const { scrollYProgress } = useScroll();
+  const yParallax = useTransform(scrollYProgress, [0, 1], [0, -200]);
 
   const handleLearnMore = () => {
     setShowContent(true);
-    setTimeout(() => {
-      contentRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 500);
-  };
-
-  const floatVariants: Variants = {
-    initial: { y: 0, rotate: 0 },
-    animate: (i: number) => ({
-      y: [0, -15 - i * 5, 0],
-      rotate: [0, 5, -5, 0],
-      transition: {
-        duration: 8 + i * 2,
-        repeat: Infinity,
-        ease: "easeInOut",
-        delay: i * 0.5,
-      },
-    }),
-  };
-
-  const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
+    setTimeout(
+      () => contentRef.current?.scrollIntoView({ behavior: "smooth" }),
+      300
+    );
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 relative overflow-x-hidden flex flex-col">
-      <div className="relative z-10 flex-grow flex flex-col">
-        {/* Header (unchanged) */}
-        <header className="flex justify-between items-center p-6 md:px-12 md:py-8 w-full max-w-screen-2xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex items-center space-x-2"
-          >
-            <motion.div
-              animate={{
-                scale: [1, 1.1, 1],
-                transition: {
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 1.5,
-                },
-              }}
-            >
-              <GraduationCap className="w-8 h-8 text-blue-600" />
-            </motion.div>
-            <span className="text-2xl font-bold text-gray-800">
-              Faculty Portal
-            </span>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex space-x-4"
-          >
-            <button
-              onClick={() => setShowLogin(true)}
-              className="px-6 py-2 text-blue-600 hover:text-blue-800 font-medium transition-colors"
-            >
-              Sign In
-            </button>
-            <motion.button
-              onClick={() => setShowLogin(true)}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Get Started
-            </motion.button>
-          </motion.div>
-        </header>
-
-        {/* Hero Section (unchanged) */}
-        <main className="flex-1 flex items-center justify-center p-6 md:p-12 min-h-[calc(100vh-100px)]">
-          <div className="max-w-screen-2xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-            {/* Left Content */}
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={{
-                visible: {
-                  transition: { staggerChildren: 0.2, delayChildren: 0.3 },
-                },
-              }}
-              className="space-y-8 lg:space-y-10"
-            >
-              <div className="space-y-6">
-                <motion.h1
-                  variants={itemVariants}
-                  className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-gray-800 leading-tight"
-                >
-                  Empowering{" "}
-                  <span className="text-blue-600 drop-shadow-md">
-                    Education
-                  </span>
-                  <br className="hidden md:block" />
-                  for Faculty & Students
-                </motion.h1>
-
-                <motion.p
-                  variants={itemVariants}
-                  className="text-lg md:text-xl text-gray-600 max-w-md lg:max-w-lg"
-                >
-                  A modern portal to connect{" "}
-                  <span className="font-semibold text-blue-600">
-                    faculty, students, and admin
-                  </span>
-                  . Manage classes, track progress, and collaborate — all in one
-                  place.
-                </motion.p>
-              </div>
-
-              <motion.div
-                variants={itemVariants}
-                className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
-              >
-                <motion.button
-                  onClick={() => setShowLogin(true)}
-                  className="px-8 py-4 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors flex items-center space-x-2 group shadow-lg"
-                  whileHover={{
-                    y: -3,
-                    boxShadow: "0px 8px 20px rgba(0, 0, 0, 0.15)",
-                  }}
-                  whileTap={{ y: 0, scale: 0.98 }}
-                >
-                  <span>Join Now</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </motion.button>
-                <motion.button
-                  onClick={handleLearnMore}
-                  className="px-8 py-4 border-2 border-gray-300 text-gray-700 font-medium rounded-xl hover:border-blue-400 hover:text-blue-700 transition-colors shadow-sm flex items-center space-x-2"
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  <span>Learn More</span>
-                  <ChevronDown className="w-5 h-5" />
-                </motion.button>
-              </motion.div>
-            </motion.div>
-
-            {/* Right Section with Image and Floating Icons (unchanged) */}
-            <div className="relative flex justify-center items-center lg:h-[600px] mt-8 lg:mt-0">
-              <motion.div
-                className="w-full max-w-xl lg:max-w-none h-auto lg:h-5/6 relative z-10 rounded-3xl overflow-hidden shadow-2xl shadow-blue-300/50 border-4 border-white/50 cursor-pointer"
-                initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 1, delay: 0.6, ease: "easeOut" }}
-                whileHover={{ opacity: 0.95 }}
-              >
-                <img
-                  src={landingPhoto}
-                  alt="Faculty Portal Dashboard"
-                  className="w-full h-full object-cover"
-                />
-              </motion.div>
-
-              {/* Floating Icons around the image */}
-              <motion.div
-                className="absolute -top-10 left-1/4 transform -translate-x-1/2"
-                variants={floatVariants}
-                custom={0}
-                animate="animate"
-              >
-                <div className="p-3 bg-white rounded-full shadow-lg border border-blue-100">
-                  <BookOpen className="w-6 h-6 text-blue-500" />
-                </div>
-              </motion.div>
-              <motion.div
-                className="absolute top-1/4 -right-10"
-                variants={floatVariants}
-                custom={1}
-                animate="animate"
-              >
-                <div className="p-3 bg-white rounded-full shadow-lg border border-teal-100">
-                  <Users className="w-6 h-6 text-teal-500" />
-                </div>
-              </motion.div>
-              <motion.div
-                className="absolute bottom-1/3 -left-10"
-                variants={floatVariants}
-                custom={2}
-                animate="animate"
-              >
-                <div className="p-3 bg-white rounded-full shadow-lg border border-purple-100">
-                  <BarChart className="w-6 h-6 text-purple-500" />
-                </div>
-              </motion.div>
-              <motion.div
-                className="absolute -bottom-10 right-1/4 transform translate-x-1/2"
-                variants={floatVariants}
-                custom={3}
-                animate="animate"
-              >
-                <div className="p-3 bg-white rounded-full shadow-lg border border-orange-100">
-                  <Zap className="w-6 h-6 text-orange-500" />
-                </div>
-              </motion.div>
-              <motion.div
-                className="absolute top-1/2 left-0 transform -translate-x-1/2 -translate-y-1/2 hidden md:block"
-                variants={floatVariants}
-                custom={4}
-                animate="animate"
-              >
-                <div className="p-3 bg-white rounded-full shadow-lg border border-green-100">
-                  <FileText className="w-6 h-6 text-green-500" />
-                </div>
-              </motion.div>
-            </div>
-          </div>
-        </main>
+    <div className="min-h-screen bg-white relative overflow-x-hidden flex flex-col font-sans">
+      {/* PARALLAX BACKGROUND */}
+      <div className="fixed inset-0 pointer-events-none z-0">
+        <motion.div
+          style={{ y: yParallax }}
+          className="absolute top-[-10%] right-[-5%] w-[40rem] h-[40rem] bg-blue-50 rounded-full blur-[120px] opacity-60"
+        />
+        <motion.div
+          style={{ y: yParallax }}
+          className="absolute bottom-[5%] left-[-10%] w-[35rem] h-[35rem] bg-indigo-50 rounded-full blur-[120px] opacity-40"
+        />
       </div>
 
-      {/* Scroll Indicator (unchanged) */}
-      {!showContent && (
-        <motion.div
-          className="absolute bottom-20 left-1/2 transform -translate-x-1/2 cursor-pointer p-3 rounded-full bg-blue-600/10 text-blue-600 animate-bounce"
-          onClick={handleLearnMore}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 2 }}
-        >
-          <ChevronDown className="w-6 h-6" />
-        </motion.div>
-      )}
-
-      {/* CONDITIONAL CONTENT SECTIONS */}
-      <AnimatePresence>
-        {showContent && (
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            transition={{ duration: 0.8 }}
-            className="flex-shrink-0"
-            ref={contentRef}
-          >
-            {/* About Us section now includes the WaveDivider */}
-            <AboutUsSection />
-            {/* Testimonials section now includes the WaveDivider */}
-            <TestimonialsSection />
-            {/* Quick Stats section now includes the WaveDivider */}
-            <QuickStats />
-            {/* Location Map section now includes the WaveDivider */}
-            <LocationMap />
-
-            {/* Back to Top Button is moved after the map and before the footer */}
-            {/* Since LocationMap now has a bg-blue-50 and ends with a dark-blue wave, 
-                        I'm placing the "Back to Top" button just before the footer without a separate container, 
-                        or we can keep it in its own white section for maximum visibility before the dark footer. 
-                        Let's put it back to its own bg-white div for clarity. */}
-            <div className="text-center py-10 bg-white">
-              <motion.button
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                className="px-8 py-3 bg-teal-500 text-white font-medium rounded-full hover:bg-teal-600 transition-colors flex items-center space-x-2 mx-auto shadow-lg"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+      <div className="relative z-10">
+        {/* NAV HEADER */}
+        <header className="fixed top-0 left-0 right-0 z-[100] backdrop-blur-xl bg-white/70 border-b border-gray-100/50 h-20 flex items-center">
+          <div className="max-w-7xl mx-auto px-6 w-full flex justify-between items-center">
+            <AnimatedLogo />
+            <div className="flex items-center space-x-6">
+              <button
+                onClick={() => setShowLogin(true)}
+                className="text-sm font-black uppercase tracking-widest text-gray-600 hover:text-blue-600 transition-colors"
               >
-                <ChevronUp className="w-5 h-5" />
-                <span>Back to Top</span>
-              </motion.button>
+                Sign In
+              </button>
+              <button
+                onClick={() => setShowLogin(true)}
+                className="px-8 py-3 bg-gray-900 text-white rounded-full font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-blue-600 transition-all"
+              >
+                Get Started
+              </button>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </header>
 
-      {/* Login Modal (unchanged) */}
-      {/* Find this block in AnimatedLandingPage.tsx */}
+        {/* HERO SECTION */}
+        <section className="pt-48 pb-20 px-6 min-h-screen flex items-center">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center text-left">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
+            >
+              <div className="inline-flex items-center space-x-3 px-4 py-2 bg-blue-50 rounded-full text-blue-600 mb-8 border border-blue-100">
+                <ShieldCheck size={16} strokeWidth={3} />
+                <span className="text-[10px] font-black uppercase tracking-widest">
+                  ISO Secure Platform
+                </span>
+              </div>
+              <h1 className="text-7xl lg:text-8xl font-black text-gray-900 leading-[0.85] tracking-tighter mb-10">
+                Orchestrate <br />
+                <span className="text-blue-600">Education.</span>
+              </h1>
+              <p className="text-xl text-gray-500 mb-12 font-medium leading-relaxed max-w-lg">
+                A high-performance workspace for faculty and students. Manage
+                schedules and data in real-time.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-5">
+                <button
+                  onClick={() => setShowLogin(true)}
+                  className="px-10 py-5 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-2xl hover:bg-blue-700 transition-all flex items-center justify-center"
+                >
+                  Join The Hub <ArrowRight className="ml-2" size={18} />
+                </button>
+                <button
+                  onClick={handleLearnMore}
+                  className="px-10 py-5 border-2 border-gray-200 text-gray-900 rounded-2xl font-black uppercase tracking-widest text-xs hover:border-blue-400 transition-all flex items-center justify-center"
+                >
+                  Explore Hub
+                </button>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1 }}
+            >
+              <div className="rounded-[4rem] overflow-hidden shadow-[0_50px_100px_-20px_rgba(0,0,0,0.25)] border-[12px] border-white group">
+                <img
+                  src={landingPhoto}
+                  alt="Preview"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* SCROLLABLE CONTENT */}
+        <div ref={contentRef}>
+          <AnimatePresence>
+            {showContent && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 1 }}
+              >
+                <AboutUsSection />
+                <TestimonialsSection />
+                <QuickStats />
+
+                {/* MAP SECTION */}
+                <section className="bg-blue-50 py-32">
+                  <div className="max-w-7xl mx-auto px-6">
+                    <h2 className="text-5xl font-black text-center mb-16 tracking-tighter">
+                      Campus Terminal
+                    </h2>
+                    <div className="rounded-[4rem] overflow-hidden shadow-2xl border-[12px] border-white aspect-video bg-white">
+                      <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3742.123!2d85.8!3d20.3!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjDCsDE4JzAwLjAiTiA4NcKwNDgnMDAuMCJF!5e0!3m2!1sen!2sin!4v1630000000000"
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        allowFullScreen
+                        title="Map"
+                      />
+                    </div>
+                  </div>
+                </section>
+
+                <div className="text-center py-20 bg-white">
+                  <motion.button
+                    onClick={() =>
+                      window.scrollTo({ top: 0, behavior: "smooth" })
+                    }
+                    whileHover={{ scale: 1.1 }}
+                    className="p-5 bg-blue-600 text-white rounded-2xl shadow-xl"
+                  >
+                    <ChevronUp />
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* FOOTER */}
+        <footer className="bg-gray-900 text-white py-24 px-8 relative">
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-600 to-teal-400" />
+          <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-16">
+            <div className="space-y-8">
+              <AnimatedLogo size={24} />
+              <p className="text-gray-400 text-sm font-medium opacity-70 leading-relaxed">
+                Pioneering academic synchronization through real-time management
+                protocols.
+              </p>
+              <div className="flex space-x-4">
+                <Facebook className="text-gray-400 hover:text-white cursor-pointer transition-colors" />
+                <Twitter className="text-gray-400 hover:text-white cursor-pointer transition-colors" />
+                <Linkedin className="text-gray-400 hover:text-white cursor-pointer transition-colors" />
+              </div>
+            </div>
+            <div>
+              <h4 className="font-black text-xs uppercase tracking-widest text-blue-500 mb-8 text-left">
+                Navigate
+              </h4>
+              <ul className="space-y-4 text-sm text-gray-400 font-bold text-left">
+                <li className="hover:text-white cursor-pointer">
+                  Network Status
+                </li>
+                <li className="hover:text-white cursor-pointer">
+                  Security Protocol
+                </li>
+                <li className="hover:text-white cursor-pointer">
+                  Privacy Terminals
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-black text-xs uppercase tracking-widest text-blue-500 mb-8 text-left">
+                Access
+              </h4>
+              <ul className="space-y-4 text-sm text-gray-400 font-bold text-left">
+                <li className="flex items-center gap-3">
+                  <MapPin size={18} /> Terminal One, Knowledge City
+                </li>
+                <li className="flex items-center gap-3">
+                  <Mail size={18} /> system@facultyhub.edu
+                </li>
+              </ul>
+            </div>
+            <div className="bg-white/5 p-8 rounded-[2rem] border border-white/5 text-center flex flex-col items-center">
+              <ShieldCheck className="mb-4 text-green-400" size={32} />
+              <p className="text-[10px] font-black uppercase tracking-widest">
+                System Secure
+              </p>
+            </div>
+          </div>
+        </footer>
+      </div>
+
+      {/* LOGIN MODAL */}
       <AnimatePresence>
         {showLogin && (
           <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/60 backdrop-blur-2xl z-[200] flex items-center justify-center p-4 md:p-10"
             onClick={() => setShowLogin(false)}
           >
-            {/* CHANGE THIS LINE BELOW: Change 'max-w-md' to 'max-w-5xl' */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: "spring", duration: 0.5 }}
-              className="relative max-w-5xl w-full max-h-[95vh] overflow-y-auto bg-transparent"
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative w-full max-w-6xl max-h-full overflow-y-auto rounded-[3rem] shadow-3xl bg-white"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* The Close Button */}
               <button
                 onClick={() => setShowLogin(false)}
-                className="absolute top-2 right-2 md:-top-4 md:-right-4 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center z-[60] hover:bg-gray-50 transition-colors"
+                className="absolute top-6 right-6 w-12 h-12 bg-white rounded-full shadow-2xl flex items-center justify-center z-[210] hover:scale-110 transition-transform"
               >
-                <X className="w-5 h-5 text-gray-600" />
+                <X className="text-gray-900" size={28} />
               </button>
-
-              {/* The LoginPage Component inside the container */}
               <LoginPage />
             </motion.div>
           </div>
         )}
       </AnimatePresence>
+
       <FeedbackWidget />
-      <Footer />
     </div>
-  );
-};
-
-// Modernized Footer Component (unchanged)
-const Footer: React.FC = () => {
-  return (
-    <footer className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white py-12">
-      <div className="max-w-7xl mx-auto px-6 md:px-8 grid grid-cols-1 md:grid-cols-4 gap-10">
-        {/* Logo and Tagline */}
-        <div className="col-span-1 md:col-span-1 space-y-4">
-          <div className="flex items-center space-x-2">
-            <GraduationCap className="w-8 h-8 text-blue-200" />
-            <span className="text-2xl font-bold">Faculty Portal</span>
-          </div>
-          <p className="text-sm text-blue-100 leading-relaxed">
-            Revolutionizing academic management to foster growth and
-            collaboration.
-          </p>
-          <div className="flex space-x-4 mt-6">
-            <a
-              href="#"
-              aria-label="Facebook"
-              className="text-blue-200 hover:text-white transition-colors"
-            >
-              <Facebook className="h-6 w-6" />
-            </a>
-            <a
-              href="#"
-              aria-label="Twitter"
-              className="text-blue-200 hover:text-white transition-colors"
-            >
-              <Twitter className="h-6 w-6" />
-            </a>
-            <a
-              href="#"
-              aria-label="LinkedIn"
-              className="text-blue-200 hover:text-white transition-colors"
-            >
-              <Linkedin className="h-6 w-6" />
-            </a>
-          </div>
-        </div>
-
-        {/* Quick Links */}
-        <div>
-          <h4 className="text-lg font-semibold mb-5 text-blue-50">
-            Quick Links
-          </h4>
-          <ul className="space-y-3 text-sm">
-            <li>
-              <a
-                href="#about"
-                className="text-blue-100 hover:text-white transition-colors"
-              >
-                About Us
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="text-blue-100 hover:text-white transition-colors"
-              >
-                Academics
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="text-blue-100 hover:text-white transition-colors"
-              >
-                Research
-              </a>
-            </li>
-            <li>
-              <a
-                href="#"
-                className="text-blue-100 hover:text-white transition-colors"
-              >
-                Admissions
-              </a>
-            </li>
-          </ul>
-        </div>
-        {/* Contact Info */}
-        <div className="md:col-span-2">
-          <h4 className="text-lg font-semibold mb-5 text-blue-50">
-            Contact Information
-          </h4>
-          <ul className="space-y-4 text-sm">
-            <li className="flex items-start space-x-3">
-              <MapPin className="h-5 w-5 text-teal-400 mt-1 flex-shrink-0" />
-              <p className="text-blue-100">
-                123 University Drive, Knowledge City, State, 12345
-              </p>
-            </li>
-            <li className="flex items-center space-x-3">
-              <Mail className="h-5 w-5 text-teal-400 flex-shrink-0" />
-              <a
-                href="mailto:info@facultyportal.edu"
-                className="text-blue-100 hover:text-white transition-colors"
-              >
-                info@facultyportal.edu
-              </a>
-            </li>
-            <li className="flex items-center space-x-3">
-              <Phone className="h-5 w-5 text-teal-400 flex-shrink-0" />
-              <a
-                href="tel:+15551234567"
-                className="text-blue-100 hover:text-white transition-colors"
-              >
-                (555) 123-4567
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div className="mt-10 pt-8 border-t border-blue-600 text-center text-sm text-blue-200 px-6">
-        <p>
-          &copy; {new Date().getFullYear()} Faculty Portal. All rights reserved.
-        </p>
-      </div>
-    </footer>
   );
 };
 

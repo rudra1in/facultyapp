@@ -73,18 +73,18 @@ const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] transition-colors duration-300">
       <div className="p-4 md:p-8 max-w-6xl mx-auto">
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl overflow-hidden border border-gray-100 dark:border-gray-700">
-          {/* Header/Cover Placeholder Area */}
-          <div className="h-32 bg-gradient-to-r from-indigo-600 to-blue-500" />
+        <div className="bg-[var(--bg-card)] rounded-[2.5rem] shadow-2xl overflow-hidden border border-[var(--border-main)]">
+          {/* Header/Cover Placeholder Area - Adaptive Gradient */}
+          <div className="h-40 bg-gradient-to-r from-[var(--accent)] to-purple-600 opacity-90" />
 
           <div className="px-6 md:px-10 pb-10">
             {/* Profile Avatar Section */}
-            <div className="relative -mt-16 flex flex-col md:flex-row items-end md:items-center gap-6">
+            <div className="relative -mt-20 flex flex-col md:flex-row items-end md:items-center gap-6">
               <div className="relative group">
                 <img
-                  className="h-36 w-36 rounded-full object-cover shadow-2xl ring-4 ring-white dark:ring-gray-800 bg-white dark:bg-gray-700"
+                  className="h-40 w-40 rounded-full object-cover shadow-2xl ring-4 ring-[var(--bg-card)] bg-[var(--bg-main)] border border-[var(--border-main)]"
                   src={profile.imageUrl}
                   alt="profile"
                 />
@@ -107,53 +107,53 @@ const ProfilePage: React.FC = () => {
                 />
               </div>
 
-              <div className="flex-1 text-center md:text-left mt-4 md:mt-10">
-                <h2 className="text-4xl font-black tracking-tight text-gray-900 dark:text-white">
+              <div className="flex-1 text-center md:text-left mt-4 md:mt-12">
+                <h2 className="text-4xl font-black tracking-tight text-[var(--text-main)]">
                   {profile.name || "User Name"}
                 </h2>
-                <p className="text-xl text-indigo-600 dark:text-indigo-400 font-semibold flex items-center justify-center md:justify-start mt-1">
+                <p className="text-xl text-[var(--accent)] font-bold flex items-center justify-center md:justify-start mt-2">
                   <GraduationCap className="h-6 w-6 mr-2" />
                   {profile.role}, {profile.department}
                 </p>
               </div>
 
-              <div className="mt-4 md:mt-10">
-                <button className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-200 dark:shadow-none transition-all">
+              <div className="mt-4 md:mt-12">
+                <button className="px-8 py-3 bg-[var(--accent)] hover:opacity-90 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-indigo-500/20 transition-all">
                   Edit Profile
                 </button>
               </div>
             </div>
 
             {/* Information Grid */}
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-10">
               <div className="space-y-6">
-                <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 border-b dark:border-gray-700 pb-2">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] border-b border-[var(--border-main)] pb-3">
                   Contact Information
                 </h3>
 
-                <div className="flex items-center p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700">
-                  <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg mr-4">
-                    <Mail className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <div className="flex items-center p-5 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-main)] transition-all">
+                  <div className="p-3 bg-blue-500/10 rounded-xl mr-5">
+                    <Mail className="h-6 w-6 text-blue-500" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-gray-400 uppercase">
+                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">
                       Email Address
                     </p>
-                    <p className="text-gray-900 dark:text-gray-200 font-medium">
+                    <p className="text-[var(--text-main)] font-bold">
                       {profile.email || "Not provided"}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700">
-                  <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg mr-4">
-                    <Phone className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <div className="flex items-center p-5 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-main)] transition-all">
+                  <div className="p-3 bg-green-500/10 rounded-xl mr-5">
+                    <Phone className="h-6 w-6 text-green-500" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-gray-400 uppercase">
+                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">
                       Phone Extension
                     </p>
-                    <p className="text-gray-900 dark:text-gray-200 font-medium">
+                    <p className="text-[var(--text-main)] font-bold">
                       {profile.phone || "Not provided"}
                     </p>
                   </div>
@@ -161,33 +161,33 @@ const ProfilePage: React.FC = () => {
               </div>
 
               <div className="space-y-6">
-                <h3 className="text-sm font-black uppercase tracking-widest text-gray-400 dark:text-gray-500 border-b dark:border-gray-700 pb-2">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] border-b border-[var(--border-main)] pb-3">
                   Office Logistics
                 </h3>
 
-                <div className="flex items-center p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700">
-                  <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg mr-4">
-                    <MapPin className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <div className="flex items-center p-5 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-main)] transition-all">
+                  <div className="p-3 bg-purple-500/10 rounded-xl mr-5">
+                    <MapPin className="h-6 w-6 text-purple-500" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-gray-400 uppercase">
+                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">
                       Office Location
                     </p>
-                    <p className="text-gray-900 dark:text-gray-200 font-medium">
+                    <p className="text-[var(--text-main)] font-bold">
                       {profile.office || "Not assigned"}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700">
-                  <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg mr-4">
-                    <Clock className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                <div className="flex items-center p-5 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-main)] transition-all">
+                  <div className="p-3 bg-orange-500/10 rounded-xl mr-5">
+                    <Clock className="h-6 w-6 text-orange-500" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-gray-400 uppercase">
+                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">
                       Availability / Office Hours
                     </p>
-                    <p className="text-gray-900 dark:text-gray-200 font-medium">
+                    <p className="text-[var(--text-main)] font-bold">
                       {profile.officeHours}
                     </p>
                   </div>

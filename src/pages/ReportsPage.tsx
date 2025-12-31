@@ -27,8 +27,8 @@ const reportMetricsData = [
     change: "+12.5%",
     trend: "up",
     icon: Calendar,
-    iconBg: "bg-blue-100 dark:bg-blue-900/30",
-    iconColor: "text-blue-600 dark:text-blue-400",
+    iconBg: "bg-blue-500/10",
+    iconColor: "text-blue-600",
   },
   {
     title: "Faculty Utilization",
@@ -36,8 +36,8 @@ const reportMetricsData = [
     change: "+3.2%",
     trend: "up",
     icon: Users,
-    iconBg: "bg-green-100 dark:bg-green-900/30",
-    iconColor: "text-green-600 dark:text-green-400",
+    iconBg: "bg-green-500/10",
+    iconColor: "text-green-600",
   },
   {
     title: "Avg. Session Duration",
@@ -45,8 +45,8 @@ const reportMetricsData = [
     change: "-5.1%",
     trend: "down",
     icon: Clock,
-    iconBg: "bg-purple-100 dark:bg-purple-900/30",
-    iconColor: "text-purple-600 dark:text-purple-400",
+    iconBg: "bg-purple-500/10",
+    iconColor: "text-purple-600",
   },
   {
     title: "Completion Rate",
@@ -54,8 +54,8 @@ const reportMetricsData = [
     change: "+2.8%",
     trend: "up",
     icon: TrendingUp,
-    iconBg: "bg-orange-100 dark:bg-orange-900/30",
-    iconColor: "text-orange-600 dark:text-orange-400",
+    iconBg: "bg-orange-500/10",
+    iconColor: "text-orange-600",
   },
 ];
 
@@ -242,99 +242,100 @@ const ReportViewModal = ({ isOpen, onClose, reportName, description }) => {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+        className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
         <motion.div
-          className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border dark:border-gray-700"
+          className="bg-[var(--bg-card)] rounded-[2.5rem] shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border border-[var(--border-main)] transition-colors duration-300"
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 50, opacity: 0 }}
         >
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-white dark:bg-gray-800">
-            <h2 className="text-2xl font-bold text-indigo-700 dark:text-indigo-400">
+          <div className="p-8 border-b border-[var(--border-main)] flex justify-between items-center bg-[var(--bg-card)]">
+            <h2 className="text-2xl font-black text-[var(--accent)] tracking-tight">
               Preview: {reportName}
             </h2>
             <button
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+              className="p-2 rounded-full hover:bg-[var(--bg-main)] text-[var(--text-muted)] transition-colors"
             >
               <X className="w-6 h-6" />
             </button>
           </div>
 
-          <div className="p-6 overflow-y-auto flex-grow bg-gray-50 dark:bg-gray-900/50">
-            <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-dashed border-gray-300 dark:border-gray-700 min-h-[500px]">
-              <h3 className="text-xl font-semibold mb-4 border-b dark:border-gray-700 pb-2 dark:text-white">
+          <div className="p-8 overflow-y-auto flex-grow bg-[var(--bg-main)]/50">
+            <div className="bg-[var(--bg-card)] p-10 rounded-[2rem] shadow-sm border border-dashed border-[var(--border-main)] min-h-[500px]">
+              <h3 className="text-xl font-black mb-6 border-b border-[var(--border-main)] pb-3 text-[var(--text-main)] uppercase tracking-widest text-xs">
                 Executive Summary
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
+              <p className="text-[var(--text-muted)] font-medium mb-8 leading-relaxed">
                 {description}
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl text-center">
-                  <p className="text-3xl font-extrabold text-blue-600 dark:text-blue-400">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10">
+                <div className="p-6 bg-blue-500/10 rounded-2xl text-center border border-blue-500/20">
+                  <p className="text-3xl font-black text-blue-600">
                     {reportMetricsData[0].value}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider font-semibold">
+                  <p className="text-[10px] text-blue-600/70 uppercase tracking-widest font-black mt-1">
                     Total Sessions
                   </p>
                 </div>
-                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl text-center">
-                  <p className="text-3xl font-extrabold text-green-600 dark:text-green-400">
+                <div className="p-6 bg-green-500/10 rounded-2xl text-center border border-green-500/20">
+                  <p className="text-3xl font-black text-green-600">
                     {reportMetricsData[1].value}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider font-semibold">
+                  <p className="text-[10px] text-green-600/70 uppercase tracking-widest font-black mt-1">
                     Utilization
                   </p>
                 </div>
-                <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl text-center">
-                  <p className="text-3xl font-extrabold text-purple-600 dark:text-purple-400">
+                <div className="p-6 bg-purple-500/10 rounded-2xl text-center border border-purple-500/20">
+                  <p className="text-3xl font-black text-purple-600">
                     {reportMetricsData[3].value}
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider font-semibold">
+                  <p className="text-[10px] text-purple-600/70 uppercase tracking-widest font-black mt-1">
                     Completion Rate
                   </p>
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold mb-4 border-b dark:border-gray-700 pb-2 dark:text-white">
+              <h3 className="text-xl font-black mb-6 border-b border-[var(--border-main)] pb-3 text-[var(--text-main)] uppercase tracking-widest text-[10px]">
                 Detailed Category Breakdown
               </h3>
-              <ul className="space-y-3">
+              <ul className="space-y-4">
                 {categoryPerformanceData.slice(0, 3).map((cat, i) => (
                   <li
                     key={i}
-                    className="flex justify-between border-b dark:border-gray-700 last:border-b-0 py-2"
+                    className="flex justify-between border-b border-[var(--border-main)] last:border-b-0 py-3"
                   >
-                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                    <span className="font-bold text-[var(--text-main)]">
                       {cat.category}
                     </span>
-                    <span className="text-sm text-green-600 dark:text-green-400 font-bold">
+                    <span className="text-sm text-green-600 font-black">
                       {cat.completion}% Complete
                     </span>
                   </li>
                 ))}
               </ul>
-              <p className="text-xs text-gray-400 mt-10 italic">
+              <p className="text-[10px] text-[var(--text-muted)] mt-12 italic opacity-60">
                 *This is a simplified web preview. Download for full charts and
                 analytics.
               </p>
             </div>
           </div>
 
-          <div className="p-4 flex justify-end space-x-3 bg-white dark:bg-gray-800 border-t dark:border-gray-700">
+          <div className="p-6 flex justify-end space-x-4 bg-[var(--bg-card)] border-t border-[var(--border-main)]">
             <button
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+              className="px-6 py-3 text-xs font-black uppercase tracking-widest text-[var(--text-muted)] bg-[var(--bg-main)] rounded-xl border border-[var(--border-main)] hover:bg-[var(--bg-card)] transition-all"
             >
               Close
             </button>
-            <button className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors flex items-center">
-              <Download className="w-4 h-4 mr-2" /> Download Full Report
+            <button className="px-6 py-3 text-xs font-black uppercase tracking-widest text-white bg-[var(--accent)] rounded-xl hover:opacity-90 transition-all flex items-center shadow-lg">
+              <Download className="w-4 h-4 mr-2 stroke-[3]" /> Download Full
+              Report
             </button>
           </div>
         </motion.div>
@@ -375,7 +376,7 @@ const ReportsPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] transition-colors duration-300">
       <div className="p-6 max-w-7xl mx-auto font-sans">
         <ReportViewModal
           {...modalState}
@@ -385,33 +386,33 @@ const ReportsPage = () => {
         />
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 space-y-4 sm:space-y-0">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-4xl font-black tracking-tight text-[var(--text-main)]">
               Reports & Analytics
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-[var(--text-muted)] font-medium mt-2">
               Comprehensive insights into faculty performance and session
               analytics.
             </p>
           </div>
           <div className="flex space-x-3 relative">
             <motion.button
-              className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 px-5 py-2.5 rounded-xl font-medium hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center shadow-sm"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              className="bg-[var(--bg-card)] border border-[var(--border-main)] text-[var(--text-main)] px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[var(--bg-main)] flex items-center shadow-sm"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <Filter className="w-4 h-4 mr-2" /> Filter
+              <Filter className="w-4 h-4 mr-2 stroke-[3]" /> Filter
             </motion.button>
 
             <div className="relative">
               <motion.button
                 onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
-                className="bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-medium hover:bg-indigo-700 flex items-center shadow-lg"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="bg-[var(--accent)] text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs hover:opacity-90 flex items-center shadow-xl"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                <Download className="w-4 h-4 mr-2" /> Export Report{" "}
+                <Download className="w-4 h-4 mr-2 stroke-[3]" /> Export Report{" "}
                 <ChevronDown
                   className={`w-4 h-4 ml-2 transition-transform ${
                     isExportDropdownOpen ? "rotate-180" : ""
@@ -422,7 +423,7 @@ const ReportsPage = () => {
               <AnimatePresence>
                 {isExportDropdownOpen && (
                   <motion.div
-                    className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl z-20 border border-gray-100 dark:border-gray-700 p-2"
+                    className="absolute right-0 top-full mt-3 w-52 bg-[var(--bg-card)] rounded-2xl shadow-2xl z-[60] border border-[var(--border-main)] p-2 overflow-hidden backdrop-blur-md"
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
@@ -450,9 +451,9 @@ const ReportsPage = () => {
                       <button
                         key={item.id}
                         onClick={() => handleExportClick(item.id)}
-                        className="flex items-center w-full px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        className="flex items-center w-full px-4 py-3 text-xs font-black uppercase tracking-widest text-[var(--text-main)] hover:bg-[var(--bg-main)] rounded-xl transition-all"
                       >
-                        <item.icon className={`w-4 h-4 mr-2 ${item.color}`} />{" "}
+                        <item.icon className={`w-4 h-4 mr-3 ${item.color}`} />{" "}
                         {item.label}
                       </button>
                     ))}
@@ -464,15 +465,15 @@ const ReportsPage = () => {
         </div>
 
         {/* Selectors */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
+        <div className="flex flex-col md:flex-row gap-6 mb-10">
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
+            <label className="block text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-2 ml-1">
               Time Period
             </label>
             <select
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="bg-[var(--bg-card)] text-[var(--text-main)] border border-[var(--border-main)] rounded-2xl px-5 py-3 text-xs font-black uppercase tracking-widest focus:ring-2 focus:ring-[var(--accent)] outline-none transition-all shadow-sm"
             >
               <option value="week">This Week</option>
               <option value="month">This Month</option>
@@ -481,13 +482,13 @@ const ReportsPage = () => {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-bold text-gray-500 uppercase mb-1 ml-1">
-              Category
+            <label className="block text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-2 ml-1">
+              Main Category
             </label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="bg-[var(--bg-card)] text-[var(--text-main)] border border-[var(--border-main)] rounded-2xl px-5 py-3 text-xs font-black uppercase tracking-widest focus:ring-2 focus:ring-[var(--accent)] outline-none transition-all shadow-sm"
             >
               <option value="all">All Categories</option>
               <option value="cs">Computer Science</option>
@@ -502,29 +503,29 @@ const ReportsPage = () => {
           {reportMetricsData.map((metric, index) => (
             <motion.div
               key={index}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 p-6"
+              className="bg-[var(--bg-card)] rounded-[2rem] shadow-xl border border-[var(--border-main)] p-8 group transition-all hover:border-[var(--accent)]/50"
               whileHover={{ y: -5 }}
             >
               <div
-                className={`w-12 h-12 ${metric.iconBg} rounded-xl flex items-center justify-center mb-4`}
+                className={`w-14 h-14 ${metric.iconBg} rounded-[1.25rem] flex items-center justify-center mb-6 transition-transform group-hover:scale-110`}
               >
-                <metric.icon className={`w-6 h-6 ${metric.iconColor}`} />
+                <metric.icon className={`w-7 h-7 ${metric.iconColor}`} />
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">
+              <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-2">
                 {metric.title}
               </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              <p className="text-3xl font-black text-[var(--text-main)] mb-3">
                 {metric.value}
               </p>
               <div
-                className={`flex items-center text-sm font-bold ${
-                  metric.trend === "up" ? "text-green-600" : "text-red-600"
+                className={`flex items-center text-xs font-black uppercase tracking-widest ${
+                  metric.trend === "up" ? "text-green-500" : "text-red-500"
                 }`}
               >
                 {metric.trend === "up" ? (
-                  <TrendingUp className="w-4 h-4 mr-1" />
+                  <TrendingUp className="w-4 h-4 mr-2 stroke-[3]" />
                 ) : (
-                  <TrendingDown className="w-4 h-4 mr-1" />
+                  <TrendingDown className="w-4 h-4 mr-2 stroke-[3]" />
                 )}
                 {metric.change}
               </div>
@@ -535,25 +536,29 @@ const ReportsPage = () => {
         {/* Charts Section */}
         <div className="grid lg:grid-cols-2 gap-8 mb-12">
           {/* Trends */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border dark:border-gray-700 p-6">
-            <h2 className="text-lg font-bold mb-6 dark:text-white">
-              Session Trends
+          <div className="bg-[var(--bg-card)] rounded-[2.5rem] shadow-xl border border-[var(--border-main)] p-8">
+            <h2 className="text-sm font-black uppercase tracking-[0.2em] mb-8 text-[var(--text-main)]">
+              Activity Trends
             </h2>
-            <div className="space-y-5">
+            <div className="space-y-6">
               {sessionTrendsData.map((trend, index) => (
                 <div key={index} className="flex items-center">
-                  <span className="text-sm font-bold text-gray-500 w-12">
+                  <span className="text-[10px] font-black text-[var(--text-muted)] uppercase w-12 tracking-widest">
                     {trend.month}
                   </span>
-                  <div className="flex-1 mx-4">
-                    <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2">
-                      <div
-                        className="bg-indigo-500 h-2 rounded-full transition-all duration-1000"
-                        style={{ width: `${(trend.sessions / 156) * 100}%` }}
+                  <div className="flex-1 mx-6">
+                    <div className="w-full bg-[var(--bg-main)] rounded-full h-3 border border-[var(--border-main)] overflow-hidden">
+                      <motion.div
+                        className="bg-[var(--accent)] h-full rounded-full shadow-lg"
+                        initial={{ width: 0 }}
+                        whileInView={{
+                          width: `${(trend.sessions / 156) * 100}%`,
+                        }}
+                        transition={{ duration: 1, ease: "easeOut" }}
                       />
                     </div>
                   </div>
-                  <span className="text-sm font-bold text-green-600 w-12 text-right">
+                  <span className="text-xs font-black text-green-600 w-12 text-right">
                     {trend.completion}%
                   </span>
                 </div>
@@ -562,33 +567,35 @@ const ReportsPage = () => {
           </div>
 
           {/* Faculty */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border dark:border-gray-700 p-6">
-            <h2 className="text-lg font-bold mb-6 dark:text-white">
-              Top Faculty Performance
+          <div className="bg-[var(--bg-card)] rounded-[2.5rem] shadow-xl border border-[var(--border-main)] p-8">
+            <h2 className="text-sm font-black uppercase tracking-[0.2em] mb-8 text-[var(--text-main)]">
+              Elite Faculty Metrics
             </h2>
             <div className="space-y-4">
               {facultyPerformanceData.map((f, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-xl border dark:border-gray-700"
+                  className="flex items-center justify-between p-4 bg-[var(--bg-main)]/50 rounded-2xl border border-[var(--border-main)] group hover:border-[var(--accent)] transition-all"
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center font-bold text-xs">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-10 h-10 bg-[var(--accent)] text-white rounded-xl flex items-center justify-center font-black text-xs shadow-lg shadow-indigo-500/20">
                       {i + 1}
                     </div>
                     <div>
-                      <p className="text-sm font-bold">{f.name}</p>
-                      <p className="text-[10px] text-gray-500 uppercase font-bold">
+                      <p className="text-sm font-black text-[var(--text-main)] uppercase tracking-tight">
+                        {f.name}
+                      </p>
+                      <p className="text-[9px] text-[var(--text-muted)] uppercase font-black tracking-widest mt-1 opacity-70">
                         {f.category}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+                    <p className="text-sm font-black text-[var(--accent)] tracking-tighter">
                       {f.rating} ★
                     </p>
-                    <p className="text-[10px] text-gray-500 uppercase font-bold">
-                      {f.sessions} Sessions
+                    <p className="text-[9px] text-[var(--text-muted)] uppercase font-black tracking-widest mt-1 opacity-70">
+                      {f.sessions} Ses.
                     </p>
                   </div>
                 </div>
@@ -598,39 +605,45 @@ const ReportsPage = () => {
         </div>
 
         {/* Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border dark:border-gray-700 p-6 mb-12 overflow-hidden">
-          <h2 className="text-xl font-bold mb-4 dark:text-white">
-            Category Performance Overview
+        <div className="bg-[var(--bg-card)] rounded-[2.5rem] shadow-xl border border-[var(--border-main)] p-8 mb-12 overflow-hidden transition-all">
+          <h2 className="text-sm font-black uppercase tracking-[0.2em] mb-8 text-[var(--text-main)]">
+            Discipline Performance Matrix
           </h2>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto no-scrollbar">
             <table className="min-w-full text-left">
               <thead>
-                <tr className="border-b dark:border-gray-700 text-gray-500 uppercase text-[10px] font-bold tracking-widest">
-                  <th className="py-4 px-2">Category</th>
-                  <th className="py-4">Sessions</th>
-                  <th className="py-4">Hours</th>
-                  <th className="py-4">Completion</th>
-                  <th className="py-4">Rating</th>
+                <tr className="border-b border-[var(--border-main)] text-[var(--text-muted)] uppercase text-[10px] font-black tracking-[0.2em]">
+                  <th className="py-5 px-4">Discipline</th>
+                  <th className="py-5 px-4">Sessions</th>
+                  <th className="py-5 px-4">Effort Hours</th>
+                  <th className="py-5 px-4">Completion</th>
+                  <th className="py-5 px-4">Rating</th>
                 </tr>
               </thead>
-              <tbody className="divide-y dark:divide-gray-700">
+              <tbody className="divide-y divide-[var(--border-main)]">
                 {filteredCategoryPerformanceData.map((cat, i) => (
                   <tr
                     key={i}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-900/40 transition-colors"
+                    className="hover:bg-[var(--bg-main)]/40 transition-colors group"
                   >
-                    <td className="py-4 px-2 flex items-center">
+                    <td className="py-5 px-4 flex items-center">
                       <div
-                        className={`w-3 h-3 ${cat.color} rounded-full mr-3`}
+                        className={`w-3 h-3 ${cat.color} rounded-full mr-4 shadow-sm group-hover:scale-125 transition-transform`}
                       />
-                      <span className="font-bold text-sm">{cat.category}</span>
+                      <span className="font-black text-sm text-[var(--text-main)] tracking-tight uppercase">
+                        {cat.category}
+                      </span>
                     </td>
-                    <td className="py-4 text-sm">{cat.sessions}</td>
-                    <td className="py-4 text-sm">{cat.hours}</td>
-                    <td className="py-4 text-sm font-bold text-green-600">
+                    <td className="py-5 px-4 text-xs font-bold text-[var(--text-main)]">
+                      {cat.sessions}
+                    </td>
+                    <td className="py-5 px-4 text-xs font-bold text-[var(--text-main)]">
+                      {cat.hours}
+                    </td>
+                    <td className="py-5 px-4 text-xs font-black text-green-600">
                       {cat.completion}%
                     </td>
-                    <td className="py-4 text-sm text-yellow-500 font-bold">
+                    <td className="py-5 px-4 text-xs text-yellow-500 font-black tracking-tighter">
                       {cat.avgRating} ★
                     </td>
                   </tr>
@@ -641,31 +654,34 @@ const ReportsPage = () => {
         </div>
 
         {/* Templates */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border dark:border-gray-700 p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold dark:text-white">
-              Report Templates
+        <div className="bg-[var(--bg-card)] rounded-[2.5rem] shadow-xl border border-[var(--border-main)] p-8 transition-all">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
+            <h2 className="text-sm font-black uppercase tracking-[0.2em] text-[var(--text-main)]">
+              Dynamic Report Templates
             </h2>
-            <button className="bg-indigo-600 text-white px-5 py-2 rounded-xl text-sm font-bold">
-              Create Custom
+            <button className="bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-main)] px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest hover:border-[var(--accent)] transition-all">
+              Initialize Custom
             </button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {reportTemplatesData.map((t, i) => (
               <div
                 key={i}
-                className="border dark:border-gray-700 rounded-2xl p-5 group hover:border-indigo-500 transition-colors"
+                className="border border-[var(--border-main)] rounded-2xl p-6 group hover:border-[var(--accent)] transition-all bg-[var(--bg-main)]/20"
               >
                 <div className="flex justify-between items-start">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center">
-                      <t.icon className="text-gray-500" />
+                  <div className="flex items-center space-x-5">
+                    <div className="w-14 h-14 bg-[var(--bg-card)] border border-[var(--border-main)] rounded-2xl flex items-center justify-center group-hover:scale-105 transition-transform shadow-sm">
+                      <t.icon
+                        className="text-[var(--accent)] opacity-70"
+                        size={24}
+                      />
                     </div>
                     <div>
-                      <h3 className="font-bold text-sm dark:text-white">
+                      <h3 className="font-black text-sm text-[var(--text-main)] uppercase tracking-tight">
                         {t.name}
                       </h3>
-                      <p className="text-xs text-gray-500 mt-1">
+                      <p className="text-[11px] text-[var(--text-muted)] mt-1.5 font-medium leading-relaxed max-w-[200px]">
                         {t.description}
                       </p>
                     </div>
@@ -679,12 +695,12 @@ const ReportsPage = () => {
                           description: t.description,
                         })
                       }
-                      className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg text-gray-500 hover:text-indigo-600"
+                      className="p-3 bg-[var(--bg-card)] border border-[var(--border-main)] rounded-xl text-[var(--text-muted)] hover:text-[var(--accent)] transition-all shadow-sm"
                     >
-                      <Eye size={18} />
+                      <Eye size={18} strokeWidth={3} />
                     </button>
-                    <button className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg text-indigo-600">
-                      <Download size={18} />
+                    <button className="p-3 bg-[var(--accent)] rounded-xl text-white shadow-lg shadow-indigo-500/10 hover:opacity-90 transition-all">
+                      <Download size={18} strokeWidth={3} />
                     </button>
                   </div>
                 </div>

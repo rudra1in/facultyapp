@@ -1,4 +1,3 @@
-// src/components/ThemeContext.tsx
 import React, {
   createContext,
   useContext,
@@ -8,13 +7,14 @@ import React, {
 } from "react";
 
 // --- Types ---
-type Theme = "light" | "dark";
+type Theme = "light" | "dark" | "orange" | "leaf";
 
 interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
   isDarkMode: boolean;
+  setPreviewTheme: (theme: Theme | null) => void; // ✅ ADDED
 }
 
 // --- Context Creation ---
@@ -24,51 +24,70 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  // Initialize state from local storage or default to 'light'
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== "undefined" && localStorage.getItem("theme")) {
-      return localStorage.getItem("theme") as Theme;
-    }
-    // Check system preference once if no local storage is found
-    if (
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-    ) {
-      return "dark";
+  // 🔹 Saved theme (final applied)
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("theme") as Theme | null;
+      if (saved) return saved;
+
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        return "dark";
+      }
     }
     return "light";
   });
 
+  // 🔹 Temporary hover preview theme
+  const [previewTheme, setPreviewThemeState] = useState<Theme | null>(null);
+
+  // 🔹 Dark mode logic (unchanged)
   const isDarkMode = theme === "dark";
 
-  // Effect to apply the correct class to the <html> tag
+  // 🔹 Apply theme to <html>
   useEffect(() => {
     const root = document.documentElement;
+    const activeTheme = previewTheme ?? theme;
+
     localStorage.setItem("theme", theme);
 
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-  }, [theme]);
+    root.classList.remove("light", "dark", "orange", "leaf");
+    root.classList.add(activeTheme);
+  }, [theme, previewTheme]);
 
-  // Toggle function
+  // 🔹 Set permanent theme (click)
+  const setTheme = (newTheme: Theme) => {
+    setThemeState(newTheme);
+  };
+
+  // 🔹 Preview theme (hover)
+  const setPreviewTheme = (theme: Theme | null) => {
+    setPreviewThemeState(theme);
+  };
+
+  // 🔹 Toggle Light / Dark only (your original logic)
   const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
+    setThemeState((prev) => (prev === "light" ? "dark" : "light"));
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, isDarkMode }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        setTheme,
+        toggleTheme,
+        isDarkMode,
+        setPreviewTheme, // ✅ PROVIDED
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );
 };
 
-// --- Hook for consuming the context ---
+// --- Hook ---
 export const useTheme = () => {
   const context = useContext(ThemeContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
