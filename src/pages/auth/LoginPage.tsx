@@ -11,6 +11,7 @@ import {
   Sparkles,
   Loader2,
   CheckCircle2,
+  AlertTriangle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { authService } from "../../services/auth.service";
