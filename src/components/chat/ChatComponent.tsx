@@ -6,6 +6,7 @@ import {
   Trash2,
   Check,
   CheckCheck,
+  X,
 } from "lucide-react";
 import {
   messageService,
@@ -56,15 +57,17 @@ const ChatComponent: React.FC<ChatProps> = ({ chatRoomId, currentUserId }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50 dark:bg-gray-900">
+    <div className="flex flex-col h-full bg-[var(--bg-main)] transition-colors duration-300">
       {/* MESSAGES AREA */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 no-scrollbar">
         {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full opacity-40">
-            <div className="p-4 bg-gray-200 dark:bg-gray-800 rounded-full mb-2">
-              <Send size={32} />
+          <div className="flex flex-col items-center justify-center h-full opacity-30">
+            <div className="p-4 bg-[var(--bg-card)] border border-[var(--border-main)] rounded-full mb-3 shadow-xl">
+              <Send size={32} className="text-[var(--accent)]" />
             </div>
-            <p className="text-sm font-medium">No messages yet. Say hi!</p>
+            <p className="text-sm font-black uppercase tracking-widest text-[var(--text-main)]">
+              No correspondence yet
+            </p>
           </div>
         )}
 
@@ -79,55 +82,57 @@ const ChatComponent: React.FC<ChatProps> = ({ chatRoomId, currentUserId }) => {
               }`}
             >
               <div
-                className={`group relative max-w-[85%] sm:max-w-[70%] px-4 py-3 rounded-2xl shadow-sm transition-all ${
+                className={`group relative max-w-[85%] sm:max-w-[70%] px-4 py-3 rounded-2xl shadow-md transition-all duration-300 ${
                   isMe
-                    ? "bg-indigo-600 text-white rounded-tr-none"
-                    : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-tl-none border border-gray-100 dark:border-gray-700"
+                    ? "bg-[var(--accent)] text-white rounded-tr-none"
+                    : "bg-[var(--bg-card)] text-[var(--text-main)] rounded-tl-none border border-[var(--border-main)]"
                 }`}
               >
-                {/* SENDER NAME (RECEIVED ONLY) */}
+                {/* SENDER NAME (ONLY FOR OTHERS) */}
                 {!isMe && (
-                  <span className="text-[10px] font-black uppercase tracking-wider text-indigo-500 dark:text-indigo-400 block mb-1">
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--accent)] block mb-1 opacity-80">
                     {msg.senderName}
                   </span>
                 )}
 
-                <p className="text-sm sm:text-base leading-relaxed break-words">
+                <p className="text-sm sm:text-base leading-relaxed break-words font-medium">
                   {msg.content}
                 </p>
 
                 {/* FOOTER: TIME + STATUS */}
-                <div className="flex items-center justify-end gap-1 mt-1 opacity-60">
-                  {msg.edited && (
-                    <span className="text-[9px] italic mr-1">(edited)</span>
-                  )}
-                  <span className="text-[10px]">
+                <div
+                  className={`flex items-center justify-end gap-1 mt-1.5 opacity-60 text-[10px] font-bold ${
+                    isMe ? "text-white/80" : "text-[var(--text-muted)]"
+                  }`}
+                >
+                  {msg.edited && <span className="italic mr-1">(edited)</span>}
+                  <span>
                     {new Date(msg.createdAt).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
                     })}
                   </span>
-                  {isMe && <CheckCheck size={12} className="ml-1" />}
+                  {isMe && <CheckCheck size={12} className="ml-1 opacity-90" />}
                 </div>
 
-                {/* ACTION DROPDOWN (OWN MESSAGES) */}
+                {/* ACTION DROPDOWN (SENT MESSAGES HOVER) */}
                 {isMe && (
-                  <div className="absolute top-0 right-full mr-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="flex bg-white dark:bg-gray-800 shadow-xl border dark:border-gray-700 rounded-lg overflow-hidden">
+                  <div className="absolute top-0 right-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex bg-[var(--bg-card)] shadow-2xl border border-[var(--border-main)] rounded-xl overflow-hidden">
                       <button
                         onClick={() => {
                           setEditingId(msg.id);
                           setInputMessage(msg.content);
                         }}
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-500"
+                        className="p-2.5 hover:bg-[var(--bg-main)] text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors"
                       >
-                        <Pencil size={14} />
+                        <Pencil size={14} strokeWidth={3} />
                       </button>
                       <button
                         onClick={() => handleDelete(msg.id)}
-                        className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 text-red-500"
+                        className="p-2.5 hover:bg-red-500/10 text-red-500 transition-colors"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={14} strokeWidth={3} />
                       </button>
                     </div>
                   </div>
@@ -140,34 +145,41 @@ const ChatComponent: React.FC<ChatProps> = ({ chatRoomId, currentUserId }) => {
       </div>
 
       {/* INPUT AREA */}
-      <div className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700">
-        <div className="max-w-4xl mx-auto flex items-center gap-2">
+      <div className="p-5 bg-[var(--bg-card)] border-t border-[var(--border-main)] transition-colors duration-300">
+        <div className="max-w-5xl mx-auto flex items-center gap-3">
           {editingId && (
             <button
               onClick={() => {
                 setEditingId(null);
                 setInputMessage("");
               }}
-              className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full"
+              className="p-3 text-red-500 bg-red-500/10 hover:bg-red-500/20 rounded-xl transition-all"
+              title="Cancel Edit"
             >
-              <Trash2 size={20} />
+              <X size={20} strokeWidth={3} />
             </button>
           )}
-          <input
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-            placeholder={
-              editingId ? "Edit your message..." : "Type a message..."
-            }
-            className="flex-1 p-3 bg-gray-100 dark:bg-gray-900 dark:text-white rounded-xl border-none focus:ring-2 focus:ring-indigo-500 transition-all"
-          />
+
+          <div className="relative flex-1">
+            <input
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSend()}
+              placeholder={
+                editingId
+                  ? "Revise your thoughts..."
+                  : "Type a professional message..."
+              }
+              className="w-full p-4 bg-[var(--bg-main)] text-[var(--text-main)] rounded-2xl border border-[var(--border-main)] outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all font-medium placeholder-[var(--text-muted)]/50"
+            />
+          </div>
+
           <button
             onClick={handleSend}
             disabled={!inputMessage.trim()}
-            className="p-3 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-indigo-200 dark:shadow-none transition-all"
+            className="p-4 rounded-2xl bg-[var(--accent)] text-white hover:opacity-90 disabled:opacity-30 disabled:grayscale shadow-xl shadow-indigo-500/20 transition-all flex items-center justify-center"
           >
-            <Send size={20} />
+            <Send size={20} strokeWidth={3} />
           </button>
         </div>
       </div>

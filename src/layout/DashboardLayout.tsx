@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   Home,
@@ -7,20 +7,86 @@ import {
   FolderOpen,
   FileText,
   Bell,
-  Target,
   Menu,
   Settings,
   User,
   Moon,
   Sun,
+  Sunrise,
+  Leaf,
   MessageSquare,
   X,
+  Hexagon,
+  Sparkles as SparkleIcon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "../components/ui/ThemeContext";
 import { getRole } from "../utils/auth";
 import LogoutButton from "../components/common/LogoutButton";
 import { profileService } from "../services/profile.service";
+
+/* ---------------- SPARKLE EFFECT COMPONENT ---------------- */
+const AestheticSparkle = ({ color }: { color: string }) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0 }}
+    animate={{
+      opacity: [0, 1, 0],
+      scale: [0, 1.2, 0.5],
+      rotate: [0, 90, 180],
+    }}
+    transition={{
+      duration: 2,
+      repeat: Infinity,
+      ease: "easeInOut",
+      delay: Math.random() * 2,
+    }}
+    className={`absolute pointer-events-none ${color}`}
+  >
+    <SparkleIcon size={10} fill="currentColor" />
+  </motion.div>
+);
+
+/* ---------------- MAGIC CURSOR COMPONENT ---------------- */
+const MagicSparkleCursor = () => {
+  const [sparkles, setSparkles] = useState<
+    { id: number; x: number; y: number }[]
+  >([]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (Math.random() > 0.8) {
+        const newSparkle = {
+          id: Date.now() + Math.random(),
+          x: e.clientX,
+          y: e.clientY,
+        };
+        setSparkles((prev) => [...prev.slice(-15), newSparkle]);
+      }
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[9999] overflow-hidden">
+      <AnimatePresence>
+        {sparkles.map((s) => (
+          <motion.div
+            key={s.id}
+            initial={{ opacity: 1, scale: 0, rotate: 0 }}
+            animate={{ opacity: 0, scale: 1.5, rotate: 90, y: s.y + 20 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            style={{ left: s.x, top: s.y, position: "absolute" }}
+            className="text-[var(--accent)]"
+          >
+            <SparkleIcon size={14} fill="currentColor" />
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 /* ---------------- NAV TYPES ---------------- */
 interface NavItem {
@@ -29,7 +95,7 @@ interface NavItem {
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
-/* ---------------- SIDEBAR CONTENT ---------------- */
+/* ---------------- SIDEBAR CONTENT (FIXED) ---------------- */
 const SidebarContent = ({
   navigation,
   onClose,
@@ -37,60 +103,64 @@ const SidebarContent = ({
   navigation: NavItem[];
   onClose?: () => void;
 }) => (
-  <div
-    className="
-      flex flex-col h-full
-      bg-white dark:bg-gray-900
-      text-gray-900 dark:text-gray-100
-      border-r border-gray-200 dark:border-gray-800
-      transition-colors duration-300
-    "
-  >
-    {/* LOGO SECTION */}
-    <div className="flex items-center justify-between px-6 h-16 border-b border-gray-200 dark:border-gray-800">
-      <div className="flex items-center">
-        <div className="bg-indigo-600 p-1.5 rounded-lg shadow-lg">
-          <Target className="h-6 w-6 text-white" />
+  <div className="flex flex-col h-full bg-[var(--bg-card)] text-[var(--text-main)] border-r border-[var(--border-main)] transition-all duration-500">
+    <div className="flex items-center justify-between px-6 h-20 border-b border-[var(--border-main)] bg-[var(--bg-card)]">
+      <div className="flex items-center group cursor-pointer">
+        <div className="relative flex items-center justify-center w-12 h-12">
+          <motion.div
+            animate={{ scale: [1, 1.15, 1], opacity: [0.3, 0.6, 0.3] }}
+            transition={{ duration: 4, repeat: Infinity }}
+            className="absolute inset-0 bg-[var(--accent)] rounded-full blur-xl"
+          />
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="relative z-10 text-[var(--accent)]"
+          >
+            <Hexagon size={38} strokeWidth={1.5} />
+          </motion.div>
+          <motion.div
+            animate={{ scale: [0.8, 1.1, 0.8] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute z-20 bg-[var(--accent)] h-4 w-4 rounded-full shadow-[0_0_15px_var(--accent)] flex items-center justify-center"
+          >
+            <SparkleIcon size={8} className="text-white fill-white" />
+          </motion.div>
         </div>
-        <span className="ml-3 text-xl font-black tracking-tight">
-          FacultyApp
-        </span>
+
+        <div className="ml-4 flex flex-col">
+          <span className="text-xl font-black tracking-tighter leading-none uppercase">
+            Faculty<span className="text-[var(--accent)]">Hub</span>
+          </span>
+          <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[var(--text-muted)] opacity-60">
+            Standard Excellence
+          </span>
+        </div>
       </div>
-      {/* Mobile Close Button */}
-      {onClose && (
-        <button
-          onClick={onClose}
-          className="lg:hidden p-2 text-gray-400 hover:text-gray-600 dark:hover:text-white"
-        >
-          <X size={20} />
-        </button>
-      )}
     </div>
 
-    {/* NAVIGATION LIST */}
-    <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">
-      <p className="px-3 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500 mb-4">
-        Main Menu
-      </p>
+    <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto no-scrollbar">
       {navigation.map((item) => (
-        <NavLink
-          key={item.name}
-          to={item.href}
-          onClick={onClose}
-          className={({ isActive }) =>
-            `
-              flex items-center px-4 py-3 rounded-xl text-sm font-bold
-              transition-all duration-200 group
-              ${
+        <NavLink key={item.name} to={item.href} onClick={onClose}>
+          {({ isActive }) => (
+            <div
+              className={`flex items-center px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-300 group relative overflow-hidden ${
                 isActive
-                  ? "bg-indigo-600 text-white shadow-xl shadow-indigo-100 dark:shadow-none"
-                  : "text-gray-600 dark:text-gray-400 hover:bg-indigo-50 dark:hover:bg-gray-800 hover:text-indigo-600 dark:hover:text-white"
-              }
-            `
-          }
-        >
-          <item.icon className="mr-3 h-5 w-5 shrink-0 transition-transform group-hover:scale-110" />
-          {item.name}
+                  ? "bg-[var(--accent)] text-white shadow-xl shadow-indigo-500/20 translate-x-1"
+                  : "text-[var(--text-muted)] hover:bg-[var(--bg-main)] hover:text-[var(--accent)]"
+              }`}
+            >
+              <item.icon className="mr-3 h-5 w-5 shrink-0 transition-transform group-hover:scale-110" />
+              <span className="tracking-tight">{item.name}</span>
+              {/* Indicator fixed by checking isActive inside the block */}
+              {isActive && (
+                <motion.div
+                  layoutId="nav-active-bar"
+                  className="absolute left-0 w-1 h-1/2 bg-white rounded-r-full"
+                />
+              )}
+            </div>
+          )}
         </NavLink>
       ))}
     </nav>
@@ -100,17 +170,13 @@ const SidebarContent = ({
 /* ---------------- MAIN LAYOUT ---------------- */
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { theme, setTheme, setPreviewTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const role = getRole();
 
-  const [user, setUser] = useState({
-    name: "",
-    photo: "/default-avatar.png",
-  });
+  const [user, setUser] = useState({ name: "", photo: "/default-avatar.png" });
 
-  /* ---------- LOAD PROFILE ---------- */
   useEffect(() => {
     const loadUser = async () => {
       try {
@@ -122,14 +188,12 @@ const DashboardLayout = () => {
             : "/default-avatar.png",
         });
       } catch {
-        console.error("Failed to load dashboard profile");
+        console.error("Failed to load profile");
       }
     };
-
     loadUser();
   }, [location.pathname]);
 
-  /* ---------------- ROLE-BASED NAV ---------------- */
   const baseNav: NavItem[] = [
     { name: "Home", href: "/dashboard/home", icon: Home },
     { name: "Overview", href: "/dashboard/overview", icon: BarChart3 },
@@ -137,7 +201,7 @@ const DashboardLayout = () => {
       ? [{ name: "Faculty", href: "/dashboard/admin-faculty", icon: Users }]
       : []),
     { name: "Categories", href: "/dashboard/categories", icon: FolderOpen },
-    { name: "Calendar", href: "/dashboard/calendar", icon: Target },
+    { name: "Calendar", href: "/dashboard/calendar", icon: Hexagon },
     { name: "Contacts", href: "/dashboard/contacts", icon: Users },
     { name: "Reports", href: "/dashboard/reports", icon: FileText },
     { name: "Notifications", href: "/dashboard/notifications", icon: Bell },
@@ -146,110 +210,150 @@ const DashboardLayout = () => {
     { name: "Settings", href: "/dashboard/settings", icon: Settings },
   ];
 
-  return (
-    <div className="h-screen flex bg-gray-50 dark:bg-gray-950 transition-colors duration-300 overflow-hidden">
-      {/* DESKTOP SIDEBAR - Standard fixed width */}
-      <div className="hidden lg:flex w-72 shrink-0 shadow-2xl z-20">
-        <SidebarContent navigation={baseNav} />
-      </div>
+  const themes = [
+    {
+      id: "light",
+      icon: Sun,
+      color: "text-yellow-500",
+      sparkle: "text-yellow-300",
+    },
+    {
+      id: "dark",
+      icon: Moon,
+      color: "text-indigo-400",
+      sparkle: "text-indigo-200",
+    },
+    {
+      id: "orange",
+      icon: Sunrise,
+      color: "text-orange-600",
+      sparkle: "text-orange-300",
+    },
+    {
+      id: "leaf",
+      icon: Leaf,
+      color: "text-green-700",
+      sparkle: "text-green-300",
+    },
+  ];
 
-      {/* MAIN VIEWPORT */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* HEADER - Consistent with Sidebar background */}
-        <header
-          className="
-            h-16 flex items-center px-4 md:px-8
-            bg-white dark:bg-gray-900
-            border-b border-gray-200 dark:border-gray-800
-            transition-colors duration-300 z-10
-          "
-        >
+  return (
+    <div className="h-screen flex transition-colors duration-500 overflow-hidden font-sans bg-[var(--bg-main)] text-[var(--text-main)] selection:bg-[var(--accent)] selection:text-white">
+      {/* GLOBAL SPARKLE CURSOR */}
+      <MagicSparkleCursor />
+
+      {/* DESKTOP SIDEBAR */}
+      <aside className="hidden lg:flex w-72 shrink-0 z-20 overflow-hidden shadow-2xl">
+        <SidebarContent navigation={baseNav} />
+      </aside>
+
+      <div className="flex-1 flex flex-col min-w-0 relative">
+        <header className="h-16 flex items-center px-4 md:px-8 bg-[var(--bg-card)]/80 backdrop-blur-xl border-b border-[var(--border-main)] z-10 sticky top-0">
           <button
-            className="lg:hidden mr-3 p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="lg:hidden mr-4 p-2 rounded-xl hover:bg-[var(--bg-main)] transition-colors text-[var(--text-main)]"
             onClick={() => setSidebarOpen(true)}
           >
-            <Menu size={24} />
+            <Menu size={20} />
           </button>
 
-          <div className="ml-auto flex items-center gap-2 md:gap-4">
-            {/* THEME TOGGLE */}
-            <button
-              onClick={toggleTheme}
-              className="
-                p-2.5 rounded-xl border border-gray-200 dark:border-gray-700
-                text-gray-600 dark:text-gray-400
-                hover:bg-gray-100 dark:hover:bg-gray-800
-                transition-all duration-200
-              "
-              title="Toggle Theme"
-            >
-              {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
+          <div className="ml-auto flex items-center gap-3">
+            <div className="flex items-center gap-1 bg-[var(--bg-main)] p-1 rounded-2xl border border-[var(--border-main)] relative">
+              {themes.map((t) => (
+                <motion.button
+                  key={t.id}
+                  whileTap={{ scale: 0.9 }}
+                  onMouseEnter={() => setPreviewTheme(t.id as any)}
+                  onMouseLeave={() => setPreviewTheme(null)}
+                  onClick={() => setTheme(t.id as any)}
+                  className={`relative p-2.5 rounded-xl transition-all duration-300 ${
+                    theme === t.id
+                      ? "bg-[var(--bg-card)] shadow-lg scale-110"
+                      : "opacity-40 hover:opacity-100"
+                  }`}
+                >
+                  {theme === t.id && <AestheticSparkle color={t.sparkle} />}
+                  <t.icon size={16} className={t.color} />
+                </motion.button>
+              ))}
+            </div>
 
-            {/* PROFILE DROPDOWN */}
+            <div className="h-8 w-[1px] bg-[var(--border-main)] mx-1 hidden sm:block" />
+
             <button
               onClick={() => navigate("/dashboard/profile")}
-              className="
-                flex items-center gap-3
-                hover:bg-gray-100 dark:hover:bg-gray-800
-                px-3 py-1.5 rounded-xl transition-all duration-200
-                border border-transparent hover:border-gray-200 dark:hover:border-gray-700
-              "
+              className="group flex items-center gap-3 hover:bg-[var(--bg-main)] px-3 py-1.5 rounded-2xl transition-all duration-500 relative"
             >
-              <img
-                src={user.photo}
-                alt="profile"
-                className="h-8 w-8 rounded-lg object-cover ring-2 ring-indigo-50 dark:ring-indigo-900/30"
-              />
+              <div className="relative">
+                <motion.div
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 4, repeat: Infinity }}
+                  className="relative z-10 h-10 w-10"
+                >
+                  <img
+                    src={user.photo}
+                    alt="p"
+                    className="h-full w-full rounded-xl object-cover ring-2 ring-[var(--accent)] shadow-lg"
+                  />
+                </motion.div>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <AestheticSparkle color="text-[var(--accent)]" />
+                </div>
+              </div>
               <div className="hidden md:flex flex-col items-start leading-tight">
-                <span className="text-xs font-black text-gray-900 dark:text-white truncate max-w-[120px]">
-                  {user.name || "My Account"}
+                <span className="text-sm font-black text-[var(--text-main)] truncate max-w-[120px]">
+                  {user.name || "Admin"}
                 </span>
-                <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-tighter">
+                <span className="text-[10px] font-black text-[var(--accent)] uppercase tracking-widest opacity-80">
                   {role}
                 </span>
               </div>
             </button>
-
-            <div className="h-6 w-[1px] bg-gray-200 dark:border-gray-700 mx-1 hidden sm:block" />
-
             <LogoutButton />
           </div>
         </header>
 
-        {/* PAGE CONTENT CONTAINER - Deepest background for contrast */}
-        <main className="flex-1 overflow-y-auto bg-gray-50/50 dark:bg-gray-950 transition-colors duration-300">
-          <Outlet />
+        <main className="flex-1 overflow-y-auto p-4 md:p-8 bg-[var(--bg-main)] no-scrollbar">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.4 }}
+              className="w-full h-full"
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </main>
-
-        {/* MOBILE SIDEBAR MODAL */}
-        <AnimatePresence>
-          {sidebarOpen && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setSidebarOpen(false)}
-                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
-              />
-
-              <motion.div
-                initial={{ x: "-100%" }}
-                animate={{ x: 0 }}
-                exit={{ x: "-100%" }}
-                transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                className="fixed left-0 top-0 h-full w-72 z-50 lg:hidden"
-              >
-                <SidebarContent
-                  navigation={baseNav}
-                  onClose={() => setSidebarOpen(false)}
-                />
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
       </div>
+
+      {/* MOBILE SIDEBAR (FIXED Reference) */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSidebarOpen(false)}
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+            />
+            <motion.div
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
+              className="fixed left-0 top-0 h-full w-80 z-50 lg:hidden shadow-2xl"
+            >
+              <SidebarContent
+                navigation={baseNav}
+                onClose={() => setSidebarOpen(false)}
+              />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

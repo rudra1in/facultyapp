@@ -2,25 +2,105 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ================================
-   GLOBAL DARK MODE FIX
-================================ */
+@layer base {
+  /* ============================================================
+     THEME DEFINITIONS (CSS Variables)
+     ============================================================ */
 
-/* Light mode defaults */
-html,
-body {
-  background-color: #f9fafb; /* gray-50 */
-  color: #111827; /* gray-900 */
+  /* 1. Default Light Mode Styles */
+  :root {
+    --bg-main: #f9fafb; /* gray-50 */
+    --bg-card: #ffffff; /* white */
+    --text-main: #111827; /* gray-900 */
+    --text-muted: #6b7280; /* gray-500 */
+    --border-main: #e5e7eb; /* gray-200 */
+    --accent: #4f46e5; /* indigo-600 */
+    --accent-hover: #4338ca;
+  }
+
+  /* 2. Professional Dark Mode (Slate/Navy) */
+  .dark {
+    --bg-main: #020617; /* slate-950 */
+    --bg-card: #0f172a; /* slate-900 */
+    --text-main: #f9fafb; /* gray-50 */
+    --text-muted: #9ca3af; /* gray-400 */
+    --border-main: #1e293b; /* slate-800 */
+    --accent: #6366f1; /* indigo-500 */
+    --accent-hover: #818cf8;
+  }
+
+  /* 3. Orange Theme (Sunset/Warm) */
+  .orange {
+    --bg-main: #fff7ed; /* orange-50 */
+    --bg-card: #ffedd5; /* orange-100 */
+    --text-main: #7c2d12; /* orange-900 */
+    --text-muted: #9a3412; /* orange-800/70 */
+    --border-main: #fed7aa; /* orange-200 */
+    --accent: #ea580c; /* orange-600 */
+    --accent-hover: #c2410c;
+  }
+
+  /* 4. Leaf Theme (Nature/Forest) */
+  .leaf {
+    --bg-main: #f0fdf4; /* green-50 */
+    --bg-card: #dcfce7; /* green-100 */
+    --text-main: #064e3b; /* green-900 */
+    --text-muted: #14532d; /* green-900/70 */
+    --border-main: #bbf7d0; /* green-200 */
+    --accent: #16a34a; /* green-600 */
+    --accent-hover: #15803d;
+  }
+
+  /* ============================================================
+     GLOBAL STYLES
+     ============================================================ */
+
+  html,
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    @apply transition-colors duration-300;
+  }
+
+  /* GLOBAL TRANSITION FIX 
+     Ensures backgrounds, text, and borders all fade smoothly together.
+  */
+  *,
+  *::before,
+  *::after {
+    transition-property: background-color, border-color, color, fill, stroke,
+      box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
+
+  /* Hide scrollbars for a cleaner 'App' feel */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
-/* Dark mode defaults */
-html.dark,
-html.dark body {
-  background-color: #111827; /* gray-900 */
-  color: #f9fafb; /* gray-50 */
-}
+@layer components {
+  /* Helper for your high-end UI elements */
+  .glass-header {
+    @apply backdrop-blur-xl border-b transition-all duration-300;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-color: var(--border-main);
+  }
 
-/* Smooth transition */
-* {
-  transition: background-color 0.2s ease, color 0.2s ease;
+  .dark .glass-header {
+    background-color: rgba(15, 23, 42, 0.8);
+  }
+
+  .orange .glass-header {
+    background-color: rgba(255, 237, 213, 0.8);
+  }
+
+  .leaf .glass-header {
+    background-color: rgba(220, 252, 231, 0.8);
+  }
 }

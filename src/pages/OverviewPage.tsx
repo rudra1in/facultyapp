@@ -147,8 +147,8 @@ const OverviewPage = () => {
       change: "+12%",
       changeText: "vs last month",
       icon: CalendarCheck,
-      iconBg: "bg-purple-100 dark:bg-purple-900/30",
-      iconColor: "text-purple-600 dark:text-purple-400",
+      iconBg: "bg-purple-500/10",
+      iconColor: "text-purple-600",
       trend: "up",
     },
     {
@@ -158,8 +158,8 @@ const OverviewPage = () => {
       change: "+8%",
       changeText: "vs last month",
       icon: Clock,
-      iconBg: "bg-blue-100 dark:bg-blue-900/30",
-      iconColor: "text-blue-600 dark:text-blue-400",
+      iconBg: "bg-blue-500/10",
+      iconColor: "text-blue-600",
       trend: "up",
     },
     {
@@ -169,8 +169,8 @@ const OverviewPage = () => {
       change: "+5%",
       changeText: "vs last month",
       icon: Users,
-      iconBg: "bg-green-100 dark:bg-green-900/30",
-      iconColor: "text-green-600 dark:text-green-400",
+      iconBg: "bg-green-500/10",
+      iconColor: "text-green-600",
       trend: "up",
     },
     {
@@ -180,8 +180,8 @@ const OverviewPage = () => {
       change: ratingTrend === "up" ? "+0.2" : "-0.1",
       changeText: "vs last month",
       icon: Star,
-      iconBg: "bg-orange-100 dark:bg-orange-900/30",
-      iconColor: "text-orange-600 dark:text-orange-400",
+      iconBg: "bg-orange-500/10",
+      iconColor: "text-orange-600",
       trend: ratingTrend,
     },
   ];
@@ -238,31 +238,27 @@ const OverviewPage = () => {
   const getStatusColor = (status: Session["status"]) => {
     switch (status) {
       case "Completed":
-        return "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400";
+        return "bg-green-500/10 text-green-700 dark:text-green-400";
       case "In progress":
-        return "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400";
+        return "bg-blue-500/10 text-blue-700 dark:text-blue-400";
       case "Scheduled":
-        return "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400";
+        return "bg-orange-500/10 text-orange-700 dark:text-orange-400";
       default:
-        return "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300";
+        return "bg-gray-500/10 text-gray-700 dark:text-gray-300";
     }
   };
 
   const getCategoryColor = (category: string) => {
     const colors: { [key: string]: string } = {
-      Mathematics:
-        "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400",
-      Physics:
-        "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400",
+      Mathematics: "bg-blue-500/10 text-blue-700 dark:text-blue-400",
+      Physics: "bg-green-500/10 text-green-700 dark:text-green-400",
       "Computer Science":
-        "bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-400",
-      Chemistry:
-        "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-400",
-      English: "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400",
+        "bg-purple-500/10 text-purple-700 dark:text-purple-400",
+      Chemistry: "bg-orange-500/10 text-orange-700 dark:text-orange-400",
+      English: "bg-red-500/10 text-red-700 dark:text-red-400",
     };
     return (
-      colors[category] ||
-      "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
+      colors[category] || "bg-gray-500/10 text-gray-700 dark:text-gray-300"
     );
   };
 
@@ -278,26 +274,26 @@ const OverviewPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] transition-colors duration-300">
       <div className="p-6 max-w-7xl mx-auto font-sans">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 space-y-4 md:space-y-0">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Dashboard Overview 📊
+            <h1 className="text-3xl font-black tracking-tight text-[var(--text-main)]">
+              Dashboard Overview <span className="opacity-50">📊</span>
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-[var(--text-muted)] font-medium mt-1">
               Monitor your faculty sessions, performance, and key quality
               metrics.
             </p>
           </div>
           <motion.button
             onClick={handleNewSession}
-            className="bg-indigo-600 text-white px-5 py-2 rounded-xl font-medium hover:bg-indigo-700 transition-colors flex items-center shadow-lg"
+            className="bg-[var(--accent)] text-white px-6 py-3 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl hover:opacity-90 transition-all flex items-center"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="w-4 h-4 mr-2 stroke-[3]" />
             New Session
           </motion.button>
         </div>
@@ -307,24 +303,24 @@ const OverviewPage = () => {
           {metrics.map((metric) => (
             <motion.div
               key={metric.id}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 p-6 flex flex-col justify-between"
+              className="bg-[var(--bg-card)] rounded-[2rem] shadow-xl border border-[var(--border-main)] p-6 flex flex-col justify-between transition-all"
               whileHover={{ y: -5 }}
             >
               <div className="flex items-center justify-between mb-4">
                 <div
-                  className={`w-12 h-12 ${metric.iconBg} rounded-xl flex items-center justify-center`}
+                  className={`w-12 h-12 ${metric.iconBg} rounded-2xl flex items-center justify-center`}
                 >
                   <metric.icon className={`w-6 h-6 ${metric.iconColor}`} />
                 </div>
               </div>
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] mb-1">
                   {metric.title}
                 </p>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                <p className="text-3xl font-black text-[var(--text-main)] mb-2">
                   {metric.value}
                 </p>
-                <div className="flex items-center text-sm font-medium">
+                <div className="flex items-center text-xs font-bold">
                   {metric.trend === "up" ? (
                     <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
                   ) : (
@@ -337,7 +333,7 @@ const OverviewPage = () => {
                   >
                     {metric.change}
                   </span>
-                  <span className="text-gray-500 dark:text-gray-500 ml-1">
+                  <span className="text-[var(--text-muted)] ml-1 font-medium italic opacity-70">
                     {metric.changeText}
                   </span>
                 </div>
@@ -347,15 +343,15 @@ const OverviewPage = () => {
         </div>
 
         {/* Sessions Table Container */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="bg-[var(--bg-card)] rounded-[2.5rem] shadow-2xl border border-[var(--border-main)] overflow-hidden transition-all">
+          <div className="px-8 py-6 border-b border-[var(--border-main)]">
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between space-y-4 lg:space-y-0">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                Recent Sessions Activity
+              <h2 className="text-xl font-black text-[var(--text-main)] tracking-tight">
+                Recent Activity Log
               </h2>
               <div className="flex flex-wrap items-center gap-3">
                 <select
-                  className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none"
+                  className="bg-[var(--bg-main)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest text-[var(--text-main)] outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all"
                   value={selectedTimePeriod}
                   onChange={(e) => setSelectedTimePeriod(e.target.value)}
                 >
@@ -366,18 +362,18 @@ const OverviewPage = () => {
                 </select>
 
                 <div className="relative">
-                  <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
                   <input
                     type="text"
-                    placeholder="Search..."
-                    className="bg-white dark:bg-gray-700 pl-9 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none text-gray-700 dark:text-gray-200"
+                    placeholder="Quick search..."
+                    className="bg-[var(--bg-main)] border border-[var(--border-main)] pl-10 pr-4 py-2 rounded-xl text-xs font-bold text-[var(--text-main)] placeholder-[var(--text-muted)] focus:ring-2 focus:ring-[var(--accent)] outline-none transition-all w-48"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
 
                 <select
-                  className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-indigo-500 outline-none"
+                  className="bg-[var(--bg-main)] border border-[var(--border-main)] rounded-xl px-4 py-2 text-xs font-black uppercase tracking-widest text-[var(--text-main)] outline-none focus:ring-2 focus:ring-[var(--accent)] transition-all"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                 >
@@ -393,27 +389,27 @@ const OverviewPage = () => {
           </div>
 
           {/* Quick Filter Status Tabs */}
-          <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex flex-wrap gap-2">
+          <div className="p-4 px-8 border-b border-[var(--border-main)] bg-[var(--bg-main)]/30 flex flex-wrap gap-2 transition-all">
             {statusQuickFilters.map((filter) => (
               <button
                 key={filter.value}
                 onClick={() => setQuickFilterStatus(filter.value)}
-                className={`px-4 py-1.5 text-sm font-medium rounded-full flex items-center transition-all ${
+                className={`px-5 py-2 text-[10px] font-black uppercase tracking-widest rounded-full flex items-center transition-all ${
                   quickFilterStatus === filter.value
-                    ? "bg-indigo-600 text-white shadow-md"
-                    : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600"
+                    ? "bg-[var(--accent)] text-white shadow-lg"
+                    : "bg-[var(--bg-card)] border border-[var(--border-main)] text-[var(--text-muted)] hover:border-[var(--accent)]"
                 }`}
               >
-                <filter.icon className="w-4 h-4 mr-1.5" />
+                <filter.icon className="w-3.5 h-3.5 mr-2" />
                 {filter.label}
               </button>
             ))}
           </div>
 
           {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-              <thead className="bg-gray-50 dark:bg-gray-900/50">
+          <div className="overflow-x-auto no-scrollbar">
+            <table className="min-w-full divide-y divide-[var(--border-main)]">
+              <thead className="bg-[var(--bg-main)]/50">
                 <tr>
                   {[
                     "Session",
@@ -428,66 +424,66 @@ const OverviewPage = () => {
                   ].map((header) => (
                     <th
                       key={header}
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                      className="px-8 py-4 text-left text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.15em]"
                     >
                       {header}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+              <tbody className="divide-y divide-[var(--border-main)]">
                 {filteredSessions.map((session) => (
                   <tr
                     key={session.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    className="hover:bg-[var(--bg-main)]/40 transition-colors group"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900 dark:text-white">
+                    <td className="px-8 py-5 whitespace-nowrap font-bold text-[var(--text-main)] text-sm">
                       {session.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">
+                    <td className="px-8 py-5 whitespace-nowrap text-[var(--text-muted)] font-medium text-sm">
                       {session.faculty}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-8 py-5 whitespace-nowrap">
                       <span
-                        className={`px-3 py-1 text-xs font-semibold rounded-full ${getCategoryColor(
+                        className={`px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg border-l-[3px] border-current ${getCategoryColor(
                           session.category
                         )}`}
                       >
                         {session.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">
+                    <td className="px-8 py-5 whitespace-nowrap text-[var(--text-muted)] font-bold text-xs uppercase tracking-tighter">
                       {session.type}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">
+                    <td className="px-8 py-5 whitespace-nowrap text-[var(--text-muted)] font-medium text-sm">
                       {session.duration}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-gray-700 dark:text-gray-300">
+                    <td className="px-8 py-5 whitespace-nowrap text-[var(--text-muted)] font-bold text-xs">
                       {session.date}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-8 py-5 whitespace-nowrap">
                       <span
-                        className={`px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(
+                        className={`px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full ${getStatusColor(
                           session.status
                         )}`}
                       >
                         {session.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center text-gray-900 dark:text-gray-200">
+                    <td className="px-8 py-5 whitespace-nowrap">
+                      <div className="flex items-center text-[var(--text-main)] font-black text-xs">
                         {session.rating > 0 ? (
                           <>
-                            <Star className="w-4 h-4 text-yellow-400 mr-1 fill-yellow-400" />
+                            <Star className="w-3.5 h-3.5 text-yellow-500 mr-1.5 fill-yellow-500" />
                             {session.rating.toFixed(1)}
                           </>
                         ) : (
-                          <span className="text-gray-400">N/A</span>
+                          <span className="opacity-30">N/A</span>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <td className="px-8 py-5 whitespace-nowrap text-right">
+                      <button className="text-[var(--text-muted)] hover:text-[var(--accent)] p-2 rounded-xl hover:bg-[var(--bg-card)] transition-all">
                         <MoreHorizontal className="w-5 h-5" />
                       </button>
                     </td>

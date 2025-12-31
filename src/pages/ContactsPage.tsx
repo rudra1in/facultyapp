@@ -42,7 +42,7 @@ const ContactAvatar: React.FC<{ name: string }> = ({ name }) => {
     .toUpperCase();
 
   return (
-    <div className="h-14 w-14 rounded-full flex items-center justify-center font-bold text-white text-xl bg-indigo-600 shadow-inner">
+    <div className="h-14 w-14 rounded-full flex items-center justify-center font-bold text-white text-xl bg-[var(--accent)] shadow-inner transition-colors duration-300">
       {initials}
     </div>
   );
@@ -52,29 +52,29 @@ const ContactAvatar: React.FC<{ name: string }> = ({ name }) => {
 
 const ContactCard: React.FC<{ contact: Contact }> = ({ contact }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 border-l-4 border-l-indigo-500 p-6 transition-all hover:shadow-lg">
+    <div className="bg-[var(--bg-card)] rounded-2xl shadow-md border border-[var(--border-main)] border-l-4 border-l-[var(--accent)] p-6 transition-all hover:shadow-lg">
       <div className="flex items-center mb-6">
         <ContactAvatar name={contact.name} />
         <div className="ml-4">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+          <h3 className="text-xl font-bold text-[var(--text-main)] transition-colors">
             {contact.name}
           </h3>
-          <p className="text-indigo-600 dark:text-indigo-400 font-medium flex items-center text-sm">
+          <p className="text-[var(--accent)] font-medium flex items-center text-sm transition-colors">
             <Briefcase className="h-4 w-4 mr-1" /> {contact.role}
           </p>
         </div>
       </div>
 
       <div className="flex justify-between items-center mb-5">
-        <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs font-semibold">
+        <span className="px-3 py-1 bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-main)] rounded-full text-xs font-semibold opacity-80">
           {contact.department}
         </span>
 
         <span
           className={`px-3 py-1 rounded-full text-xs font-bold flex items-center shadow-sm ${
             contact.available
-              ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
-              : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
+              ? "bg-green-500/10 text-green-600 dark:text-green-400"
+              : "bg-red-500/10 text-red-600 dark:text-red-400"
           }`}
         >
           {contact.available ? (
@@ -89,21 +89,21 @@ const ContactCard: React.FC<{ contact: Contact }> = ({ contact }) => {
         </span>
       </div>
 
-      <div className="text-sm space-y-3 border-t border-gray-100 dark:border-gray-700 pt-5 text-gray-600 dark:text-gray-400">
-        <p className="flex items-center hover:text-indigo-500 transition-colors cursor-default">
-          <Mail className="h-4 w-4 mr-3 text-gray-400" />
+      <div className="text-sm space-y-3 border-t border-[var(--border-main)] pt-5 text-[var(--text-muted)]">
+        <p className="flex items-center hover:text-[var(--accent)] transition-colors cursor-default">
+          <Mail className="h-4 w-4 mr-3 text-[var(--text-muted)] opacity-50" />
           {contact.email}
         </p>
         <p className="flex items-center">
-          <Phone className="h-4 w-4 mr-3 text-gray-400" />
+          <Phone className="h-4 w-4 mr-3 text-[var(--text-muted)] opacity-50" />
           {contact.phoneExtension}
         </p>
         <p className="flex items-center">
-          <MapPin className="h-4 w-4 mr-3 text-gray-400" />
+          <MapPin className="h-4 w-4 mr-3 text-[var(--text-muted)] opacity-50" />
           {contact.officeLocation}
         </p>
         <p className="flex items-center">
-          <Clock className="h-4 w-4 mr-3 text-gray-400" />
+          <Clock className="h-4 w-4 mr-3 text-[var(--text-muted)] opacity-50" />
           {contact.officeHours}
         </p>
       </div>
@@ -113,7 +113,7 @@ const ContactCard: React.FC<{ contact: Contact }> = ({ contact }) => {
           {contact.researchInterests.map((r, i) => (
             <span
               key={i}
-              className="px-2.5 py-1 text-[10px] uppercase tracking-wider bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300 rounded-md font-bold"
+              className="px-2.5 py-1 text-[10px] uppercase tracking-wider bg-[var(--accent)]/10 text-[var(--accent)] rounded-md font-bold border border-[var(--accent)]/5"
             >
               {r}
             </span>
@@ -126,8 +126,8 @@ const ContactCard: React.FC<{ contact: Contact }> = ({ contact }) => {
           <Calendar className="h-4 w-4 mr-2" />
           Book Meeting
         </button>
-        <button className="flex-1 px-4 py-2.5 bg-indigo-100 dark:bg-gray-700 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-gray-600 rounded-xl text-sm font-bold transition-colors flex items-center justify-center">
-          <Globe className="h-4 w-4 mr-2" />
+        <button className="flex-1 px-4 py-2.5 bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-main)] hover:bg-[var(--accent)]/5 rounded-xl text-sm font-bold transition-all flex items-center justify-center">
+          <Globe className="h-4 w-4 mr-2 text-[var(--accent)]" />
           Map
         </button>
       </div>
@@ -168,10 +168,10 @@ const ContactPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-[var(--bg-main)] flex items-center justify-center transition-colors duration-300">
         <div className="text-center animate-pulse">
-          <Users className="h-12 w-12 text-indigo-500 mx-auto mb-4" />
-          <p className="text-gray-500 dark:text-gray-400 font-medium">
+          <Users className="h-12 w-12 text-[var(--accent)] mx-auto mb-4" />
+          <p className="text-[var(--text-muted)] font-medium">
             Synchronizing Directory...
           </p>
         </div>
@@ -180,25 +180,25 @@ const ContactPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] transition-colors duration-300">
       <div className="p-8 max-w-7xl mx-auto">
         <header className="mb-10">
           <h1 className="text-4xl font-extrabold mb-2 flex items-center tracking-tight">
-            <Users className="h-10 w-10 mr-4 text-indigo-600 dark:text-indigo-400" />
+            <Users className="h-10 w-10 mr-4 text-[var(--accent)] transition-colors" />
             Faculty Directory
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-[var(--text-muted)] transition-colors">
             Connect with educators and researchers across departments.
           </p>
         </header>
 
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--text-muted)] opacity-60" />
             <input
               type="text"
               placeholder="Search by name, department, or expertise..."
-              className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-sm"
+              className="w-full pl-12 pr-4 py-3 bg-[var(--bg-card)] border border-[var(--border-main)] rounded-2xl focus:ring-2 focus:ring-[var(--accent)] outline-none transition-all shadow-sm text-[var(--text-main)]"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -208,13 +208,13 @@ const ContactPage: React.FC = () => {
             onClick={() => setShowFacultyOnly(!showFacultyOnly)}
             className={`px-6 py-3 rounded-2xl font-bold flex items-center transition-all ${
               showFacultyOnly
-                ? "bg-indigo-600 text-white shadow-lg"
-                : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
+                ? "bg-[var(--accent)] text-white shadow-lg"
+                : "bg-[var(--bg-card)] text-[var(--text-main)] border border-[var(--border-main)] hover:bg-[var(--bg-main)]"
             }`}
           >
             <Filter
               className={`h-4 w-4 mr-2 ${
-                showFacultyOnly ? "text-white" : "text-indigo-500"
+                showFacultyOnly ? "text-white" : "text-[var(--accent)]"
               }`}
             />
             Faculty Only
@@ -222,10 +222,10 @@ const ContactPage: React.FC = () => {
         </div>
 
         {filteredContacts.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-3xl p-20 text-center border border-dashed border-gray-300 dark:border-gray-700">
-            <Search className="h-16 w-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+          <div className="bg-[var(--bg-card)] rounded-3xl p-20 text-center border border-dashed border-[var(--border-main)] transition-colors">
+            <Search className="h-16 w-16 text-[var(--text-muted)] opacity-30 mx-auto mb-4" />
             <h3 className="text-xl font-bold mb-1">No matches found</h3>
-            <p className="text-gray-500">
+            <p className="text-[var(--text-muted)]">
               Try adjusting your search or filters.
             </p>
           </div>

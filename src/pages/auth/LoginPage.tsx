@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Eye, EyeOff, Mail, Lock, ChevronRight } from "lucide-react";
+import {
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  ChevronRight,
+  Hexagon,
+  Sparkles,
+  Loader2,
+  CheckCircle2,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { authService } from "../../services/auth.service";
 
@@ -12,6 +23,7 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Forgot password states
@@ -38,13 +50,17 @@ const LoginPage = () => {
       const response = await authService.login({ email, password });
       localStorage.setItem("accessToken", response.token!);
       localStorage.setItem("userRole", response.role);
-      navigate("/dashboard", { replace: true });
+
+      // Trigger Success Animation
+      setIsSuccess(true);
+      setTimeout(() => {
+        navigate("/dashboard", { replace: true });
+      }, 1500);
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||
           "Invalid email or password. Please try again."
       );
-    } finally {
       setLoading(false);
     }
   };
@@ -64,111 +80,156 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-4 transition-colors duration-300">
-      {/* Back Button */}
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg-main)] p-4 transition-colors duration-500 overflow-hidden relative">
+      {/* BACKGROUND ANIMATION ELEMENTS */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <motion.div
+          animate={{ scale: [1, 1.2, 1], rotate: [0, 90, 0] }}
+          transition={{ duration: 20, repeat: Infinity }}
+          className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-[var(--accent)] opacity-[0.08] blur-[120px] rounded-full"
+        />
+        <motion.div
+          animate={{ scale: [1, 1.3, 1], rotate: [0, -90, 0] }}
+          transition={{ duration: 25, repeat: Infinity, delay: 2 }}
+          className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-purple-500 opacity-[0.05] blur-[120px] rounded-full"
+        />
+      </div>
+
+      {/* BACK BUTTON */}
       <motion.button
-        whileHover={{ x: -4 }}
+        whileHover={{ x: -5, backgroundColor: "var(--bg-card)" }}
         onClick={() => navigate("/")}
-        className="absolute top-8 left-8 p-3 rounded-xl bg-white dark:bg-gray-900 shadow-lg dark:shadow-none border border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 z-20"
+        className="absolute top-8 left-8 p-3 rounded-2xl bg-transparent border border-[var(--border-main)] text-[var(--text-main)] z-20 transition-all backdrop-blur-md"
       >
         <ArrowLeft size={20} />
       </motion.button>
 
-      <div className="w-full max-w-6xl h-[700px] bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl dark:shadow-indigo-500/5 overflow-hidden flex flex-col md:flex-row border border-gray-100 dark:border-gray-800 relative">
-        {/* LEFT PANEL - Decorative Art */}
-        <div className="hidden md:flex w-5/12 relative items-center justify-center bg-indigo-600 overflow-hidden">
-          {/* Mesh Gradients */}
-          <div className="absolute top-[-10%] left-[-10%] w-[80%] h-[80%] bg-purple-500 rounded-full blur-[120px] opacity-40 animate-pulse" />
-          <div className="absolute bottom-[-10%] right-[-10%] w-[80%] h-[80%] bg-blue-400 rounded-full blur-[120px] opacity-40 animate-pulse" />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-6xl h-auto md:h-[750px] bg-[var(--bg-card)] rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] overflow-hidden flex flex-col md:flex-row border border-[var(--border-main)] relative transition-all"
+      >
+        {/* LEFT PANEL - VISUAL & LOGO */}
+        <div className="hidden md:flex w-5/12 relative items-center justify-center bg-[var(--accent)] overflow-hidden">
+          <div className="absolute inset-0 bg-black/10" />
 
-          <div className="relative z-10 p-12 text-center text-white">
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="mb-8 flex justify-center"
+          <div className="relative z-10 p-12 text-center text-white flex flex-col items-center">
+            {/* ANIMATED DASHBOARD LOGO */}
+            <div className="relative flex items-center justify-center w-24 h-24 mb-10">
+              <motion.div
+                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                transition={{ duration: 4, repeat: Infinity }}
+                className="absolute inset-0 bg-white rounded-full blur-2xl"
+              />
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                className="relative z-10 text-white"
+              >
+                <Hexagon size={80} strokeWidth={1} className="opacity-80" />
+              </motion.div>
+              <motion.div
+                animate={{ scale: [0.8, 1.1, 0.8] }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+                className="absolute z-20 bg-white h-8 w-8 rounded-full flex items-center justify-center shadow-2xl"
+              >
+                <Sparkles size={16} className="text-[var(--accent)]" />
+              </motion.div>
+            </div>
+
+            <motion.h2
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-4xl font-black tracking-tighter mb-4"
             >
+              FACULTY<span className="text-white/60">HUB</span>
+            </motion.h2>
+            <p className="text-white/70 text-sm leading-relaxed max-w-xs font-medium uppercase tracking-[0.2em] mb-8">
+              Excellence in Academic Management
+            </p>
+
+            <div className="mt-4 p-1 bg-white/10 backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl">
               <img
                 src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071&auto=format&fit=crop"
-                className="w-72 h-80 object-cover rounded-3xl shadow-2xl rotate-3"
-                alt="Login"
+                className="w-64 h-72 object-cover rounded-[1.8rem] transition-transform duration-700 hover:scale-110"
+                alt="Institutional"
               />
-            </motion.div>
-            <h2 className="text-3xl font-black tracking-tight mb-4">
-              Empowering Education
-            </h2>
-            <p className="text-indigo-100/80 text-sm leading-relaxed max-w-xs mx-auto">
-              Join our dedicated community of faculty members and streamline
-              your academic management.
-            </p>
+            </div>
           </div>
         </div>
 
-        {/* RIGHT PANEL - Form */}
-        <div className="flex-1 p-8 md:p-16 flex flex-col justify-center bg-white dark:bg-gray-900">
+        {/* RIGHT PANEL - FORM */}
+        <div className="flex-1 p-8 md:p-20 flex flex-col justify-center bg-[var(--bg-card)]">
           <div className="max-w-md mx-auto w-full">
-            <header className="mb-10 text-center md:text-left">
-              <motion.h1
-                initial={{ y: -10, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                className="text-4xl font-black text-gray-900 dark:text-white mb-3 tracking-tight"
+            <header className="mb-12">
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                className="inline-block px-4 py-1.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] text-[10px] font-black uppercase tracking-widest mb-6"
               >
-                Welcome Back
-              </motion.h1>
-              <p className="text-gray-500 dark:text-gray-400 font-medium">
-                Sign in to manage your faculty portal
+                Identity Verification
+              </motion.div>
+              <h1 className="text-5xl font-black text-[var(--text-main)] mb-3 tracking-tighter transition-colors">
+                Sign In
+              </h1>
+              <p className="text-[var(--text-muted)] font-medium tracking-tight">
+                Access your personalized faculty node.
               </p>
             </header>
 
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
               {error && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-2xl text-sm font-bold border border-red-100 dark:border-red-900/30 flex items-center"
+                  className="mb-8 p-4 bg-red-500/10 text-red-500 rounded-2xl text-xs font-black uppercase tracking-widest border border-red-500/20 flex items-center gap-3"
                 >
-                  <AlertTriangle className="mr-2 h-4 w-4" />
+                  <AlertTriangle className="h-4 w-4" />
                   {error}
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <form onSubmit={handleLogin} className="space-y-6">
-              <div className="space-y-4">
-                {/* Email Field */}
+            <form onSubmit={handleLogin} className="space-y-8">
+              <div className="space-y-5">
                 <div className="group relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors">
-                    <Mail size={20} />
+                  <div className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-[var(--accent)] transition-colors">
+                    <Mail size={18} />
                   </div>
                   <input
                     type="email"
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="Email address"
-                    className="w-full pl-12 pr-4 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:bg-white dark:focus:bg-gray-800 transition-all text-gray-900 dark:text-white"
+                    placeholder="Email Address"
+                    className="w-full pl-14 pr-6 py-5 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-[1.5rem] outline-none focus:ring-2 focus:ring-[var(--accent)] text-[var(--text-main)] font-bold transition-all"
                   />
                 </div>
 
-                {/* Password Field */}
                 <div className="group relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-indigo-600 transition-colors">
-                    <Lock size={20} />
+                  <div className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-[var(--accent)] transition-colors">
+                    <Lock size={18} />
                   </div>
                   <input
                     type={showPassword ? "text" : "password"}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Password"
-                    className="w-full pl-12 pr-12 py-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 focus:bg-white dark:focus:bg-gray-800 transition-all text-gray-900 dark:text-white"
+                    placeholder="Security Key"
+                    className="w-full pl-14 pr-14 py-5 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-[1.5rem] outline-none focus:ring-2 focus:ring-[var(--accent)] text-[var(--text-main)] font-bold transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                    className="absolute right-5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-main)]"
                   >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
@@ -177,43 +238,57 @@ const LoginPage = () => {
                 <button
                   type="button"
                   onClick={() => setForgotOpen(true)}
-                  className="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 underline underline-offset-4"
+                  className="text-[10px] font-black uppercase tracking-widest text-[var(--accent)] hover:opacity-70 transition-all"
                 >
-                  Forgot password?
+                  Forgot Access Key?
                 </button>
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.01 }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                disabled={loading}
-                className="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-xl shadow-indigo-100 dark:shadow-none transition-all flex items-center justify-center gap-2"
+                disabled={loading || isSuccess}
+                className={`w-full py-5 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl transition-all flex items-center justify-center gap-3 ${
+                  isSuccess
+                    ? "bg-green-500 text-white"
+                    : "bg-[var(--accent)] text-white shadow-indigo-500/20"
+                }`}
               >
                 {loading ? (
-                  "Verifying..."
+                  isSuccess ? (
+                    <>
+                      Verifying Session{" "}
+                      <CheckCircle2 className="animate-bounce" size={18} />
+                    </>
+                  ) : (
+                    <>
+                      Authenticating{" "}
+                      <Loader2 className="animate-spin" size={18} />
+                    </>
+                  )
                 ) : (
                   <>
-                    Login Now <ChevronRight size={20} />
+                    Establish Connection <ChevronRight size={18} />
                   </>
                 )}
               </motion.button>
             </form>
 
-            <div className="mt-10 text-center">
-              <p className="text-gray-500 dark:text-gray-400 font-medium">
-                New faculty member?{" "}
+            <div className="mt-12 text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)]">
+                Unauthorized access is prohibited.{" "}
                 <Link
                   to="/register"
-                  className="text-indigo-600 dark:text-indigo-400 font-black hover:underline underline-offset-4"
+                  className="text-[var(--accent)] hover:underline ml-2"
                 >
-                  Request Registration
+                  Request Access
                 </Link>
               </p>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* FORGOT PASSWORD MODAL */}
       <AnimatePresence>
@@ -224,23 +299,23 @@ const LoginPage = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setForgotOpen(false)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-black/80 backdrop-blur-xl"
             />
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative bg-white dark:bg-gray-800 w-full max-w-md rounded-[2rem] p-8 shadow-2xl border border-gray-100 dark:border-gray-700"
+              className="relative bg-[var(--bg-card)] w-full max-w-md rounded-[3rem] p-10 shadow-2xl border border-[var(--border-main)]"
             >
-              <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">
-                Reset Password
+              <h2 className="text-3xl font-black text-[var(--text-main)] mb-2 tracking-tighter">
+                Recovery
               </h2>
-              <p className="text-gray-500 dark:text-gray-400 mb-6 font-medium">
-                Enter your registered email to receive a secure reset link.
+              <p className="text-[var(--text-muted)] mb-8 text-sm font-medium">
+                Enter your terminal email for reset instructions.
               </p>
 
               {forgotMsg && (
-                <div className="mb-4 p-4 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-xl text-sm font-bold border border-green-100 dark:border-green-900/30">
+                <div className="mb-6 p-4 bg-green-500/10 text-green-500 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-green-500/20">
                   {forgotMsg}
                 </div>
               )}
@@ -249,23 +324,23 @@ const LoginPage = () => {
                 type="email"
                 value={forgotEmail}
                 onChange={(e) => setForgotEmail(e.target.value)}
-                className="w-full px-4 py-4 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-2xl outline-none focus:ring-2 focus:ring-indigo-500 mb-6 dark:text-white transition-all"
-                placeholder="Email address"
+                className="w-full px-6 py-5 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl outline-none focus:ring-2 focus:ring-[var(--accent)] mb-8 text-[var(--text-main)] font-bold"
+                placeholder="Terminal Email"
               />
 
-              <div className="flex gap-3">
+              <div className="flex gap-4">
                 <button
                   onClick={() => setForgotOpen(false)}
-                  className="flex-1 py-3 text-gray-500 dark:text-gray-400 font-bold hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition-colors"
+                  className="flex-1 py-4 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] hover:bg-[var(--bg-main)] rounded-xl transition-all"
                 >
-                  Cancel
+                  Abort
                 </button>
                 <button
                   onClick={handleForgotPassword}
                   disabled={forgotLoading}
-                  className="flex-[2] py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black transition-all shadow-lg shadow-indigo-100 dark:shadow-none"
+                  className="flex-[2] py-4 rounded-xl bg-[var(--accent)] text-white font-black text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-500/20"
                 >
-                  {forgotLoading ? "Sending..." : "Send Link"}
+                  {forgotLoading ? "Transmitting..." : "Send Request"}
                 </button>
               </div>
             </motion.div>
@@ -275,21 +350,5 @@ const LoginPage = () => {
     </div>
   );
 };
-
-const AlertTriangle = ({ className }: { className?: string }) => (
-  <svg
-    className={className}
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth="2"
-      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-    />
-  </svg>
-);
 
 export default LoginPage;
