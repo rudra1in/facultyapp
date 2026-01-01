@@ -1,5 +1,17 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Mail, Phone, MapPin, Clock, Edit, GraduationCap } from "lucide-react";
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Clock,
+  Edit,
+  GraduationCap,
+  Sparkles,
+  Star,
+  Camera,
+  ShieldCheck,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { profileService } from "../services/profile.service";
 
 interface ProfileData {
@@ -24,11 +36,32 @@ const emptyProfile: ProfileData = {
   imageUrl: "/default-avatar.png",
 };
 
+/* ---------------- SPARKLE ANIMATION COMPONENT ---------------- */
+const ProfileSparkle = ({ delay = 0, size = 20, style }: any) => (
+  <motion.div
+    initial={{ scale: 0, opacity: 0 }}
+    animate={{
+      scale: [0, 1.2, 0],
+      opacity: [0, 0.8, 0],
+      rotate: [0, 90],
+    }}
+    transition={{
+      duration: 3,
+      repeat: Infinity,
+      delay,
+      ease: "easeInOut",
+    }}
+    className="absolute pointer-events-none text-yellow-400"
+    style={style}
+  >
+    <Sparkles size={size} fill="currentColor" />
+  </motion.div>
+);
+
 const ProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<ProfileData>(emptyProfile);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 🔥 Load logged-in user profile
   useEffect(() => {
     const loadProfile = async () => {
       try {
@@ -49,18 +82,14 @@ const ProfilePage: React.FC = () => {
         console.error("Failed to load profile", err);
       }
     };
-
     loadProfile();
   }, []);
 
-  // 🔥 Upload profile photo
   const onPhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return;
-
     try {
       await profileService.uploadProfilePhoto(e.target.files[0]);
       const updated = await profileService.getMyProfile();
-
       setProfile((prev) => ({
         ...prev,
         imageUrl: updated.profileImage
@@ -73,30 +102,80 @@ const ProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] transition-colors duration-300">
-      <div className="p-4 md:p-8 max-w-6xl mx-auto">
-        <div className="bg-[var(--bg-card)] rounded-[2.5rem] shadow-2xl overflow-hidden border border-[var(--border-main)]">
-          {/* Header/Cover Placeholder Area - Adaptive Gradient */}
-          <div className="h-40 bg-gradient-to-r from-[var(--accent)] to-purple-600 opacity-90" />
+    <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] p-4 md:p-8 transition-all duration-500 overflow-hidden relative">
+      {/* Background Decorative Elements */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[var(--accent)] opacity-[0.03] rounded-full blur-[120px] -mr-40 -mt-40 pointer-events-none" />
 
-          <div className="px-6 md:px-10 pb-10">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "circOut" }}
+        className="max-w-6xl mx-auto relative z-10"
+      >
+        <div className="bg-[var(--bg-card)] rounded-[3.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.25)] overflow-hidden border border-[var(--border-main)] relative">
+          {/* Header/Cover with Dynamic Animation */}
+          <div className="h-56 relative overflow-hidden bg-gradient-to-br from-indigo-600 via-purple-600 to-[var(--accent)]">
+            <motion.div
+              animate={{
+                scale: [1, 1.2, 1],
+                rotate: [0, 5, 0],
+              }}
+              transition={{ duration: 20, repeat: Infinity }}
+              className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"
+            />
+            {/* Status Badge */}
+            <div className="absolute top-6 right-8 px-5 py-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">
+                Node Active
+              </span>
+            </div>
+          </div>
+
+          <div className="px-6 md:px-12 pb-12">
             {/* Profile Avatar Section */}
-            <div className="relative -mt-20 flex flex-col md:flex-row items-end md:items-center gap-6">
+            <div className="relative -mt-24 flex flex-col md:flex-row items-end md:items-center gap-8">
               <div className="relative group">
-                <img
-                  className="h-40 w-40 rounded-full object-cover shadow-2xl ring-4 ring-[var(--bg-card)] bg-[var(--bg-main)] border border-[var(--border-main)]"
-                  src={profile.imageUrl}
-                  alt="profile"
+                {/* Sparkle Constellation */}
+                <ProfileSparkle
+                  delay={0}
+                  size={18}
+                  style={{ top: "-10%", left: "80%" }}
+                />
+                <ProfileSparkle
+                  delay={1.5}
+                  size={14}
+                  style={{ top: "80%", left: "-10%" }}
+                />
+                <ProfileSparkle
+                  delay={0.8}
+                  size={22}
+                  style={{ top: "20%", left: "-15%" }}
                 />
 
-                {/* Change Photo Overlay */}
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 rounded-full transition-opacity duration-300 backdrop-blur-sm"
-                  title="Change Photo"
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  className="relative p-2 bg-[var(--bg-card)] rounded-full shadow-2xl"
                 >
-                  <Edit className="h-8 w-8 text-white" />
-                </button>
+                  <img
+                    className="h-44 w-44 rounded-full object-cover border-4 border-transparent bg-gradient-to-tr from-[var(--accent)] to-purple-500 shadow-inner"
+                    src={profile.imageUrl}
+                    alt="profile"
+                  />
+
+                  {/* Change Photo Overlay */}
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute inset-2 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 rounded-full transition-all duration-500 backdrop-blur-sm"
+                  >
+                    <div className="flex flex-col items-center gap-1">
+                      <Camera className="h-8 w-8 text-white" />
+                      <span className="text-[8px] font-black text-white uppercase tracking-widest">
+                        Update
+                      </span>
+                    </div>
+                  </button>
+                </motion.div>
 
                 <input
                   type="file"
@@ -107,96 +186,151 @@ const ProfilePage: React.FC = () => {
                 />
               </div>
 
-              <div className="flex-1 text-center md:text-left mt-4 md:mt-12">
-                <h2 className="text-4xl font-black tracking-tight text-[var(--text-main)]">
-                  {profile.name || "User Name"}
-                </h2>
-                <p className="text-xl text-[var(--accent)] font-bold flex items-center justify-center md:justify-start mt-2">
-                  <GraduationCap className="h-6 w-6 mr-2" />
-                  {profile.role}, {profile.department}
-                </p>
+              <div className="flex-1 text-center md:text-left mt-4">
+                <motion.div
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <div className="flex items-center justify-center md:justify-start gap-3">
+                    <h2 className="text-5xl font-black tracking-tighter text-[var(--text-main)]">
+                      {profile.name || "Accessing..."}
+                    </h2>
+                    <ShieldCheck className="text-blue-500 h-8 w-8" />
+                  </div>
+                  <div className="flex items-center justify-center md:justify-start gap-4 mt-3">
+                    <span className="px-4 py-1.5 bg-[var(--accent)]/10 text-[var(--accent)] rounded-full text-xs font-black uppercase tracking-widest border border-[var(--accent)]/20 flex items-center">
+                      <Star className="h-3 w-3 mr-2 fill-current" />
+                      {profile.role}
+                    </span>
+                    <span className="text-[var(--text-muted)] font-bold text-sm uppercase tracking-widest">
+                      {profile.department}
+                    </span>
+                  </div>
+                </motion.div>
               </div>
 
-              <div className="mt-4 md:mt-12">
-                <button className="px-8 py-3 bg-[var(--accent)] hover:opacity-90 text-white rounded-2xl font-black uppercase tracking-widest text-xs shadow-lg shadow-indigo-500/20 transition-all">
+              <div className="flex gap-3">
+                <motion.button
+                  whileHover={{ y: -4 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-10 py-4 bg-gray-900 dark:bg-white dark:text-gray-900 text-white rounded-[1.5rem] font-black uppercase tracking-widest text-[10px] shadow-xl transition-all"
+                >
                   Edit Profile
-                </button>
+                </motion.button>
               </div>
             </div>
 
-            {/* Information Grid */}
-            <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-10">
-              <div className="space-y-6">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] border-b border-[var(--border-main)] pb-3">
-                  Contact Information
-                </h3>
-
-                <div className="flex items-center p-5 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-main)] transition-all">
-                  <div className="p-3 bg-blue-500/10 rounded-xl mr-5">
-                    <Mail className="h-6 w-6 text-blue-500" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">
-                      Email Address
-                    </p>
-                    <p className="text-[var(--text-main)] font-bold">
-                      {profile.email || "Not provided"}
-                    </p>
-                  </div>
+            {/* Information Bento Grid */}
+            <div className="mt-20 grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Contact Column */}
+              <div className="space-y-8">
+                <div className="flex items-center gap-4 mb-2">
+                  <div className="h-1 w-8 bg-[var(--accent)] rounded-full" />
+                  <h3 className="text-xs font-black uppercase tracking-[0.3em] text-[var(--text-muted)]">
+                    Identity Uplink
+                  </h3>
                 </div>
 
-                <div className="flex items-center p-5 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-main)] transition-all">
-                  <div className="p-3 bg-green-500/10 rounded-xl mr-5">
-                    <Phone className="h-6 w-6 text-green-500" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">
-                      Phone Extension
-                    </p>
-                    <p className="text-[var(--text-main)] font-bold">
-                      {profile.phone || "Not provided"}
-                    </p>
-                  </div>
+                <div className="grid gap-6">
+                  {[
+                    {
+                      icon: Mail,
+                      label: "Neural Network Address",
+                      value: profile.email,
+                      color: "text-blue-500",
+                      bg: "bg-blue-500/10",
+                    },
+                    {
+                      icon: Phone,
+                      label: "Voice Frequency",
+                      value: profile.phone,
+                      color: "text-emerald-500",
+                      bg: "bg-emerald-500/10",
+                    },
+                  ].map((item, i) => (
+                    <motion.div
+                      key={i}
+                      whileHover={{ x: 10 }}
+                      className="flex items-center p-6 bg-[var(--bg-main)] rounded-3xl border border-[var(--border-main)] shadow-sm hover:shadow-md transition-all group"
+                    >
+                      <div
+                        className={`p-4 ${item.bg} rounded-2xl mr-6 group-hover:scale-110 transition-transform`}
+                      >
+                        <item.icon className={`h-6 w-6 ${item.color}`} />
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
+                          {item.label}
+                        </p>
+                        <p className="text-[var(--text-main)] font-bold text-lg">
+                          {item.value || "PENDING_SYNC"}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
 
-              <div className="space-y-6">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] border-b border-[var(--border-main)] pb-3">
-                  Office Logistics
-                </h3>
-
-                <div className="flex items-center p-5 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-main)] transition-all">
-                  <div className="p-3 bg-purple-500/10 rounded-xl mr-5">
-                    <MapPin className="h-6 w-6 text-purple-500" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">
-                      Office Location
-                    </p>
-                    <p className="text-[var(--text-main)] font-bold">
-                      {profile.office || "Not assigned"}
-                    </p>
-                  </div>
+              {/* Logistics Column */}
+              <div className="space-y-8">
+                <div className="flex items-center gap-4 mb-2">
+                  <div className="h-1 w-8 bg-purple-500 rounded-full" />
+                  <h3 className="text-xs font-black uppercase tracking-[0.3em] text-[var(--text-muted)]">
+                    Geospatial Data
+                  </h3>
                 </div>
 
-                <div className="flex items-center p-5 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-main)] transition-all">
-                  <div className="p-3 bg-orange-500/10 rounded-xl mr-5">
-                    <Clock className="h-6 w-6 text-orange-500" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">
-                      Availability / Office Hours
-                    </p>
-                    <p className="text-[var(--text-main)] font-bold">
-                      {profile.officeHours}
-                    </p>
-                  </div>
+                <div className="grid gap-6">
+                  {[
+                    {
+                      icon: MapPin,
+                      label: "Strategic Office Node",
+                      value: profile.office,
+                      color: "text-purple-500",
+                      bg: "bg-purple-500/10",
+                    },
+                    {
+                      icon: Clock,
+                      label: "Operational Window",
+                      value: profile.officeHours,
+                      color: "text-orange-500",
+                      bg: "bg-orange-500/10",
+                    },
+                  ].map((item, i) => (
+                    <motion.div
+                      key={i}
+                      whileHover={{ x: 10 }}
+                      className="flex items-center p-6 bg-[var(--bg-main)] rounded-3xl border border-[var(--border-main)] shadow-sm hover:shadow-md transition-all group"
+                    >
+                      <div
+                        className={`p-4 ${item.bg} rounded-2xl mr-6 group-hover:scale-110 transition-transform`}
+                      >
+                        <item.icon className={`h-6 w-6 ${item.color}`} />
+                      </div>
+                      <div>
+                        <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">
+                          {item.label}
+                        </p>
+                        <p className="text-[var(--text-main)] font-bold text-lg">
+                          {item.value || "UNASSIGNED"}
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Footer Decoration */}
+          <div className="bg-[var(--bg-main)]/50 py-4 px-12 border-t border-[var(--border-main)] text-center">
+            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-[var(--text-muted)] opacity-40">
+              Institutional Management Protocol v4.0.2
+            </span>
+          </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

@@ -10,29 +10,29 @@ import java.util.List;
 
 @Service
 public class CustomUserDetailsService
-        implements UserDetailsService {
+                implements UserDetailsService {
 
-    private final UserRepository userRepository;
+        private final UserRepository userRepository;
 
-    public CustomUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+        public CustomUserDetailsService(UserRepository userRepository) {
+                this.userRepository = userRepository;
+        }
 
-    @Override
-    public UserDetails loadUserByUsername(String email)
-            throws UsernameNotFoundException {
+        @Override
+        public UserDetails loadUserByUsername(String email)
+                        throws UsernameNotFoundException {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                User user = userRepository.findByEmail(email)
+                                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                user.isEnabled(),
-                true,
-                true,
-                true,
-                List.of(new SimpleGrantedAuthority(
-                        "ROLE_" + user.getRole().name())));
-    }
+                return new org.springframework.security.core.userdetails.User(
+                                user.getEmail(),
+                                user.getPassword(),
+                                user.isEnabled(),
+                                true,
+                                true,
+                                true,
+                                List.of(new SimpleGrantedAuthority(
+                                                "ROLE_" + user.getRole().name())));
+        }
 }

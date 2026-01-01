@@ -16,9 +16,30 @@ import {
   Sparkles,
   Loader2,
   ChevronRight,
+  ShieldCheck,
+  Zap,
+  Star,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { facultyService } from "../../services/faculty.service";
+
+/* ---------------- AESTHETIC SPARKLE COMPONENT ---------------- */
+const AestheticSparkle = ({
+  delay = 0,
+  size = 12,
+}: {
+  delay?: number;
+  size?: number;
+}) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0 }}
+    animate={{ opacity: [0, 1, 0], scale: [0, 1.2, 0], rotate: [0, 90, 180] }}
+    transition={{ duration: 2, repeat: Infinity, delay, ease: "easeInOut" }}
+    className="absolute pointer-events-none text-yellow-400 z-20"
+  >
+    <Sparkles size={size} fill="currentColor" />
+  </motion.div>
+);
 
 const RegisterFacultyPage = () => {
   const navigate = useNavigate();
@@ -89,8 +110,7 @@ const RegisterFacultyPage = () => {
       await facultyService.registerFacultyMultipart(formData);
 
       setIsSuccess(true);
-      setSuccess("Application transmitted. Awaiting administrative clearance.");
-
+      setSuccess("Protocol Initialized. Awaiting Clearance.");
       setTimeout(() => navigate("/login"), 3500);
     } catch (err: any) {
       setError(
@@ -102,285 +122,255 @@ const RegisterFacultyPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 md:p-8 bg-[var(--bg-main)] transition-colors duration-500 overflow-hidden relative">
-      {/* AMBIENT BACKGROUND ELEMENTS */}
+      {/* BACKGROUND NEURAL MESH */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          animate={{ scale: [1, 1.2, 1], x: [0, 50, 0] }}
-          transition={{ duration: 15, repeat: Infinity }}
-          className="absolute -top-[5%] -right-[5%] w-[45%] h-[45%] bg-[var(--accent)] opacity-[0.07] blur-[120px] rounded-full"
+          animate={{ scale: [1, 1.2, 1], rotate: [0, 10, 0] }}
+          transition={{ duration: 20, repeat: Infinity }}
+          className="absolute -top-[10%] -right-[5%] w-[60%] h-[60%] bg-[var(--accent)] opacity-[0.05] blur-[150px] rounded-full"
         />
         <motion.div
-          animate={{ scale: [1, 1.3, 1], x: [0, -30, 0] }}
-          transition={{ duration: 20, repeat: Infinity, delay: 1 }}
-          className="absolute -bottom-[5%] -left-[5%] w-[40%] h-[40%] bg-blue-500 opacity-[0.05] blur-[120px] rounded-full"
+          animate={{ scale: [1, 1.3, 1], x: [0, -40, 0] }}
+          transition={{ duration: 15, repeat: Infinity, delay: 1 }}
+          className="absolute -bottom-[10%] -left-[5%] w-[50%] h-[50%] bg-blue-500 opacity-[0.04] blur-[150px] rounded-full"
         />
+        {/* Particle Stars */}
+        {[...Array(20)].map((_, i) => (
+          <AestheticSparkle
+            key={i}
+            delay={Math.random() * 5}
+            size={Math.random() * 10 + 5}
+          />
+        ))}
       </div>
 
-      {/* BACK BUTTON */}
+      {/* BACK BUTTON (Tactile) */}
       <motion.button
         whileHover={{ x: -5, backgroundColor: "var(--bg-card)" }}
+        whileTap={{ scale: 0.95 }}
         onClick={() => navigate("/login")}
-        className="fixed top-8 left-8 p-3 rounded-2xl bg-transparent border border-[var(--border-main)] text-[var(--text-main)] z-50 transition-all backdrop-blur-md"
+        className="fixed top-8 left-8 p-4 rounded-2xl bg-transparent border border-[var(--border-main)] text-[var(--text-main)] z-50 transition-all backdrop-blur-xl shadow-lg"
       >
-        <ArrowLeft size={20} />
+        <ArrowLeft size={20} strokeWidth={3} />
       </motion.button>
 
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative w-full max-w-5xl bg-[var(--bg-card)] rounded-[3rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.1)] border border-[var(--border-main)] overflow-hidden transition-all duration-500"
+        initial={{ opacity: 0, scale: 0.95, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="relative w-full max-w-6xl bg-[var(--bg-card)] rounded-[3.5rem] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.4)] border border-[var(--border-main)] overflow-hidden transition-all duration-500 z-10"
       >
         <div className="flex flex-col lg:flex-row h-full">
-          {/* LEFT DECORATIVE PANEL - ANIMATED LOGO */}
-          <div className="hidden lg:flex lg:w-[35%] bg-[var(--accent)] p-12 text-white flex-col justify-between relative overflow-hidden transition-colors duration-700">
-            <div className="absolute inset-0 bg-black/10" />
+          {/* LEFT DECORATIVE PANEL - QUANTUM IDENTITY */}
+          <div className="hidden lg:flex lg:w-[38%] bg-[var(--accent)] p-16 text-white flex-col justify-between relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40" />
 
-            {/* Animated Background Shapes */}
-            <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full blur-3xl -mr-20 -mt-20" />
-            <div className="absolute bottom-0 left-0 w-40 h-40 bg-black/10 rounded-full blur-3xl -ml-20 -mb-20" />
+            {/* Animated Ghost Icons */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.03] scale-[4] rotate-12">
+              <ShieldCheck size={200} />
+            </div>
 
             <div className="relative z-10 flex flex-col items-center text-center">
-              {/* HEXAGONAL LOGO ANIMATION */}
-              <div className="relative flex items-center justify-center w-20 h-20 mb-8">
+              {/* BRAND GALAXY */}
+              <div className="relative flex items-center justify-center w-28 h-28 mb-10">
                 <motion.div
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                  animate={{ scale: [1, 1.4, 1], opacity: [0.2, 0.4, 0.2] }}
                   transition={{ duration: 4, repeat: Infinity }}
-                  className="absolute inset-0 bg-white rounded-full blur-2xl"
+                  className="absolute inset-0 bg-white rounded-full blur-3xl"
                 />
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{
-                    duration: 15,
+                    duration: 25,
                     repeat: Infinity,
                     ease: "linear",
                   }}
                   className="relative z-10 text-white"
                 >
-                  <Hexagon size={64} strokeWidth={1.5} className="opacity-90" />
+                  <Hexagon size={80} strokeWidth={1.2} />
                 </motion.div>
                 <motion.div
-                  animate={{ scale: [0.8, 1.1, 0.8] }}
+                  animate={{ scale: [0.8, 1.2, 0.8] }}
                   transition={{
-                    duration: 2,
+                    duration: 3,
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="absolute z-20 bg-white h-6 w-6 rounded-full flex items-center justify-center shadow-2xl"
+                  className="absolute z-20 bg-white h-8 w-8 rounded-full flex items-center justify-center shadow-[0_0_20px_white]"
                 >
-                  <Sparkles size={12} className="text-[var(--accent)]" />
+                  <Sparkles size={16} className="text-[var(--accent)]" />
+                </motion.div>
+                {/* Orbiting Star */}
+                <motion.div
+                  animate={{ rotate: -360 }}
+                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-0 z-30"
+                >
+                  <Star
+                    size={12}
+                    fill="white"
+                    className="absolute top-0 left-1/2 -translate-x-1/2 shadow-lg"
+                  />
                 </motion.div>
               </div>
 
-              <h2 className="text-3xl font-black leading-tight mb-4 tracking-tighter">
-                FACULTY<span className="text-white/60">HUB</span>
+              <h2 className="text-4xl font-black leading-tight mb-4 tracking-tighter uppercase italic">
+                Faculty<span className="text-white/40">Hub</span>
               </h2>
-              <p className="text-white/70 text-sm font-medium uppercase tracking-[0.2em] leading-relaxed">
-                Elite Network Enrollment
+              <div className="h-1 w-12 bg-white/30 rounded-full mb-6" />
+              <p className="text-white/60 text-xs font-black uppercase tracking-[0.4em] leading-relaxed">
+                Academic Node Enrollment
               </p>
             </div>
 
-            <div className="relative z-10 space-y-6">
-              <div className="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10">
-                <p className="text-xs font-medium leading-relaxed italic text-white/90">
-                  "Become part of a global community dedicated to academic
-                  excellence and streamlined management."
+            <div className="relative z-10 space-y-8">
+              <div className="p-6 bg-white/5 backdrop-blur-2xl rounded-[2rem] border border-white/10 shadow-2xl">
+                <p className="text-sm font-medium leading-relaxed italic text-white/80">
+                  "Initiate your professional integration into our
+                  high-performance academic ecosystem."
                 </p>
               </div>
-              <div className="flex items-center gap-3 text-[10px] font-black text-white/90 uppercase tracking-[0.2em]">
-                <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                Administrative verification active
+              <div className="flex items-center gap-4 bg-black/20 p-4 rounded-2xl border border-white/5">
+                <div className="w-3 h-3 rounded-full bg-green-400 animate-pulse shadow-[0_0_10px_#4ade80]" />
+                <span className="text-[9px] font-black text-white uppercase tracking-[0.3em]">
+                  Institutional Guard Active
+                </span>
               </div>
             </div>
           </div>
 
           {/* RIGHT FORM SECTION */}
-          <div className="flex-1 p-8 md:p-14 max-h-[90vh] overflow-y-auto no-scrollbar bg-[var(--bg-card)]">
-            <header className="mb-10">
+          <div className="flex-1 p-8 md:p-16 max-h-[90vh] overflow-y-auto no-scrollbar bg-[var(--bg-card)] relative">
+            <div className="absolute top-0 right-0 p-12 opacity-[0.02] rotate-12 pointer-events-none">
+              <Zap size={200} />
+            </div>
+
+            <header className="mb-14 relative z-10">
               <motion.div
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                className="inline-block px-4 py-1 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] text-[10px] font-black uppercase tracking-widest mb-4"
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--accent)]/10 text-[var(--accent)] text-[9px] font-black uppercase tracking-[0.2em] border border-[var(--accent)]/20"
               >
-                Registration Protocol
+                <Zap size={12} fill="currentColor" /> Protocol Selection
               </motion.div>
-              <h1 className="text-4xl font-black text-[var(--text-main)] tracking-tighter">
-                Member Onboarding
+              <h1 className="text-5xl font-black text-[var(--text-main)] tracking-tighter mt-4 uppercase italic">
+                Member <span className="text-[var(--accent)]">Onboarding.</span>
               </h1>
-              <p className="text-[var(--text-muted)] font-medium mt-2">
-                Supply your professional credentials for system authentication.
+              <p className="text-[var(--text-muted)] font-medium mt-4 text-sm max-w-md">
+                Supply your institutional credentials for multi-layer
+                authentication.
               </p>
             </header>
 
             <AnimatePresence mode="wait">
-              {success && (
+              {(success || error) && (
                 <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="mb-8 p-5 rounded-[1.5rem] bg-green-500/10 text-green-500 border border-green-500/20 flex items-center gap-4 font-bold text-sm"
+                  initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className={`mb-10 p-6 rounded-[2rem] border-2 flex items-center gap-5 font-black text-xs uppercase tracking-widest ${
+                    success
+                      ? "bg-green-500/5 text-green-500 border-green-500/20"
+                      : "bg-red-500/5 text-red-500 border-red-500/20"
+                  }`}
                 >
-                  <div className="p-2 bg-green-500 rounded-full text-white">
-                    <CheckCircle className="w-5 h-5" />
+                  <div
+                    className={`p-3 rounded-2xl text-white shadow-xl ${
+                      success ? "bg-green-500" : "bg-red-500"
+                    }`}
+                  >
+                    {success ? (
+                      <CheckCircle size={20} />
+                    ) : (
+                      <AlertCircle size={20} />
+                    )}
                   </div>
-                  {success}
-                </motion.div>
-              )}
-              {error && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="mb-8 p-5 rounded-[1.5rem] bg-red-500/10 text-red-500 border border-red-500/20 flex items-center gap-4 font-bold text-sm"
-                >
-                  <div className="p-2 bg-red-500 rounded-full text-white">
-                    <AlertCircle className="w-5 h-5" />
-                  </div>
-                  {error}
+                  {success || error}
                 </motion.div>
               )}
             </AnimatePresence>
 
-            <form onSubmit={handleSubmit} className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Full Name */}
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-[0.2em] ml-1">
-                    Identity Name
-                  </label>
-                  <div className="relative group">
-                    <User
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-[var(--accent)] transition-colors"
-                      size={18}
-                    />
-                    <input
-                      name="name"
-                      type="text"
-                      required
-                      value={form.name}
-                      onChange={handleChange}
-                      placeholder="Dr. John Doe"
-                      className="w-full pl-12 pr-4 py-4 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl outline-none focus:ring-2 focus:ring-[var(--accent)] text-[var(--text-main)] font-bold transition-all placeholder-[var(--text-muted)]/40"
-                    />
-                  </div>
-                </div>
-
-                {/* Phone */}
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-[0.2em] ml-1">
-                    Contact Terminal
-                  </label>
-                  <div className="relative group">
-                    <Phone
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-[var(--accent)] transition-colors"
-                      size={18}
-                    />
-                    <input
-                      name="phone"
-                      type="text"
-                      required
-                      value={form.phone}
-                      onChange={handleChange}
-                      placeholder="+1 000 000"
-                      className="w-full pl-12 pr-4 py-4 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl outline-none focus:ring-2 focus:ring-[var(--accent)] text-[var(--text-main)] font-bold transition-all placeholder-[var(--text-muted)]/40"
-                    />
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-[0.2em] ml-1">
-                    System Email
-                  </label>
-                  <div className="relative group">
-                    <Mail
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-[var(--accent)] transition-colors"
-                      size={18}
-                    />
-                    <input
-                      name="email"
-                      type="email"
-                      required
-                      value={form.email}
-                      onChange={handleChange}
-                      placeholder="node@institution.edu"
-                      className="w-full pl-12 pr-4 py-4 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl outline-none focus:ring-2 focus:ring-[var(--accent)] text-[var(--text-main)] font-bold transition-all placeholder-[var(--text-muted)]/40"
-                    />
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-[0.2em] ml-1">
-                    Security Key
-                  </label>
-                  <div className="relative group">
-                    <Lock
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-[var(--accent)] transition-colors"
-                      size={18}
-                    />
-                    <input
-                      name="password"
-                      type="password"
-                      required
-                      value={form.password}
-                      onChange={handleChange}
-                      placeholder="••••••••"
-                      className="w-full pl-12 pr-4 py-4 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl outline-none focus:ring-2 focus:ring-[var(--accent)] text-[var(--text-main)] font-bold transition-all placeholder-[var(--text-muted)]/40"
-                    />
-                  </div>
-                </div>
-
-                {/* Specialization */}
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-[0.2em] ml-1">
-                    Core Specialisation
-                  </label>
-                  <div className="relative group">
-                    <Award
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-[var(--accent)] transition-colors"
-                      size={18}
-                    />
-                    <input
-                      name="areaOfSpecialisation"
-                      type="text"
-                      required
-                      value={form.areaOfSpecialisation}
-                      onChange={handleChange}
-                      placeholder="Cognitive Computing"
-                      className="w-full pl-12 pr-4 py-4 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl outline-none focus:ring-2 focus:ring-[var(--accent)] text-[var(--text-main)] font-bold transition-all placeholder-[var(--text-muted)]/40"
-                    />
-                  </div>
-                </div>
-
-                {/* Subjects */}
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-[0.2em] ml-1">
-                    Discipline Areas
-                  </label>
-                  <div className="relative group">
-                    <BookOpen
-                      className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-[var(--accent)] transition-colors"
-                      size={18}
-                    />
-                    <input
-                      name="subjects"
-                      type="text"
-                      required
-                      value={form.subjects}
-                      onChange={handleChange}
-                      placeholder="AI, Neural Nets..."
-                      className="w-full pl-12 pr-4 py-4 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl outline-none focus:ring-2 focus:ring-[var(--accent)] text-[var(--text-main)] font-bold transition-all placeholder-[var(--text-muted)]/40"
-                    />
-                  </div>
-                </div>
+            <form onSubmit={handleSubmit} className="space-y-10 relative z-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                {[
+                  {
+                    name: "name",
+                    label: "Identity Title",
+                    icon: User,
+                    type: "text",
+                    ph: "Dr. Jane Smith",
+                  },
+                  {
+                    name: "phone",
+                    label: "Neural Frequency",
+                    icon: Phone,
+                    type: "text",
+                    ph: "+1 000 000",
+                  },
+                  {
+                    name: "email",
+                    label: "Uplink Node",
+                    icon: Mail,
+                    type: "email",
+                    ph: "jane@academy.edu",
+                  },
+                  {
+                    name: "password",
+                    label: "Security Key",
+                    icon: Lock,
+                    type: "password",
+                    ph: "••••••••",
+                  },
+                  {
+                    name: "areaOfSpecialisation",
+                    label: "Core Expertise",
+                    icon: Award,
+                    type: "text",
+                    ph: "Quantum Logic",
+                  },
+                  {
+                    name: "subjects",
+                    label: "Discipline Hubs",
+                    icon: BookOpen,
+                    type: "text",
+                    ph: "AI, Bio-Tech...",
+                  },
+                ].map((input, idx) => (
+                  <motion.div
+                    key={input.name}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.05 }}
+                    className="space-y-3"
+                  >
+                    <label className="text-[9px] font-black uppercase text-[var(--text-muted)] tracking-[0.4em] ml-4 opacity-50">
+                      {input.label}
+                    </label>
+                    <div className="relative group">
+                      <input.icon
+                        className="absolute left-5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-[var(--accent)] transition-all duration-300"
+                        size={18}
+                      />
+                      <input
+                        name={input.name}
+                        type={input.type}
+                        required
+                        value={(form as any)[input.name]}
+                        onChange={handleChange}
+                        placeholder={input.ph}
+                        className="w-full pl-14 pr-6 py-5 bg-[var(--bg-main)] border-2 border-transparent rounded-3xl outline-none focus:border-[var(--accent)] text-[var(--text-main)] font-bold transition-all shadow-inner placeholder:opacity-20"
+                      />
+                    </div>
+                  </motion.div>
+                ))}
               </div>
 
-              {/* Address */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-[0.2em] ml-1">
-                  Terminal Address
+              <div className="space-y-3">
+                <label className="text-[9px] font-black uppercase text-[var(--text-muted)] tracking-[0.4em] ml-4 opacity-50">
+                  Terminal Domicile
                 </label>
                 <div className="relative group">
                   <MapPin
-                    className="absolute left-4 top-5 text-[var(--text-muted)] group-focus-within:text-[var(--accent)] transition-colors"
+                    className="absolute left-5 top-6 text-[var(--text-muted)] group-focus-within:text-[var(--accent)] transition-all"
                     size={18}
                   />
                   <textarea
@@ -389,42 +379,58 @@ const RegisterFacultyPage = () => {
                     value={form.address}
                     onChange={handleChange}
                     rows={2}
-                    placeholder="Full professional or residential address"
-                    className="w-full pl-12 pr-4 py-4 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-2xl outline-none focus:ring-2 focus:ring-[var(--accent)] text-[var(--text-main)] font-bold transition-all placeholder-[var(--text-muted)]/40"
+                    placeholder="Institutional or Residential Address"
+                    className="w-full pl-14 pr-6 py-5 bg-[var(--bg-main)] border-2 border-transparent rounded-3xl outline-none focus:border-[var(--accent)] text-[var(--text-main)] font-bold transition-all shadow-inner placeholder:opacity-20"
                   />
                 </div>
               </div>
 
-              {/* File Upload Zone */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-[var(--text-muted)] tracking-[0.2em] ml-1">
-                  Identity Document (Aadhaar)
+              {/* DOCUMENT UPLOAD (Upgraded) */}
+              <div className="space-y-3">
+                <label className="text-[9px] font-black uppercase text-[var(--text-muted)] tracking-[0.4em] ml-4 opacity-50">
+                  Identity Module (Aadhaar)
                 </label>
                 <label
-                  className={`flex flex-col items-center justify-center w-full h-36 border-2 border-dashed rounded-[2.5rem] cursor-pointer transition-all duration-300 ${
+                  className={`group flex flex-col items-center justify-center w-full h-44 border-2 border-dashed rounded-[3rem] cursor-pointer transition-all duration-500 relative overflow-hidden ${
                     form.aadhaar
-                      ? "bg-[var(--accent)]/5 border-[var(--accent)]/50 shadow-inner"
-                      : "bg-[var(--bg-main)] border-[var(--border-main)] hover:border-[var(--accent)]/40 hover:bg-[var(--accent)]/5"
+                      ? "bg-green-500/5 border-green-500/30"
+                      : "bg-[var(--bg-main)] border-[var(--border-main)] hover:border-[var(--accent)]"
                   }`}
                 >
-                  <div className="flex flex-col items-center justify-center p-6 text-center">
+                  {form.aadhaar && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute inset-0 bg-green-500 opacity-5 pointer-events-none"
+                    />
+                  )}
+                  <div className="flex flex-col items-center justify-center p-6 text-center relative z-10">
                     {form.aadhaar ? (
                       <motion.div
-                        initial={{ scale: 0.8 }}
-                        animate={{ scale: 1 }}
-                        className="flex items-center gap-3 text-[var(--accent)] font-black uppercase tracking-tighter text-sm"
+                        initial={{ y: 10, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        className="flex flex-col items-center gap-3"
                       >
-                        <CheckCircle size={24} /> {form.aadhaar.name}
+                        <div className="p-4 bg-green-500 rounded-[1.5rem] text-white shadow-2xl shadow-green-500/40">
+                          <CheckCircle size={32} />
+                        </div>
+                        <p className="text-xs font-black text-green-500 uppercase tracking-tighter">
+                          {form.aadhaar.name}
+                        </p>
                       </motion.div>
                     ) : (
                       <>
-                        <Upload className="w-10 h-10 mb-2 text-[var(--text-muted)] opacity-30" />
-                        <p className="text-xs text-[var(--text-muted)] font-bold uppercase tracking-widest">
-                          <span className="text-[var(--accent)]">Upload</span>{" "}
-                          Identity Module
-                        </p>
-                        <p className="text-[9px] text-[var(--text-muted)]/60 mt-1 uppercase">
-                          PDF or high-res imagery
+                        <div className="p-4 bg-[var(--bg-card)] rounded-[1.5rem] shadow-xl mb-4 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
+                          <Upload
+                            className="w-8 h-8 text-[var(--accent)]"
+                            strokeWidth={2.5}
+                          />
+                        </div>
+                        <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
+                          Transmit{" "}
+                          <span className="text-[var(--accent)]">
+                            Digital Node
+                          </span>
                         </p>
                       </>
                     )}
@@ -433,44 +439,50 @@ const RegisterFacultyPage = () => {
                 </label>
               </div>
 
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                type="submit"
-                disabled={loading || isSuccess}
-                className={`w-full py-5 rounded-[1.8rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl transition-all flex items-center justify-center gap-4 ${
-                  isSuccess
-                    ? "bg-green-500 text-white"
-                    : "bg-[var(--accent)] text-white shadow-indigo-500/20"
-                } disabled:opacity-70`}
-              >
-                {loading ? (
-                  isSuccess ? (
-                    <>
-                      Verified <CheckCircle size={18} />
-                    </>
+              <div className="relative pt-6">
+                <AnimatePresence>
+                  {isSuccess && <AestheticSparkle size={40} />}
+                </AnimatePresence>
+
+                <motion.button
+                  whileHover={{ scale: 1.02, y: -4 }}
+                  whileTap={{ scale: 0.98 }}
+                  type="submit"
+                  disabled={loading || isSuccess}
+                  className={`w-full py-6 rounded-[2.2rem] font-black text-xs uppercase tracking-[0.4em] shadow-2xl transition-all flex items-center justify-center gap-4 ${
+                    isSuccess
+                      ? "bg-green-500 text-white shadow-green-500/30"
+                      : "bg-[var(--accent)] text-white shadow-indigo-500/40 border border-white/20"
+                  }`}
+                >
+                  {loading ? (
+                    isSuccess ? (
+                      <>
+                        Synchronized <CheckCircle size={20} />
+                      </>
+                    ) : (
+                      <Loader2 className="animate-spin" size={20} />
+                    )
                   ) : (
                     <>
-                      Transmitting{" "}
-                      <Loader2 className="animate-spin" size={18} />
+                      Submit Credentials{" "}
+                      <ChevronRight size={18} strokeWidth={3} />
                     </>
-                  )
-                ) : (
-                  <>
-                    Submit Enrollment <ChevronRight size={18} />
-                  </>
-                )}
-              </motion.button>
+                  )}
+                </motion.button>
+              </div>
 
-              <p className="text-[10px] font-black text-center text-[var(--text-muted)] uppercase tracking-[0.2em] pt-4">
-                Already registered?{" "}
-                <Link
-                  to="/login"
-                  className="text-[var(--accent)] hover:underline ml-1"
-                >
-                  Access Portal
-                </Link>
-              </p>
+              <div className="text-center pt-6">
+                <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.3em]">
+                  Registered Node?{" "}
+                  <Link
+                    to="/login"
+                    className="text-[var(--accent)] hover:text-indigo-400 ml-2 underline underline-offset-8 decoration-2"
+                  >
+                    Re-Uplink
+                  </Link>
+                </p>
+              </div>
             </form>
           </div>
         </div>

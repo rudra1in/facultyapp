@@ -18,13 +18,23 @@ import {
   BookOpen,
   Mail,
   ArrowRight,
-  SparkleIcon,
   Target,
+  Hexagon,
   Code,
   Cloud,
   Sparkles,
   Star,
   Cpu,
+  Gem,
+  Component,
+  Layers,
+  Fingerprint,
+  Atom,
+  Box,
+  Infinity as InfinityIcon,
+  Tent,
+  Diamond,
+  Compass,
 } from "lucide-react";
 import {
   motion,
@@ -35,6 +45,7 @@ import {
   AnimatePresence,
 } from "framer-motion";
 
+import { getRole } from "../utils/auth";
 import faculty from "../assets/images/faculty.png";
 
 const FACULTY_IMAGE_PLACEHOLDER_URL = faculty;
@@ -46,33 +57,6 @@ const MOCK_LIVE_SESSION_DATA = {
   faculty: "Dr. Anya Sharma",
   duration: "2:34:12",
 };
-
-const MOCK_UPCOMING_SESSIONS = [
-  {
-    id: 201,
-    name: "Quantum Mechanics Review",
-    faculty: "Prof. Li Wei",
-    time: "9:00 AM",
-    date: "Today",
-    category: "Physics",
-  },
-  {
-    id: 202,
-    name: "Advanced CSS Layouts Workshop",
-    faculty: "David Kim",
-    time: "1:30 PM",
-    date: "Today",
-    category: "CS",
-  },
-  {
-    id: 203,
-    name: "Microeconomics Case Study",
-    faculty: "Dr. Sarah Johnson",
-    time: "10:00 AM",
-    date: "Tomorrow",
-    category: "Economics",
-  },
-];
 
 /* ---------------- MAGIC SPARKLE TRAIL CURSOR ---------------- */
 const MagicSparkleCursor = () => {
@@ -141,9 +125,7 @@ const AestheticFloatingIcon: React.FC<{
     className={`absolute rounded-[1.2rem] p-3 shadow-2xl ${color} backdrop-blur-xl border border-white/30 z-20 flex items-center justify-center`}
     style={style}
   >
-    <Icon className="w-5 h-5 text-white drop-shadow-md" />
-
-    {/* Orbiting Sparkles */}
+    <Icon className="w-5 h-5 text-white drop-shadow-md" strokeWidth={1.5} />
     <motion.div
       animate={{ rotate: 360 }}
       transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
@@ -151,10 +133,9 @@ const AestheticFloatingIcon: React.FC<{
     >
       <Sparkles
         size={10}
-        className="text-yellow-300 absolute -top-2 -left-2 animate-pulse"
+        className="text-yellow-200 absolute -top-2 -left-2 animate-pulse"
       />
     </motion.div>
-
     <motion.div
       animate={{ rotate: -360 }}
       transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
@@ -213,7 +194,14 @@ const AnimatedStat = ({
 /* ---------------- MAIN HOME PAGE ---------------- */
 const HomePage = () => {
   const navigate = useNavigate();
+  const role = getRole();
   const [liveSession] = useState(MOCK_LIVE_SESSION_DATA);
+  const [showWelcome, setShowWelcome] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowWelcome(false), 4000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const operationalMetrics = [
     {
@@ -288,6 +276,43 @@ const HomePage = () => {
     <div className="min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] p-4 md:p-10 transition-all duration-300 relative overflow-hidden">
       <MagicSparkleCursor />
 
+      {/* WELCOME OVERLAY ANIMATION */}
+      <AnimatePresence>
+        {showWelcome && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, y: -100 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-xl pointer-events-none"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", damping: 12 }}
+              className="text-center relative"
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-[-50px] border border-white/10 rounded-full"
+              />
+              <div className="relative">
+                <Sparkles className="text-yellow-400 w-16 h-16 mx-auto mb-6 animate-pulse" />
+                <h2 className="text-5xl md:text-7xl font-black text-white tracking-tighter">
+                  Welcome,{" "}
+                  <span className="text-[var(--accent)]">
+                    {role === "ADMIN" ? "Administrator" : "Faculty"}
+                  </span>
+                </h2>
+                <p className="text-white/50 font-black uppercase tracking-[0.4em] mt-4">
+                  Initializing Secure Environment
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-7xl mx-auto font-sans relative z-10">
         {/* HERO GALAXY SECTION */}
         <div className="bg-[var(--accent)] rounded-[3.5rem] p-10 lg:p-20 mb-12 text-white relative overflow-hidden shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] border border-white/10">
@@ -309,7 +334,7 @@ const HomePage = () => {
               {liveSession.isLive && (
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
                   className="inline-flex items-center text-[10px] mb-10 bg-white/10 backdrop-blur-2xl px-6 py-2.5 rounded-full font-black uppercase tracking-[0.3em] border border-white/20"
                 >
                   <span className="relative flex h-2.5 w-2.5 mr-3">
@@ -368,34 +393,94 @@ const HomePage = () => {
               </div>
 
               <AestheticFloatingIcon
-                Icon={Cpu}
+                Icon={Gem}
                 delay={0}
                 color="bg-indigo-500"
-                style={{ top: "0%", left: "5%" }}
+                style={{ top: "-10%", left: "50%" }}
+              />
+              <AestheticFloatingIcon
+                Icon={Sparkles}
+                delay={1}
+                color="bg-yellow-500"
+                style={{ top: "0%", left: "10%" }}
               />
               <AestheticFloatingIcon
                 Icon={Zap}
-                delay={1.5}
-                color="bg-amber-500"
-                style={{ top: "10%", right: "-5%" }}
+                delay={2}
+                color="bg-orange-500"
+                style={{ top: "0%", right: "10%" }}
               />
               <AestheticFloatingIcon
-                Icon={Cloud}
+                Icon={Atom}
                 delay={3}
                 color="bg-teal-500"
-                style={{ bottom: "10%", right: "5%" }}
+                style={{ top: "30%", left: "-15%" }}
+              />
+              <AestheticFloatingIcon
+                Icon={InfinityIcon}
+                delay={4}
+                color="bg-blue-500"
+                style={{ top: "30%", right: "-15%" }}
+              />
+              <AestheticFloatingIcon
+                Icon={Hexagon}
+                delay={0.5}
+                color="bg-purple-500"
+                style={{ bottom: "30%", left: "-20%" }}
+              />
+              <AestheticFloatingIcon
+                Icon={Diamond}
+                delay={1.5}
+                color="bg-pink-500"
+                style={{ bottom: "30%", right: "-20%" }}
+              />
+              <AestheticFloatingIcon
+                Icon={Component}
+                delay={2.5}
+                color="bg-emerald-500"
+                style={{ bottom: "-10%", left: "20%" }}
+              />
+              <AestheticFloatingIcon
+                Icon={Layers}
+                delay={3.5}
+                color="bg-cyan-500"
+                style={{ bottom: "-10%", right: "20%" }}
+              />
+              <AestheticFloatingIcon
+                Icon={Fingerprint}
+                delay={4.5}
+                color="bg-rose-500"
+                style={{ top: "60%", right: "-10%" }}
+              />
+              <AestheticFloatingIcon
+                Icon={Box}
+                delay={5}
+                color="bg-violet-500"
+                style={{ top: "60%", left: "-10%" }}
+              />
+              <AestheticFloatingIcon
+                Icon={Compass}
+                delay={5.5}
+                color="bg-amber-600"
+                style={{ bottom: "-15%", left: "50%" }}
               />
               <AestheticFloatingIcon
                 Icon={Target}
-                delay={4.5}
-                color="bg-rose-500"
-                style={{ bottom: "0%", left: "15%" }}
+                delay={1.2}
+                color="bg-red-500"
+                style={{ top: "15%", left: "85%" }}
               />
               <AestheticFloatingIcon
-                Icon={Code}
-                delay={2.2}
-                color="bg-pink-500"
-                style={{ top: "45%", left: "-15%" }}
+                Icon={Star}
+                delay={2.4}
+                color="bg-sky-400"
+                style={{ top: "15%", left: "-5%" }}
+              />
+              <AestheticFloatingIcon
+                Icon={Tent}
+                delay={3.6}
+                color="bg-lime-500"
+                style={{ bottom: "10%", left: "80%" }}
               />
             </div>
           </div>
@@ -443,7 +528,7 @@ const HomePage = () => {
           ))}
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-12 mb-20">
+        <div className="grid lg:grid-cols-3 gap-10">
           {/* STEPPER */}
           <div className="lg:col-span-1">
             <div className="bg-[var(--bg-card)] rounded-[3.5rem] p-12 shadow-2xl border border-[var(--border-main)] relative overflow-hidden">
@@ -451,10 +536,7 @@ const HomePage = () => {
                 <h2 className="text-xl font-black text-[var(--text-main)] uppercase tracking-tighter">
                   System Integration
                 </h2>
-                <Sparkles
-                  size={20}
-                  className="text-[var(--accent)] animate-spin-slow"
-                />
+                <Sparkles size={20} className="text-[var(--accent)]" />
               </div>
               <div className="w-full bg-[var(--bg-main)] rounded-full h-3 mb-12 border border-[var(--border-main)] p-1">
                 <motion.div
@@ -491,9 +573,6 @@ const HomePage = () => {
                     <div>
                       <p className="text-xs font-black uppercase tracking-widest text-[var(--text-main)] mb-1">
                         {step.title}
-                      </p>
-                      <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase opacity-60">
-                        {step.desc}
                       </p>
                     </div>
                   </motion.div>
@@ -607,7 +686,7 @@ const HomePage = () => {
               left: `${Math.random() * 100}%`,
             }}
           >
-            <SparkleIcon size={12} />
+            <Sparkles size={12} />
           </motion.div>
         ))}
       </div>

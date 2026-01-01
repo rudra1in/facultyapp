@@ -60,6 +60,8 @@
     background-color: var(--bg-main);
     color: var(--text-main);
     @apply transition-colors duration-300;
+    overflow-x: hidden;
+    overflow-y: hidden;
   }
 
   /* GLOBAL TRANSITION FIX 

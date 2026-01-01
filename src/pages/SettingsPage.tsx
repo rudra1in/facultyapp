@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Palette,
   Lock,
@@ -13,33 +13,56 @@ import {
   Download,
   FileText,
   Table,
+  Sparkles,
+  ShieldCheck,
+  Zap,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const CURRENT_USER_ROLE = "admin";
 
-// Sidebar Navigation Items
 const navItems = [
-  { id: "appearance", label: "Appearance", icon: Palette, role: "standard" },
+  {
+    id: "appearance",
+    label: "Appearance",
+    icon: Palette,
+    role: "standard",
+    color: "text-pink-500",
+  },
   {
     id: "security",
     label: "Security & Activity",
     icon: Lock,
     role: "standard",
+    color: "text-blue-500",
   },
   {
     id: "system_config",
-    label: "System Configuration",
+    label: "Configuration",
     icon: Briefcase,
     role: "admin",
+    color: "text-orange-500",
   },
   {
     id: "data_maintenance",
-    label: "Data & Maintenance",
+    label: "Maintenance",
     icon: Database,
     role: "admin",
+    color: "text-emerald-500",
   },
 ];
+
+/* ---------------- SPARKLE COMPONENT ---------------- */
+const SettingSparkle = () => (
+  <motion.div
+    initial={{ scale: 0, opacity: 0 }}
+    animate={{ scale: [0, 1.2, 0], opacity: [0, 1, 0], rotate: [0, 90] }}
+    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+    className="absolute -top-1 -right-1 text-yellow-400 pointer-events-none"
+  >
+    <Sparkles size={14} fill="currentColor" />
+  </motion.div>
+);
 
 const SettingsPage = () => {
   const [activeSection, setActiveSection] = useState(
@@ -48,33 +71,33 @@ const SettingsPage = () => {
   const [fontSize, setFontSize] = useState("medium");
   const isAdmin = CURRENT_USER_ROLE === "admin";
 
-  const showSuccess = (message: string) => alert(`✅ Success: ${message}`);
-
   const fontSizeClass = {
     small: "text-sm",
     medium: "text-base",
     large: "text-lg",
   };
 
-  // Reusable row for settings
-  const SettingRow = ({
-    title,
-    description,
-    children,
-  }: {
-    title: string;
-    description: any;
-    children: React.ReactNode;
-  }) => (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-6 border-b border-[var(--border-main)] last:border-b-0 gap-4 transition-colors">
-      <div className="flex flex-col">
-        <span className="font-bold text-[var(--text-main)]">{title}</span>
-        <div className="text-sm text-[var(--text-muted)] max-w-md">
-          {description}
+  const SettingRow = ({ title, description, icon: Icon, children }: any) => (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-8 border-b border-[var(--border-main)] last:border-b-0 gap-6 group"
+    >
+      <div className="flex gap-4">
+        <div className="mt-1 p-2 rounded-lg bg-[var(--bg-main)] text-[var(--accent)] group-hover:scale-110 transition-transform">
+          {Icon && <Icon size={20} />}
+        </div>
+        <div className="flex flex-col">
+          <span className="font-black text-[var(--text-main)] tracking-tight uppercase text-xs mb-1">
+            {title}
+          </span>
+          <div className="text-sm text-[var(--text-muted)] max-w-md font-medium leading-relaxed">
+            {description}
+          </div>
         </div>
       </div>
-      <div className="shrink-0">{children}</div>
-    </div>
+      <div className="shrink-0 w-full sm:w-auto">{children}</div>
+    </motion.div>
   );
 
   const AppearanceSection = () => (
@@ -83,30 +106,35 @@ const SettingsPage = () => {
       animate={{ opacity: 1, x: 0 }}
       className="space-y-6"
     >
-      <header className="mb-8">
-        <h2 className="text-2xl font-black text-[var(--text-main)] transition-colors">
-          Appearance
-        </h2>
-        <p className="text-[var(--text-muted)] transition-colors">
-          Customize your viewing experience across the platform.
+      <header className="mb-10">
+        <div className="flex items-center gap-3 mb-2">
+          <Palette className="text-pink-500" size={24} />
+          <h2 className="text-3xl font-black text-[var(--text-main)] tracking-tighter uppercase">
+            Appearance
+          </h2>
+        </div>
+        <p className="text-[var(--text-muted)] font-medium">
+          Global interface personalization and accessibility nodes.
         </p>
       </header>
 
       <SettingRow
-        title="System Font Size"
-        description="Adjust text size to improve readability. This applies to all dashboard labels and descriptions."
+        title="Typography Scale"
+        icon={FileText}
+        description="Optimize readability by scaling the system-wide font size. This will recalibrate all dashboard labels."
       >
-        <div className="flex bg-[var(--bg-main)] p-1 rounded-xl border border-[var(--border-main)] transition-colors">
+        <div className="flex bg-[var(--bg-main)] p-1.5 rounded-2xl border border-[var(--border-main)] shadow-inner">
           {["small", "medium", "large"].map((size) => (
             <button
               key={size}
               onClick={() => setFontSize(size)}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all ${
+              className={`relative px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                 fontSize === size
-                  ? "bg-[var(--bg-card)] text-[var(--accent)] shadow-sm"
-                  : "text-[var(--text-muted)] hover:text-[var(--text-main)] opacity-60 hover:opacity-100"
+                  ? "bg-[var(--bg-card)] text-[var(--accent)] shadow-lg"
+                  : "text-[var(--text-muted)] opacity-50"
               }`}
             >
+              {fontSize === size && <SettingSparkle />}
               {size === "small" ? "A-" : size === "medium" ? "A" : "A+"}
             </button>
           ))}
@@ -119,149 +147,164 @@ const SettingsPage = () => {
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="space-y-8"
+      className="space-y-10"
     >
       <header>
-        <h2 className="text-2xl font-black text-[var(--text-main)]">
-          Security & Activity
-        </h2>
-        <p className="text-[var(--text-muted)]">
-          Manage your account security and monitor login attempts.
+        <div className="flex items-center gap-3 mb-2">
+          <ShieldCheck className="text-blue-500" size={24} />
+          <h2 className="text-3xl font-black text-[var(--text-main)] tracking-tighter uppercase">
+            Security Protocol
+          </h2>
+        </div>
+        <p className="text-[var(--text-muted)] font-medium">
+          Manage access keys and monitor real-time auth traffic.
         </p>
       </header>
 
-      <SettingRow
-        title="Active Sessions"
-        description="You are currently logged in on multiple devices. Review or end these sessions to secure your account."
-      >
-        <button className="text-sm font-bold text-red-600 dark:text-red-400 bg-red-500/10 px-4 py-2 rounded-xl hover:bg-red-500/20 transition-colors flex items-center">
-          Log Out All Devices <LogOut className="inline h-4 w-4 ml-2" />
-        </button>
-      </SettingRow>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-[var(--bg-main)] rounded-[2rem] p-8 border border-[var(--border-main)] relative overflow-hidden">
+          <Zap
+            className="absolute -bottom-4 -right-4 text-[var(--accent)] opacity-5"
+            size={120}
+          />
+          <h3 className="font-black text-[var(--text-main)] mb-6 text-xs uppercase tracking-[0.2em]">
+            Live Session Uplink
+          </h3>
+          <p className="text-sm text-[var(--text-muted)] mb-8 font-medium">
+            Currently broadcasting from 2 encrypted nodes.
+          </p>
+          <button className="w-full py-4 rounded-2xl bg-red-500/10 text-red-500 font-black text-[10px] uppercase tracking-widest border border-red-500/20 hover:bg-red-500 hover:text-white transition-all">
+            Terminate All Connections
+          </button>
+        </div>
 
-      <div className="bg-[var(--bg-main)] rounded-2xl p-6 border border-[var(--border-main)] transition-colors">
-        <h3 className="font-bold text-[var(--text-main)] mb-4">
-          Login History
-        </h3>
-        <div className="space-y-4">
-          <div className="flex items-center text-sm">
-            <div className="bg-green-500/10 p-2 rounded-full mr-3">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-            </div>
-            <div>
-              <p className="font-semibold text-[var(--text-main)]">
-                Chrome on MacOS (Successful)
-              </p>
-              <p className="text-xs text-[var(--text-muted)]">
-                Today, 10:45 AM • IP: 192.168.1.1
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center text-sm">
-            <div className="bg-red-500/10 p-2 rounded-full mr-3">
-              <XCircle className="h-4 w-4 text-red-600" />
-            </div>
-            <div>
-              <p className="font-semibold text-[var(--text-main)]">
-                Safari on iPhone (Failed Login)
-              </p>
-              <p className="text-xs text-[var(--text-muted)]">
-                Yesterday, 9:20 PM • Unknown Location
-              </p>
-            </div>
+        <div className="bg-[var(--bg-main)] rounded-[2rem] p-8 border border-[var(--border-main)]">
+          <h3 className="font-black text-[var(--text-main)] mb-6 text-xs uppercase tracking-[0.2em]">
+            Auth History
+          </h3>
+          <div className="space-y-4">
+            {[
+              {
+                icon: CheckCircle,
+                text: "MacOS Node 1",
+                color: "text-green-500",
+                status: "Success",
+              },
+              {
+                icon: XCircle,
+                text: "Unknown Uplink",
+                color: "text-red-500",
+                status: "Blocked",
+              },
+            ].map((log, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-4 bg-[var(--bg-card)] p-3 rounded-xl border border-[var(--border-main)]"
+              >
+                <log.icon className={log.color} size={16} />
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-[var(--text-main)]">
+                    {log.text}
+                  </span>
+                  <span className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-tighter">
+                    {log.status} Today
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
     </motion.div>
   );
 
-  const SystemConfigSection = () => {
-    const [academicYear, setAcademicYear] = useState("2025-2026");
-    return (
-      <motion.div
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="space-y-6"
-      >
-        <header>
-          <h2 className="text-2xl font-black text-[var(--text-main)]">
-            System Configuration
+  const SystemConfigSection = () => (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="space-y-6"
+    >
+      <header>
+        <div className="flex items-center gap-3 mb-2">
+          <Briefcase className="text-orange-500" size={24} />
+          <h2 className="text-3xl font-black text-[var(--text-main)] tracking-tighter uppercase">
+            Configuration
           </h2>
-          <p className="text-[var(--text-muted)]">
-            Global settings for the academic platform management.
-          </p>
-        </header>
+        </div>
+        <p className="text-[var(--text-muted)] font-medium">
+          Global core settings for institutional management.
+        </p>
+      </header>
 
-        <SettingRow
-          title="Academic Term Setup"
-          description="Update the active academic year for all session scheduling and automated reporting."
-        >
-          <div className="flex items-center gap-2">
-            <div className="relative">
-              <Calendar className="absolute left-3 top-2.5 h-4 w-4 text-[var(--text-muted)]" />
-              <input
-                value={academicYear}
-                onChange={(e) => setAcademicYear(e.target.value)}
-                className="pl-9 pr-4 py-2 bg-[var(--bg-main)] border border-[var(--border-main)] rounded-xl outline-none focus:ring-2 focus:ring-[var(--accent)] text-[var(--text-main)] transition-all"
-              />
-            </div>
-            <button
-              onClick={() => showSuccess("Academic year updated")}
-              className="px-4 py-2 bg-[var(--accent)] hover:opacity-90 text-white font-bold rounded-xl text-sm shadow-lg shadow-indigo-500/20"
-            >
-              Update
-            </button>
-          </div>
-        </SettingRow>
-      </motion.div>
-    );
-  };
+      <SettingRow
+        title="Active Academic Node"
+        icon={Calendar}
+        description="Update the current cycle for automated session synchronization and reporting."
+      >
+        <div className="flex items-center gap-3">
+          <input
+            defaultValue="2025-2026"
+            className="px-6 py-3 bg-[var(--bg-main)] border-2 border-[var(--border-main)] rounded-2xl font-black text-xs outline-none focus:border-[var(--accent)] transition-all text-[var(--text-main)] w-full"
+          />
+          <button className="px-6 py-3 bg-[var(--accent)] text-white font-black rounded-2xl text-[10px] uppercase tracking-widest shadow-xl shadow-indigo-500/20 active:scale-95 transition-all">
+            Update
+          </button>
+        </div>
+      </SettingRow>
+    </motion.div>
+  );
 
   const DataMaintenanceSection = () => (
     <motion.div
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
-      className="space-y-8"
+      className="space-y-10"
     >
       <header>
-        <h2 className="text-2xl font-black text-[var(--text-main)]">
-          Data & Maintenance
-        </h2>
-        <p className="text-[var(--text-muted)]">
-          Securely export your data or perform system cleanup.
+        <div className="flex items-center gap-3 mb-2">
+          <Database className="text-emerald-500" size={24} />
+          <h2 className="text-3xl font-black text-[var(--text-main)] tracking-tighter uppercase">
+            Maintenance
+          </h2>
+        </div>
+        <p className="text-[var(--text-muted)] font-medium">
+          Secure data export and core system purge protocols.
         </p>
       </header>
 
       <SettingRow
-        title="Full Database Backup"
-        description="Generate an encrypted export of all faculty records and session history."
+        title="Encrypted Database Export"
+        icon={Download}
+        description="Generate a secure JSON/PDF payload of all faculty metadata and transaction history."
       >
         <div className="flex gap-2 flex-wrap">
-          <button className="bg-[var(--bg-card)] border border-[var(--border-main)] px-3 py-2 rounded-xl flex items-center text-sm font-bold text-[var(--text-main)] hover:bg-[var(--bg-main)] transition-all">
-            <FileText className="h-4 w-4 mr-2 text-red-500" /> PDF
+          <button className="bg-[var(--bg-main)] border border-[var(--border-main)] px-4 py-3 rounded-xl flex items-center text-[10px] font-black uppercase text-[var(--text-main)] hover:bg-[var(--accent)] hover:text-white transition-all">
+            <FileText className="mr-2" size={14} /> PDF
           </button>
-          <button className="bg-[var(--bg-card)] border border-[var(--border-main)] px-3 py-2 rounded-xl flex items-center text-sm font-bold text-[var(--text-main)] hover:bg-[var(--bg-main)] transition-all">
-            <Table className="h-4 w-4 mr-2 text-green-500" /> Excel
-          </button>
-          <button className="bg-[var(--accent)] hover:opacity-90 text-white px-4 py-2 rounded-xl flex items-center text-sm font-bold shadow-lg shadow-indigo-500/20">
-            <Download className="h-4 w-4 mr-2" /> JSON FULL
+          <button className="bg-[var(--accent)] text-white px-5 py-3 rounded-xl flex items-center text-[10px] font-black uppercase shadow-lg shadow-indigo-500/20 transition-all active:scale-95">
+            <Download className="mr-2" size={14} /> Full JSON
           </button>
         </div>
       </SettingRow>
 
-      <div className="p-6 bg-red-500/5 border border-red-500/20 rounded-2xl transition-colors">
-        <div className="flex items-start">
-          <AlertTriangle className="h-6 w-6 text-red-600 mr-4 mt-1 shrink-0" />
+      <div className="p-8 bg-red-500/5 border-2 border-red-500/10 rounded-[2.5rem] relative overflow-hidden group">
+        <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform">
+          <AlertTriangle className="text-red-500" size={120} />
+        </div>
+        <div className="flex items-start gap-6 relative z-10">
+          <div className="p-4 bg-red-500 text-white rounded-2xl shadow-xl shadow-red-500/30">
+            <AlertTriangle size={24} />
+          </div>
           <div>
-            <h4 className="font-black text-red-700 dark:text-red-400 uppercase tracking-tight">
-              Danger Zone
+            <h4 className="text-sm font-black text-red-600 uppercase tracking-widest mb-2">
+              Danger Protocol
             </h4>
-            <p className="text-sm text-red-600/70 mb-4 font-medium leading-relaxed">
-              Clearing local cache and system data will reset all your interface
-              preferences. This action is irreversible.
+            <p className="text-sm text-[var(--text-muted)] mb-6 font-medium max-w-lg leading-relaxed">
+              Initiating a system cache reset will purge all local interface
+              preferences and encrypted temporary nodes.
             </p>
-            <button className="bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-red-500/20">
-              Reset System Cache
+            <button className="bg-red-600 text-white px-8 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] hover:bg-red-700 transition-all shadow-xl shadow-red-500/20 active:scale-95">
+              Purge System Cache
             </button>
           </div>
         </div>
@@ -269,71 +312,84 @@ const SettingsPage = () => {
     </motion.div>
   );
 
-  const renderContent = () => {
-    switch (activeSection) {
-      case "appearance":
-        return <AppearanceSection />;
-      case "security":
-        return <SecuritySection />;
-      case "system_config":
-        return <SystemConfigSection />;
-      case "data_maintenance":
-        return <DataMaintenanceSection />;
-      default:
-        return <AppearanceSection />;
-    }
-  };
-
   return (
     <div
-      className={`min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] p-4 md:p-10 transition-colors duration-300 ${fontSizeClass[fontSize]}`}
+      className={`min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] p-4 md:p-10 transition-all duration-300 ${fontSizeClass[fontSize]}`}
     >
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row bg-[var(--bg-card)] rounded-[2.5rem] shadow-2xl overflow-hidden border border-[var(--border-main)] transition-all duration-300">
-        {/* Sidebar Nav */}
-        <nav
-          className={`w-full md:w-72 p-6 flex flex-col gap-1 border-r border-[var(--border-main)] transition-colors duration-300 ${
-            isAdmin ? "bg-[var(--bg-main)]/30" : "bg-[var(--bg-card)]"
-          }`}
-        >
-          <h3 className="px-4 text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] opacity-60 mb-6">
-            Settings Menu
-          </h3>
-          {navItems
-            .filter((i) => i.role === "standard" || isAdmin)
-            .map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveSection(item.id)}
-                className={`w-full flex items-center px-4 py-3.5 rounded-2xl transition-all duration-200 ${
-                  activeSection === item.id
-                    ? "bg-[var(--accent)] text-white shadow-xl shadow-indigo-500/20 translate-x-1"
-                    : "text-[var(--text-muted)] hover:bg-[var(--bg-main)] hover:text-[var(--text-main)]"
-                }`}
-              >
-                <item.icon
-                  className={`h-5 w-5 mr-3 ${
-                    activeSection === item.id
-                      ? "text-white"
-                      : "text-[var(--accent)] opacity-70"
-                  }`}
-                />
-                <span className="font-bold text-sm tracking-tight">
-                  {item.label}
-                </span>
-                <ChevronRight
-                  className={`ml-auto h-4 w-4 transition-transform ${
-                    activeSection === item.id
-                      ? "opacity-100 translate-x-1"
-                      : "opacity-0"
-                  }`}
-                />
-              </button>
-            ))}
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row bg-[var(--bg-card)] rounded-[3.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] overflow-hidden border border-[var(--border-main)] min-h-[800px]">
+        {/* SIDEBAR NAVIGATION */}
+        <nav className="w-full lg:w-80 p-8 border-r border-[var(--border-main)] bg-[var(--bg-main)]/20">
+          <div className="mb-12">
+            <h3 className="px-4 text-[10px] font-black uppercase tracking-[0.3em] text-[var(--text-muted)] opacity-50 mb-8">
+              System Settings
+            </h3>
+            <div className="space-y-2">
+              {navItems
+                .filter((i) => i.role === "standard" || isAdmin)
+                .map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveSection(item.id)}
+                    className={`w-full flex items-center px-5 py-4 rounded-[1.5rem] transition-all duration-300 relative group overflow-hidden ${
+                      activeSection === item.id
+                        ? "bg-[var(--accent)] text-white shadow-2xl shadow-indigo-500/30 translate-x-2"
+                        : "text-[var(--text-muted)] hover:bg-[var(--bg-card)] hover:text-[var(--text-main)]"
+                    }`}
+                  >
+                    {activeSection === item.id && <SettingSparkle />}
+                    <item.icon
+                      className={`mr-4 transition-transform group-hover:scale-110 ${
+                        activeSection === item.id ? "text-white" : item.color
+                      }`}
+                      size={18}
+                    />
+                    <span className="font-black text-xs uppercase tracking-widest">
+                      {item.label}
+                    </span>
+                    <ChevronRight
+                      className={`ml-auto transition-all ${
+                        activeSection === item.id
+                          ? "opacity-100 translate-x-0"
+                          : "opacity-0 -translate-x-4"
+                      }`}
+                      size={14}
+                    />
+                  </button>
+                ))}
+            </div>
+          </div>
+
+          <div className="mt-auto pt-10 px-4 border-t border-[var(--border-main)]/50">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                System Nodes Active
+              </span>
+            </div>
+          </div>
         </nav>
 
-        {/* Content Area */}
-        <main className="flex-1 p-6 md:p-12 bg-[var(--bg-card)] transition-colors duration-300">
-          <AnimatePresence mode="wait">{renderContent()}</AnimatePresence>
+        {/* MAIN CONTENT AREA */}
+        <main className="flex-1 p-8 md:p-16 relative overflow-hidden bg-[var(--bg-card)]">
+          {/* Subtle Background Glow */}
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--accent)] opacity-[0.03] rounded-full blur-[120px] pointer-events-none" />
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSection}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              {activeSection === "appearance" && <AppearanceSection />}
+              {activeSection === "security" && <SecuritySection />}
+              {activeSection === "system_config" && <SystemConfigSection />}
+              {activeSection === "data_maintenance" && (
+                <DataMaintenanceSection />
+              )}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
     </div>
